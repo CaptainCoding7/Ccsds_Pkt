@@ -32,7 +32,7 @@ namespace tmtc
 class Sec_hdr : public uintBe4_t
 {
 public:
-	Sec_hdr() = default;
+	//Sec_hdr() = default;
 	constexpr Sec_hdr(uint32_t rawValue);
 	constexpr Sec_hdr(ServiceTypeValue serviceType,
 	                   ServiceSubTypeValue serviceSubType,
@@ -57,10 +57,11 @@ constexpr Sec_hdr::Sec_hdr(uint32_t rawValue)
 {
 }
 
-constexpr Sec_hdr::Sec_hdr(ServiceTypeValue serviceType,
-                             ServiceSubTypeValue serviceSubType,
-                             SourceIdValue sourceId,
-                             TcAckFlags ack)
+/// We add some default values
+constexpr Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
+                             ServiceSubTypeValue serviceSubType = 1,
+                             SourceIdValue sourceId = 1,
+                             TcAckFlags ack = TcAck::ACCEPTANCE)
 	: uintBe4_t(0)
 {
 	set_hasSecondaryHeader(false);

@@ -109,20 +109,48 @@ namespace tmtc
 
 #endif
 
-/*************************  FOR ACCESSING THROUGH C CODE  *******************/
+/*************************  API - C/C++ functions  *******************/
 
 
+typedef void* CCSDS_PKT;
 typedef void* SPW_HDR;
+typedef void* PRIM_HDR;
+typedef void* SEC_HDR;
+
+typedef void* IDFIELD;
+typedef void* COUNTERFIELD;
+typedef void* LENFIELD;
+
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-//CCSDS_Pkt_TC *createCCSDS_Pkt();
-SPW_HDR spw_hdr_new();
-void createCCSDS_Pkt();
+/** Test functions **/
+void test_create_CCSDS_Pkt();
+
+
+/*** Creation of C++ objects (+return) ***/
+CCSDS_PKT create_CCSDS_Pkt();
+SPW_HDR create_spw_hdr();
+PRIM_HDR create_prim_hdr();
+SEC_HDR create_sec_hdr();
+
+/*** Getter calls ***/
+/// CCSDS_Pkt
+PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt);
+SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt);
+/// PRIM_HDR
+IDFIELD call_Prim_hdr_get_id(PRIM_HDR prim_hdr);
+COUNTERFIELD call_Prim_hdr_get_seq(PRIM_HDR prim_hdr);
+LENFIELD call_Prim_hdr_get_len(PRIM_HDR prim_hdr);
+
+/// SEC_HDR
+
 unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr);
+
+
 
 #ifdef __cplusplus
 }

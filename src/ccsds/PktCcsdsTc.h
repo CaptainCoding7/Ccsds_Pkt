@@ -59,7 +59,7 @@ struct PktCcsdsTc::Dispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const Prim_hdr& packet, CcsdsLength length, Visitor&& v)
 	{
-		if(packet.ccsdsId() == ID_TC)
+		if(packet.get_ccsdsId_BE() == ID_TC)
 		{
 			const PktCcsdsTc& tc = static_cast<const PktCcsdsTc&>(packet);
 			return DispatchIterator<ServicesDispatchers...>::dispatch(tc, length, v);
