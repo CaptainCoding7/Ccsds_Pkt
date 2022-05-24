@@ -116,7 +116,8 @@ rtems_task Init( rtems_task_argument argument);	/* forward declaration needed */
 
 #include "rtems_utils/pkt.h"
 #include "rtems_utils/dev.h"
-#include "ccsds/CCSDS_Pkt_Test.h"
+#include "ccsds/CCSDS_Pkt.h"
+
 
 #undef ENABLE_NETWORK
 #undef ENABLE_NETWORK_SMC_LEON3
@@ -238,10 +239,24 @@ rtems_task Init(
 	rtems_task_suspend( RTEMS_SELF );
 }
 
+/*
+struct Spw_hdr; // you can supply only an incomplete declaration
+unsigned char call_Spw_hdr_addr(struct Spw_hdr*); // declare the wrapper function
+unsigned char f(struct Spw_hdr *spw_hdr) // now you can call M::foo
+{
+	return call_Spw_hdr_addr(spw_hdr);
+}
+*/
 
 void test_cpp_call()
 {
+	 //spw_hdr = createCCSDS_Pkt();
+	//unsigned char addr = get_Spw_hdr_addr(struct *Spw_hdr);
+
 	createCCSDS_Pkt();
+	SPW_HDR spw_hdr = spw_hdr_new();
+	printf("Spw_hdr->addr = %d\n\n", call_Spw_hdr_get_addr(spw_hdr));
+
 }
 
 /*************************  TEST APP TASK  *******************************/
@@ -275,7 +290,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	src_port = 3;											////////////////////
 	dest_port = 6;											////////////////////
 	/// The number of packets to transmit					////////////////////
-	nb_pkts_to_transmit=0;									////////////////////
+	nb_pkts_to_transmit=1;									////////////////////
 ///														    ////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -5,8 +5,6 @@
  *      Author: pa267340
  */
 
-
-
 #include <iostream>
 
 #include "HeaderTmSb.h"
@@ -19,8 +17,6 @@
 #include "Sec_hdr.h"
 #include "CCSDS_Pkt.h"
 
-#include "CCSDS_Pkt_Test.h"
-
 
 using namespace ecl::core::tmtc;
 using namespace std;
@@ -31,7 +27,20 @@ void print_size(string s, int size)
 }
 
 
-void createCCSDS_Pkt()
+extern "C"  SPW_HDR spw_hdr_new()
+{
+    return new Spw_hdr(3,2);
+}
+
+extern "C" unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr)
+{
+	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	return pspw_hdr->get_addr();
+}
+
+
+//CCSDS_Pkt_TC *createCCSDS_Pkt()
+extern "C" void createCCSDS_Pkt()
 {
 
 	Spw_hdr *spw_hdr = new Spw_hdr(3, 2);
@@ -46,4 +55,5 @@ void createCCSDS_Pkt()
 	print_size("sec_hdr", sizeof(*sec_hdr));
 	print_size("ccsds_pkt_tc", sizeof(*ccsds_pkt_tc));
 
+	//return ccsds_pkt_tc;
 }
