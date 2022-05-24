@@ -45,10 +45,13 @@ extern "C" void createCCSDS_Pkt()
 
 	Spw_hdr *spw_hdr = new Spw_hdr(3, 2);
 	Prim_hdr *prim_hdr = new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE);
-	TcAckFlags ack;
-	Sec_hdr *sec_hdr = new Sec_hdr(1, 1, 1, ack);
+	//enum TcAck ack;
+	//TcAckFlags ackFlags = new ecl::FlagSet<TcAck>();
+	TcAckFlags ackFlags;
+	Sec_hdr *sec_hdr = new Sec_hdr(1, 1, 1, ackFlags);
 
-	CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*spw_hdr, *prim_hdr, *sec_hdr);
+	//CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*spw_hdr, *prim_hdr, *sec_hdr);
+	CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*prim_hdr, *sec_hdr);
 
 	print_size("spw_hdr", sizeof(*spw_hdr));
 	print_size("prim_hdr", sizeof(*prim_hdr));

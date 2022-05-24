@@ -52,18 +52,52 @@ namespace tmtc
 	class CCSDS_Pkt_TC
 	{
 	public:
-		CCSDS_Pkt_TC(Spw_hdr spw_hdr,
+		CCSDS_Pkt_TC()
+		{
+			TcAckFlags ack;
+			set_prim_hdr(new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE));
+			set_sec_hdr(new Sec_hdr(1, 1, 1, ack));
+		}
+
+		CCSDS_Pkt_TC(
+				//Spw_hdr spw_hdr,
 				Prim_hdr prim_hdr,
 				Sec_hdr sec_hdr)
-		:		m_spw_hdr(spw_hdr),
+		:		//m_spw_hdr(spw_hdr),
 				m_prim_hdr(prim_hdr),
 				m_sec_hdr(sec_hdr)
 		{
 		}
 
+//		Spw_hdr *get_spw_hdr()
+//		{
+//			return m_spw_hdr;
+//		}
+
+		void set_prim_hdr(Prim_hdr *ph)
+		{
+			m_prim_hdr = *ph;
+		}
+
+		Prim_hdr *get_prim_hdr()
+		{
+			return &m_prim_hdr;
+		}
+
+		void set_sec_hdr(Sec_hdr *sh)
+		{
+			m_sec_hdr = *sh;
+		}
+
+
+		Sec_hdr *get_sec_hdr()
+		{
+			return &m_sec_hdr;
+		}
+
 
 	private:
-		Spw_hdr m_spw_hdr;
+		//Spw_hdr m_spw_hdr;
 		Prim_hdr m_prim_hdr;
 		Sec_hdr m_sec_hdr;
 

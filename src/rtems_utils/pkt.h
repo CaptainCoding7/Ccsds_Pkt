@@ -64,6 +64,8 @@ struct pkt_hdr {
 struct my_pkt_hdr{
 	unsigned char addr;
 	unsigned char protid; /* necessary to receive data */
+	unsigned char spare;
+	unsigned char user_app;
 	unsigned int data[(PKT_SIZE-4)/4];
 };
 

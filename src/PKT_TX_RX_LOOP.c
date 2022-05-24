@@ -285,13 +285,13 @@ rtems_task test_app(rtems_task_argument ignored)
 	printf("\n***********  PKT TX/RX TEST  **************\n\n");
 
 ////////////////////////////////////////////////////////////////////////////////
-///	APP PARAMETERS											////////////////////
-	devno = 0; // 0 for the first pkt, changes for each pkt ////////////////////
-	src_port = 3;											////////////////////
-	dest_port = 6;											////////////////////
-	/// The number of packets to transmit					////////////////////
-	nb_pkts_to_transmit=1;									////////////////////
-///														    ////////////////////
+///	APP PARAMETERS                                                           ///
+	devno = 0; // 0 for the first pkt, changes for each pkt
+	src_port = 3;
+	dest_port = 6;
+	/// The number of packets to transmit
+	nb_pkts_to_transmit=1;
+///                                                                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
 	memset(&route, 0, sizeof(route));

@@ -6,6 +6,7 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 {
 	int i;
 	//struct pkt_hdr *pkt_hdr = (struct pkt_hdr *)pkt->data;
+	// hdr is located at the beginning of the data field from grspw_pkt structure)
 	struct my_pkt_hdr *my_pkt_hdr = (struct my_pkt_hdr *)pkt->data;
 	unsigned char *hdr = pkt->hdr;
 
@@ -21,9 +22,20 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 	pkt->hlen = i;
 	my_pkt_hdr->addr = route->dstadr[i];
 	//pkt_hdr->addr = route->dstadr[i];
-	my_pkt_hdr->protid = SPW_PROT_ID;
+	my_pkt_hdr->protid = SPW_PROT_ID; // should be 2 for CCSDS protocol
+	my_pkt_hdr->spare = 0;
+	my_pkt_hdr->user_app = 0;
+
 	//pkt_hdr->port_src = idx;
 	//pkt_hdr->resv2 = 0;
+
+	/// print sizes
+
+	//printf("my_pkt_hdr size = %d\n\n", sizeof(*my_pkt_hdr));
+	//printf("grspw_pkt size = %d\n\n", sizeof(*pkt));
+	//printf("grspw_pkt pkt size = %d\n\n", sizeof(pkt));
+
+
 }
 
 void init_pkt_data(int *decs, char *word)
@@ -76,6 +88,7 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 
 		for (j = 0, pkt = &pkts[i][0]; j < DATA_MAX; j++, pkt = &pkts[i][j]) {
 			pkt->p.pkt_id = (i << 8)+ j; /* unused */
+			// structures addresses are aligned:
 			pkt->p.hdr = &pkt->hdr[0];
 			pkt->p.data = &pkt->data[0];
 			if (j < 120+8) {
@@ -97,7 +110,7 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 				{
 					//printf("addr = %d\n",&(pkt->p.data)+4+k);
 					//memcpy(&(pkt->p.data)+4+k, &decs[k%4], 1);
-					memset(pkt->p.data+2+k, decs[k%4], 1);
+					memset(pkt->p.data+4+k, decs[k%4], 1);
 
 				}
 				/* Add to device TX list */
