@@ -60,6 +60,8 @@ void init_pkt_data(int *decs, char *word)
 
 void fill_CCSDS_Data(struct spwpkt *pkt)
 {
+/*************  GET OBJECTS AND FIELDS  *******************/
+
 	// getting objects
 	CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt();
 	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(ccsds_pkt);
@@ -80,7 +82,29 @@ void fill_CCSDS_Data(struct spwpkt *pkt)
 	printf("Sec hdr sourceID = %d\n", sec_sourceId);
 	printf("Sec hdr serviceSubType = %d\n", sec_serviceSubType);
 	printf("Sec hdr serviceType = %d\n", sec_serviceType);
-	
+	// +TcAck field
+
+/************  WRITE EACH BYTE AT THE RIGHT PLACE  ******************/
+
+	// start at 4 as we reserve 4 bytes for the spw header
+	int byteCounter = 4;
+
+	// Writing prim_hdr fields ==> 6 bytes
+	memset(pkt->p.data+byteCounter, prim_id , 2);
+	byteCounter+=2;
+	memset(pkt->p.data+byteCounter, prim_id , 2);
+	byteCounter+=2;
+	memset(pkt->p.data+byteCounter, prim_id , 2);
+	byteCounter+=2;
+
+	// Writing sec_hdr fields ==> 4 bytes
+	memset(pkt->p.data+byteCounter, sec_serviceType , 1);
+	byteCounter++;
+	memset(pkt->p.data+byteCounter, sec_serviceSubType, 1);
+	byteCounter++;
+	memset(pkt->p.data+byteCounter, sec_sourceId , 1);
+	byteCounter++;
+	// + write TcAck field
 
 }
 
@@ -126,7 +150,7 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 				devs[i].rx_list_cnt++;
 			} else {
 				/* TX buffer */
-				pkt->p.dlen = PKT_SIZE;
+				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 				/// From the doc:
 				/// "Prototype: void * memset (void *block, int c, size_t size)
 				/// Description:
