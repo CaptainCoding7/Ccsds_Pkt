@@ -18,8 +18,12 @@
 #include <grlib/grspw_pkt.h>
 #include "grspw_pkt_lib.h"
 
+#include "../ccsds/CCSDS_Pkt.h"
+#include "../ccsds/Apid.h"
+
 #define DEVS_MAX 4 // 32
 #define PKT_SIZE 32
+#define CCSDS_PKT_SIZE 14 //16
 #define DATA_MAX 136 //120 + 16
 
 /* Protocol ID */

@@ -12,6 +12,7 @@
 #include "PktCcsdsTmSb.h"
 #include "TrailerTc.h"
 #include "Types.h"
+#include "Apid.h"
 
 #include "Prim_hdr.h"
 #include "Sec_hdr.h"
@@ -31,7 +32,7 @@ void print_size(string s, int size)
 extern "C" void test_create_CCSDS_Pkt()
 {
 	Spw_hdr *spw_hdr = new Spw_hdr(3, 2);
-	Prim_hdr *prim_hdr = new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE);
+	Prim_hdr *prim_hdr = new Prim_hdr();
 	//enum TcAck ack;
 	//TcAckFlags ackFlags = new ecl::FlagSet<TcAck>();
 	TcAckFlags ackFlags;
@@ -86,30 +87,52 @@ extern "C" SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt)
 	return pccsds_pkt->get_sec_hdr();
 }
 
-
 /// Spw_hdr -------------------
 extern "C" unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr)
 {
 	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_addr();
 }
+extern "C" unsigned char call_Spw_hdr_get_protid(SPW_HDR spw_hdr)
+{
+	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	return pspw_hdr->get_protid();
 
+}
 
 /// Prim_hdr --------------------
-extern "C" IDFIELD call_Prim_hdr_get_id(PRIM_HDR prim_hdr)
+extern "C" enum Id call_Prim_hdr_get_id(PRIM_HDR prim_hdr)
 {
 	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	return reinterpret_cast<IDFIELD*>(pprim_hdr->get_ccsdsId_BE());
+	//return reinterpret_cast<IDFIELD*>(pprim_hdr->get_ccsdsId_BE());
+	return pprim_hdr->get_ccsdsId_BE();
+}
+extern "C" uint16_t call_Prim_hdr_get_counter(PRIM_HDR prim_hdr)
+{
+	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
+	//return reinterpret_cast<COUNTERFIELD*>(pprim_hdr->get_ccsdsCounter_BE());
+	return pprim_hdr->get_ccsdsCounter_BE();
+}
+extern "C" uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
+{
+	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
+	//return reinterpret_cast<LENFIELD*>(pprim_hdr->get_ccsdsPLength_BE());
+	return pprim_hdr->get_ccsdsPLength_BE();
 }
 
-extern "C" COUNTERFIELD call_Prim_hdr_get_counter(PRIM_HDR prim_hdr)
+/// Sec_hdr -----------------------
+extern "C" uint8_t call_Sec_hdr_get_serviceType(SEC_HDR sec_hdr)
 {
-	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	return reinterpret_cast<COUNTERFIELD*>(pprim_hdr->get_ccsdsCounter_BE());
+	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	return psec_hdr->getMServiceType();
 }
-extern "C" LENFIELD call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
+extern "C" uint8_t call_Sec_hdr_get_serviceSubType(SEC_HDR sec_hdr)
 {
-	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	return reinterpret_cast<LENFIELD*>(pprim_hdr->get_ccsdsPLength_BE());
+	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	return psec_hdr->getMServiceSubType();
 }
-
+extern "C" uint8_t call_Sec_hdr_get_sourceId(SEC_HDR sec_hdr)
+{
+	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	return psec_hdr->getMSourceId();
+}

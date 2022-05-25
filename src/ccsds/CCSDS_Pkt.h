@@ -40,6 +40,11 @@ namespace tmtc
 			return m_addr;
 		}
 
+		unsigned char get_protid()
+		{
+			return m_protid;
+		}
+
 	private:
 		unsigned char m_addr;
 		unsigned char m_protid;
@@ -55,7 +60,8 @@ namespace tmtc
 		CCSDS_Pkt_TC()
 		{
 			TcAckFlags ack;
-			set_prim_hdr(new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE));
+			//set_prim_hdr(new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE));
+			set_prim_hdr(new Prim_hdr());
 			set_sec_hdr(new Sec_hdr(1, 1, 1, ack));
 		}
 
@@ -127,6 +133,18 @@ extern "C"
 {
 #endif
 
+// C compatible enum for TcAck
+enum TcAck
+{
+	ACCEPTANCE,
+	START,
+	PROGRESS,
+	COMPLETION,
+	_COUNT,
+	_BEGIN = ACCEPTANCE,
+	_END = _COUNT
+};
+
 /** Test functions **/
 void test_create_CCSDS_Pkt();
 
@@ -141,16 +159,18 @@ SEC_HDR create_sec_hdr();
 /// CCSDS_Pkt
 PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt);
 SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt);
+/// SPW_HDR
+unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr);
+unsigned char call_Spw_hdr_get_protid(SPW_HDR spw_hdr);
 /// PRIM_HDR
-IDFIELD call_Prim_hdr_get_id(PRIM_HDR prim_hdr);
-COUNTERFIELD call_Prim_hdr_get_seq(PRIM_HDR prim_hdr);
-LENFIELD call_Prim_hdr_get_len(PRIM_HDR prim_hdr);
+enum Id call_Prim_hdr_get_id(PRIM_HDR prim_hdr);
+uint16_t call_Prim_hdr_get_counter(PRIM_HDR prim_hdr);
+uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr);
 
 /// SEC_HDR
-
-unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr);
-
-
+uint8_t call_Sec_hdr_get_serviceType(SEC_HDR sec_hdr);
+uint8_t call_Sec_hdr_get_serviceSubType(SEC_HDR sec_hdr);
+uint8_t call_Sec_hdr_get_sourceId(SEC_HDR sec_hdr);
 
 #ifdef __cplusplus
 }

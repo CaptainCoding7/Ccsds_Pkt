@@ -26,7 +26,7 @@ namespace core
 namespace tmtc
 {
 
-class PktCcsdsTc : public Prim_hdr, public Sec_hdr
+class PktCcsdsTc : public Prim_hdr, public Sec_hdr_org
 {
 public:
 	PktCcsdsTc() = default;

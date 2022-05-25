@@ -29,12 +29,12 @@ namespace core
 namespace tmtc
 {
 
-class Sec_hdr : public uintBe4_t
+class Sec_hdr_org : public uintBe4_t
 {
 public:
-	//Sec_hdr() = default;
-	constexpr Sec_hdr(uint32_t rawValue);
-	constexpr Sec_hdr(ServiceTypeValue serviceType,
+	Sec_hdr_org() = default;
+	constexpr Sec_hdr_org(uint32_t rawValue);
+	constexpr Sec_hdr_org(ServiceTypeValue serviceType,
 	                   ServiceSubTypeValue serviceSubType,
 	                   SourceIdValue sourceId,
 	                   TcAckFlags ack);
@@ -45,6 +45,92 @@ public:
 	DECLARE_CASTED_FIELD(serviceType, 16, 8, ServiceTypeValue)
 	DECLARE_CASTED_FIELD(serviceSubType, 8, 8, ServiceSubTypeValue)
 	DECLARE_CASTED_FIELD(sourceId, 0, 8, SourceIdValue)
+
+
+}
+PACKED_DATA_CLASS;
+
+// ================================================================================================
+// Sec_hdr_org inline methods bodies
+// ------------------------------------------------------------------------------------------------
+
+
+constexpr Sec_hdr_org::Sec_hdr_org(uint32_t rawValue)
+	: uintBe4_t(rawValue)
+{
+}
+
+/// We add some default values
+constexpr Sec_hdr_org::Sec_hdr_org(ServiceTypeValue serviceType = 1,
+                             ServiceSubTypeValue serviceSubType = 1,
+                             SourceIdValue sourceId = 1,
+                             TcAckFlags ack = TcAck::ACCEPTANCE)
+							 //TcAck ack = TcAck::ACCEPTANCE)
+	: uintBe4_t(0)
+{
+	
+	set_hasSecondaryHeader(false);
+	set_version(1);
+	set_ackFlags(ack.value());
+	//set_ack(ack);
+	set_serviceType(serviceType);
+	set_serviceSubType(serviceSubType);
+	set_sourceId(sourceId);
+	
+
+}
+
+
+class Sec_hdr : public uintBe4_t
+{
+public:
+
+	Sec_hdr(ServiceTypeValue serviceType,
+	                   ServiceSubTypeValue serviceSubType,
+	                   SourceIdValue sourceId,
+	                   //TcAck ack);
+	                   TcAckFlags ack);
+
+	const TcAckFlags& getMAck() const {
+	//const TcAck& getMAck() const {
+		return m_ack;
+	}
+
+	void setMAck(const TcAckFlags &mAck) {
+	//void setMAck(const TcAck &mAck) {
+		m_ack = mAck;
+	}
+
+	ServiceSubTypeValue getMServiceSubType() const {
+		return m_serviceSubType;
+	}
+
+	void setMServiceSubType(ServiceSubTypeValue mServiceSubType) {
+		m_serviceSubType = mServiceSubType;
+	}
+
+	ServiceTypeValue getMServiceType() const {
+		return m_serviceType;
+	}
+
+	void setMServiceType(ServiceTypeValue mServiceType) {
+		m_serviceType = mServiceType;
+	}
+
+	SourceIdValue getMSourceId() const {
+		return m_sourceId;
+	}
+
+	void setMSourceId(SourceIdValue mSourceId) {
+		m_sourceId = mSourceId;
+	}
+
+private:
+	ServiceTypeValue m_serviceType;
+	ServiceSubTypeValue m_serviceSubType;
+	SourceIdValue m_sourceId;
+	TcAckFlags m_ack;
+	//TcAck m_ack;
 }
 PACKED_DATA_CLASS;
 
@@ -52,25 +138,22 @@ PACKED_DATA_CLASS;
 // Sec_hdr inline methods bodies
 // ------------------------------------------------------------------------------------------------
 
-constexpr Sec_hdr::Sec_hdr(uint32_t rawValue)
-	: uintBe4_t(rawValue)
-{
-}
-
 /// We add some default values
-constexpr Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
+Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
                              ServiceSubTypeValue serviceSubType = 1,
                              SourceIdValue sourceId = 1,
                              TcAckFlags ack = TcAck::ACCEPTANCE)
+							 //TcAck ack = TcAck::ACCEPTANCE)
 	: uintBe4_t(0)
 {
-	set_hasSecondaryHeader(false);
-	set_version(1);
-	set_ackFlags(ack.value());
-	set_serviceType(serviceType);
-	set_serviceSubType(serviceSubType);
-	set_sourceId(sourceId);
+
+
+	setMAck(ack);
+	setMServiceSubType(serviceSubType);
+	setMServiceType(serviceType);
+	setMSourceId(sourceId);
 }
+
 
 } /* namespace tmtc */
 } /* namespace core */

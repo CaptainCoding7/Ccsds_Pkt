@@ -58,6 +58,33 @@ void init_pkt_data(int *decs, char *word)
 	
 }
 
+void fill_CCSDS_Data(struct spwpkt *pkt)
+{
+	// getting objects
+	CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt();
+	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(ccsds_pkt);
+	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(ccsds_pkt);
+
+	// getting prim hdr fields
+	enum Id prim_id= call_Prim_hdr_get_id(prim_hdr);
+	uint16_t prim_seqCount = call_Prim_hdr_get_counter(prim_hdr);
+	uint16_t prim_len = call_Prim_hdr_get_len(prim_hdr);
+	printf("Prim hdr ID = %d\n", prim_id);
+	printf("Prim hdr seqCount = %d\n", prim_seqCount);
+	printf("Prim hdr len = %d\n", prim_len);
+
+	//getting sec hdr fields
+	uint8_t sec_serviceType = call_Sec_hdr_get_serviceType(sec_hdr);
+	uint8_t sec_serviceSubType = call_Sec_hdr_get_serviceSubType(sec_hdr);
+	uint8_t sec_sourceId = call_Sec_hdr_get_sourceId(sec_hdr);
+	printf("Sec hdr sourceID = %d\n", sec_sourceId);
+	printf("Sec hdr serviceSubType = %d\n", sec_serviceSubType);
+	printf("Sec hdr serviceType = %d\n", sec_serviceType);
+	
+
+}
+
+
 void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX])
 {
 	struct spwpkt *pkt;
@@ -106,12 +133,13 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 				/// This function copies the value of c (converted to an unsigned char) into each of the first size bytes of the
 				/// object beginning at block. It returns the value of block. "
 				//memset(pkt->p.data+8, i, PKT_SIZE-4);
+				//
+				fill_CCSDS_Data(pkt);
 				for (int k = 0; k < pkt->p.dlen; k++)
 				{
 					//printf("addr = %d\n",&(pkt->p.data)+4+k);
 					//memcpy(&(pkt->p.data)+4+k, &decs[k%4], 1);
 					memset(pkt->p.data+4+k, decs[k%4], 1);
-
 				}
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);

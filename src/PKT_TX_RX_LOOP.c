@@ -253,9 +253,9 @@ void test_cpp_call()
 	 //spw_hdr = createCCSDS_Pkt();
 	//unsigned char addr = get_Spw_hdr_addr(struct *Spw_hdr);
 
-	test_create_CCSDS_Pkt();
-	SPW_HDR spw_hdr = create_spw_hdr();
-	printf("Spw_hdr->addr = %d\n\n", call_Spw_hdr_get_addr(spw_hdr));
+	//test_create_CCSDS_Pkt();
+	//SPW_HDR spw_hdr = create_spw_hdr();
+	//printf("Spw_hdr->addr = %d\n\n", call_Spw_hdr_get_addr(spw_hdr));
 
 }
 
