@@ -82,8 +82,34 @@ struct spwpkt {
 
 /******  Functions  *******************/
 
+
+/** 
+ * Initialize Spacewire header
+ * This function is called after the packet data are initialized (in function init_pkts)
+ */
 void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx);
+
+/**
+ * This function is used to fill an int array from a string array.
+ * Each hexadecimal value contained in the string array is converted into decimal 
+ * value and then put into the int array.
+ * This function is called in init_pkts()
+ */
+void init_simple_pkt_data(int *decs, char *word);
+
+/**
+ * This function is called to initialize the packet data (not the spacewire header)
+ */
 void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]);
+
+/**
+ * This function set the packet data with pointer to C++ objects corresponding
+ * to CCSDS protocol fields.
+ * This function is called in init_pkts()
+ */
+void init_CCSDS_pkt_data(struct spwpkt *pkt);
+
+
 int dma_RX(struct grspw_device *dev);
 int dma_TX(struct grspw_device *dev);
 
