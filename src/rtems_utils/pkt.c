@@ -1,7 +1,6 @@
 #include "pkt.h"
 
 
-/* Initialize packet header, and Data payload header */
 void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 {
 	int i;
@@ -18,7 +17,8 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 		hdr[i] = route->dstadr[i];
 		i++;
 	}
-	/* Put last address in pkthdr->addr */
+	/// Set the 4 fields of the spw header
+	/// Put last address in pkthdr->addr
 	pkt->hlen = i;
 	my_pkt_hdr->addr = route->dstadr[i];
 	//pkt_hdr->addr = route->dstadr[i];
@@ -38,7 +38,8 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 
 }
 
-void init_pkt_data(int *decs, char *word)
+
+void init_simple_pkt_data(int *decs, char *word)
 {
 
 	char *pstr = &word[0];
@@ -58,7 +59,7 @@ void init_pkt_data(int *decs, char *word)
 	
 }
 
-void fill_CCSDS_Data(struct spwpkt *pkt)
+void init_CCSDS_pkt_data(struct spwpkt *pkt)
 {
 /*************  GET OBJECTS AND FIELDS  *******************/
 
@@ -126,7 +127,7 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 
 	for (i = 0; i < DEVS_MAX; i++) {
 
-		init_pkt_data(decs, word_test[i]);
+		init_simple_pkt_data(decs, word_test[i]);
 		//for(int i=0;i<4;i++)
 			//printf("%d\n",decs[i]);
 
@@ -158,12 +159,12 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 				/// object beginning at block. It returns the value of block. "
 				//memset(pkt->p.data+8, i, PKT_SIZE-4);
 				//
-				fill_CCSDS_Data(pkt);
+				init_CCSDS_pkt_data(pkt);
 				for (int k = 0; k < pkt->p.dlen; k++)
 				{
 					//printf("addr = %d\n",&(pkt->p.data)+4+k);
 					//memcpy(&(pkt->p.data)+4+k, &decs[k%4], 1);
-					memset(pkt->p.data+4+k, decs[k%4], 1);
+					//memset(pkt->p.data+4+k, decs[k%4], 1);
 				}
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
