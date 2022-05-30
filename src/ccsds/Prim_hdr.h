@@ -96,7 +96,7 @@ public:
 	 */
 	constexpr Prim_hdr(Id id = ID_TC,
 	                   CcsdsCounter counter = 1,
-	                   CcsdsLength length = 500,
+	                   CcsdsLength length = 30,
 	                   CcsdsGrouping grouping = CcsdsGrouping::STANDALONE)
 		: m_CcsdsId(id),
 		  m_CcsdsSequence(counter),

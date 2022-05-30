@@ -103,11 +103,9 @@ void init_simple_pkt_data(int *decs, char *word);
 void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]);
 
 /**
- * This function set the packet data with pointer to C++ objects corresponding
- * to CCSDS protocol fields.
- * This function is called in init_pkts()
+ * This function prints each field of the CCSDS pkt given in argument
  */
-void init_CCSDS_pkt_data(struct spwpkt *pkt);
+void print_CCSDS_pkt(void *data);
 
 
 int dma_RX(struct grspw_device *dev);

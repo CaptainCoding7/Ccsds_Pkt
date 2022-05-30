@@ -20,14 +20,10 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 	/// Set the 4 fields of the spw header
 	/// Put last address in pkthdr->addr
 	pkt->hlen = i;
-	my_pkt_hdr->addr = route->dstadr[i];
-	//pkt_hdr->addr = route->dstadr[i];
+	my_pkt_hdr->addr = route->dstadr[i-1];
 	my_pkt_hdr->protid = SPW_PROT_ID; // should be 2 for CCSDS protocol
 	my_pkt_hdr->spare = 0;
 	my_pkt_hdr->user_app = 0;
-
-	//pkt_hdr->port_src = idx;
-	//pkt_hdr->resv2 = 0;
 
 	/// print sizes
 
@@ -59,53 +55,38 @@ void init_simple_pkt_data(int *decs, char *word)
 	
 }
 
-void init_CCSDS_pkt_data(struct spwpkt *pkt)
+void print_CCSDS_pkt(void *data)
 {
-/*************  GET OBJECTS AND FIELDS  *******************/
-
-	// getting objects
-	CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt();
-	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(ccsds_pkt);
-	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(ccsds_pkt);
+	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(data);
+	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(data);
 
 	// getting prim hdr fields
 	enum Id prim_id= call_Prim_hdr_get_id(prim_hdr);
 	uint16_t prim_seqCount = call_Prim_hdr_get_counter(prim_hdr);
 	uint16_t prim_len = call_Prim_hdr_get_len(prim_hdr);
-	printf("Prim hdr ID = %d\n", prim_id);
-	printf("Prim hdr seqCount = %d\n", prim_seqCount);
-	printf("Prim hdr len = %d\n", prim_len);
 
 	//getting sec hdr fields
 	uint8_t sec_serviceType = call_Sec_hdr_get_serviceType(sec_hdr);
 	uint8_t sec_serviceSubType = call_Sec_hdr_get_serviceSubType(sec_hdr);
 	uint8_t sec_sourceId = call_Sec_hdr_get_sourceId(sec_hdr);
-	printf("Sec hdr sourceID = %d\n", sec_sourceId);
-	printf("Sec hdr serviceSubType = %d\n", sec_serviceSubType);
-	printf("Sec hdr serviceType = %d\n", sec_serviceType);
 	// +TcAck field
-
-/************  WRITE EACH BYTE AT THE RIGHT PLACE  ******************/
-
-	// start at 4 as we reserve 4 bytes for the spw header
-	int byteCounter = 4;
-
-	// Writing prim_hdr fields ==> 6 bytes
-	memset(pkt->p.data+byteCounter, prim_id , 2);
-	byteCounter+=2;
-	memset(pkt->p.data+byteCounter, prim_id , 2);
-	byteCounter+=2;
-	memset(pkt->p.data+byteCounter, prim_id , 2);
-	byteCounter+=2;
-
-	// Writing sec_hdr fields ==> 4 bytes
-	memset(pkt->p.data+byteCounter, sec_serviceType , 1);
-	byteCounter++;
-	memset(pkt->p.data+byteCounter, sec_serviceSubType, 1);
-	byteCounter++;
-	memset(pkt->p.data+byteCounter, sec_sourceId , 1);
-	byteCounter++;
-	// + write TcAck field
+	printf("\n ______________________________________________________\n");
+	printf("| --------------------  CCSDS packet  -----------------\n");
+	printf("|           Field           |          Value           \n");
+	printf("|______________________________________________________\n");
+	printf("|        Prim hdr ID        |           %d             \n"
+			, prim_id);
+	printf("|      Prim hdr seqCount    |           %d             \n"
+			, prim_seqCount);
+	printf("|        Prim hdr len       |           %d             \n"
+			, prim_len);
+	printf("|      Sec hdr sourceID     |           %d             \n"
+			, sec_sourceId);
+	printf("|   Sec hdr serviceSubType  |           %d             \n"
+			, sec_serviceSubType);
+	printf("|    Sec hdr serviceType    |           %d             \n"
+			, sec_serviceType);
+	printf("|______________________________________________________\n\n");
 
 }
 
@@ -152,20 +133,11 @@ void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]
 			} else {
 				/* TX buffer */
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
-				/// From the doc:
-				/// "Prototype: void * memset (void *block, int c, size_t size)
-				/// Description:
-				/// This function copies the value of c (converted to an unsigned char) into each of the first size bytes of the
-				/// object beginning at block. It returns the value of block. "
-				//memset(pkt->p.data+8, i, PKT_SIZE-4);
-				//
-				init_CCSDS_pkt_data(pkt);
-				for (int k = 0; k < pkt->p.dlen; k++)
-				{
-					//printf("addr = %d\n",&(pkt->p.data)+4+k);
-					//memcpy(&(pkt->p.data)+4+k, &decs[k%4], 1);
-					//memset(pkt->p.data+4+k, decs[k%4], 1);
-				}
+
+				// create a default CCSDS object
+				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt();
+				pkt->p.data = ccsds_pkt;
+
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
 				devs[i].tx_buf_list_cnt++;
@@ -183,6 +155,9 @@ int dma_RX(struct grspw_device *dev)
 	struct grspw_list lst;
 	struct grspw_pkt *pkt;
 	unsigned char *c;
+	int d[CCSDS_PKT_SIZE];
+	int *d_tmp;
+	//int *d;
 
 	/* Prepare receiver with packet buffers */
 		if (dev->rx_list_cnt > 0) {
@@ -223,10 +198,17 @@ int dma_RX(struct grspw_device *dev)
 				} else
 					printf(" PKT");
 				c = (unsigned char *)pkt->data;
-				printf(" of length %d bytes: ", pkt->dlen);
+					printf(" of length %d bytes: ", pkt->dlen);
+
+
 				/// PA : Ajout d'une boucle pour l'affichage (avant un seul printf)
 				for(int i=0;i<pkt->dlen;i++)
 					printf("0x%02x ", c[i]);
+
+				printf("\n");
+				print_CCSDS_pkt(pkt->data - 2);
+
+
 				printf("\n\n");
 			}
 
@@ -285,8 +267,14 @@ int dma_TX(struct grspw_device *dev)
 					else
 						c = i - pkt->hlen + (unsigned char *)pkt->data;
 					printf(" 0x%02x", *c);
+
 				}
 				printf("...\n");
+				print_CCSDS_pkt(pkt->data);
+
+				printf("hlen = %d\n", pkt->hlen);
+
+
 			}
 			rc = grspw_dma_tx_send(dev->dma[0], 0, &dev->tx_list,
 							dev->tx_list_cnt);

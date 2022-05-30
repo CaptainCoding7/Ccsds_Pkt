@@ -286,7 +286,7 @@ rtems_task test_app(rtems_task_argument ignored)
 
 ////////////////////////////////////////////////////////////////////////////////
 ///	APP PARAMETERS                                                           ///
-	devno = 0; // 0 for the first pkt, changes for each pkt
+	devno = 1; // 0 for the first pkt, changes for each pkt
 	src_port = 3;
 	dest_port = 6;
 	/// The number of packets to transmit
@@ -323,6 +323,9 @@ rtems_task test_app(rtems_task_argument ignored)
 		devs[devno].tx_buf_list_cnt--;
 		if (pkt->next == NULL)
 			devs[devno].tx_buf_list.tail = NULL;
+
+		route.dstadr[2]=devno;
+
 		pkt_init_hdr(pkt, &route, devno);
 
 		/* Send packet by adding it to the tx_list */
@@ -332,7 +335,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	////////////////
 		nb_pkts_to_transmit--;
 		// the device used is changed as a new packet is sent
-		devno = nb_pkts_to_transmit%DEVS_MAX;
+		//devno = nb_pkts_to_transmit%DEVS_MAX;
 	////////////////
 
 		rtems_semaphore_release(dma_sem);
