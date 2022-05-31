@@ -120,6 +120,7 @@ public:
 	 */
 	constexpr Id get_ccsdsId_BE() const
 	{
+		//std::cout << "addr ID = "<< &m_CcsdsId << std::endl;
 		return static_cast<Id>(m_CcsdsId.value());
 	}
 
@@ -141,6 +142,7 @@ public:
 	 */
 	constexpr CcsdsCounter get_ccsdsCounter_BE() const
 	{
+		//std::cout << "addr counter = "<< &m_CcsdsSequence << std::endl;
 		return BitFieldHelper<CcsdsSequence>
 			::getField<0, COUNTER_BITCOUNT>(m_CcsdsSequence.value());
 	}

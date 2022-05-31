@@ -89,15 +89,18 @@ public:
 	                   ServiceSubTypeValue serviceSubType,
 	                   SourceIdValue sourceId,
 	                   //TcAck ack);
-	                   TcAckFlags ack);
+	                   //TcAckFlags ack);
+					   int ackFlag);
 
-	const TcAckFlags& getMAck() const {
+	//const TcAckFlags& getMAck() const {
 	//const TcAck& getMAck() const {
+	int getMAck() {
 		return m_ack;
 	}
 
-	void setMAck(const TcAckFlags &mAck) {
+	//void (const TcAckFlags &mAck) {
 	//void setMAck(const TcAck &mAck) {
+	void setMAck(int mAck){
 		m_ack = mAck;
 	}
 
@@ -129,7 +132,8 @@ private:
 	ServiceTypeValue m_serviceType;
 	ServiceSubTypeValue m_serviceSubType;
 	SourceIdValue m_sourceId;
-	TcAckFlags m_ack;
+	int m_ack;
+	//TcAckFlags m_ack;
 	//TcAck m_ack;
 }
 PACKED_DATA_CLASS;
@@ -142,7 +146,8 @@ PACKED_DATA_CLASS;
 Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
                              ServiceSubTypeValue serviceSubType = 1,
                              SourceIdValue sourceId = 1,
-                             TcAckFlags ack = TcAck::ACCEPTANCE)
+                             int ack = 0)
+							 //TcAckFlags ack = TcAck::ACCEPTANCE)
 							 //TcAck ack = TcAck::ACCEPTANCE)
 	: uintBe4_t(0)
 {

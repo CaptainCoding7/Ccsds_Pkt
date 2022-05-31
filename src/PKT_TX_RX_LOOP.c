@@ -263,6 +263,7 @@ void test_cpp_call()
 
 rtems_task test_app(rtems_task_argument ignored)
 {
+
 	int i;
 	struct grspw_pkt *pkt;
 	struct route_entry route;
@@ -271,28 +272,28 @@ rtems_task test_app(rtems_task_argument ignored)
 	int devno, nb_pkts_to_transmit;
 	int pkt_cnt=0;
 
+////////////////////////////////////////////////////////////////////////////////
+///	APP PARAMETERS                                                           ///
+	devno = 0; // 0 for the first pkt, changes for each pkt
+	src_port = 3;
+	dest_port = 0x9b;//0x2b;
+	/// The number of packets to transmit
+	nb_pkts_to_transmit=1;
+///                                                                          ///
+////////////////////////////////////////////////////////////////////////////////
+
 	/* Initialize router, AMBA ports */
 	init_router();
 
 	/* Initialize packets */
-	init_pkts(devs, pkts);
+	init_pkts(devs, pkts, dest_port);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
 	rtems_task_wake_after(12);
 
-
+	////////////
 	printf("\n***********  PKT TX/RX TEST  **************\n\n");
-
-////////////////////////////////////////////////////////////////////////////////
-///	APP PARAMETERS                                                           ///
-	devno = 1; // 0 for the first pkt, changes for each pkt
-	src_port = 3;
-	dest_port = 6;
-	/// The number of packets to transmit
-	nb_pkts_to_transmit=1;
-///                                                                          ///
-////////////////////////////////////////////////////////////////////////////////
 
 	memset(&route, 0, sizeof(route));
 	route.dstadr[0]=src_port;
@@ -324,7 +325,7 @@ rtems_task test_app(rtems_task_argument ignored)
 		if (pkt->next == NULL)
 			devs[devno].tx_buf_list.tail = NULL;
 
-		route.dstadr[2]=devno;
+		//route.dstadr[2]=devno;
 
 		pkt_init_hdr(pkt, &route, devno);
 
@@ -335,7 +336,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	////////////////
 		nb_pkts_to_transmit--;
 		// the device used is changed as a new packet is sent
-		//devno = nb_pkts_to_transmit%DEVS_MAX;
+		devno = nb_pkts_to_transmit%DEVS_MAX;
 	////////////////
 
 		rtems_semaphore_release(dma_sem);

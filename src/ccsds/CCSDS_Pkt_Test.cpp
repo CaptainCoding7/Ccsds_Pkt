@@ -31,15 +31,15 @@ void print_size(string s, int size)
 
 extern "C" void test_create_CCSDS_Pkt()
 {
-	Spw_hdr *spw_hdr = new Spw_hdr(3, 2);
+	Spw_hdr *spw_hdr = new Spw_hdr(3, 2, 0, 0);
 	Prim_hdr *prim_hdr = new Prim_hdr();
 	//enum TcAck ack;
 	//TcAckFlags ackFlags = new ecl::FlagSet<TcAck>();
 	TcAckFlags ackFlags;
-	Sec_hdr *sec_hdr = new Sec_hdr(1, 1, 1, ackFlags);
+	Sec_hdr *sec_hdr = new Sec_hdr(1, 1, 1, 0);//ackFlags);
 
 	//CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*spw_hdr, *prim_hdr, *sec_hdr);
-	CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*prim_hdr, *sec_hdr);
+	CCSDS_Pkt_TC *ccsds_pkt_tc = new CCSDS_Pkt_TC(*spw_hdr, *prim_hdr, *sec_hdr);
 
 	print_size("spw_hdr", sizeof(*spw_hdr));
 	print_size("prim_hdr", sizeof(*prim_hdr));
@@ -54,14 +54,14 @@ extern "C" void test_create_CCSDS_Pkt()
 /*****************   Creation of C++ objects (+return) ********************/
 
 //CCSDS_Pkt_TC *createCCSDS_Pkt()
-extern "C" CCSDS_PKT create_CCSDS_Pkt()
+extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 {
-	return new CCSDS_Pkt_TC();
+	return new CCSDS_Pkt_TC(dest_port_addr);
 }
 
 extern "C"  SPW_HDR create_spw_hdr()
 {
-    return new Spw_hdr(3,2);
+    return new Spw_hdr(3,2, 0, 0);
 }
 
 extern "C" PRIM_HDR create_prim_hdr()
@@ -87,6 +87,13 @@ extern "C" SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt)
 	return pccsds_pkt->get_sec_hdr();
 }
 
+extern "C" SPW_HDR call_CCSDS_Pkt_get_spw_hdr(CCSDS_PKT ccsds_pkt)
+{
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	return pccsds_pkt->get_spw_hdr();
+}
+
+
 /// Spw_hdr -------------------
 extern "C" unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr)
 {
@@ -97,6 +104,18 @@ extern "C" unsigned char call_Spw_hdr_get_protid(SPW_HDR spw_hdr)
 {
 	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_protid();
+
+}
+extern "C" unsigned char call_Spw_hdr_get_spare(SPW_HDR spw_hdr)
+{
+	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	return pspw_hdr->get_spare();
+
+}
+extern "C" unsigned char call_Spw_hdr_get_user_app(SPW_HDR spw_hdr)
+{
+	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	return pspw_hdr->get_user_app();
 
 }
 
@@ -135,4 +154,10 @@ extern "C" uint8_t call_Sec_hdr_get_sourceId(SEC_HDR sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
 	return psec_hdr->getMSourceId();
+}
+
+extern "C" uint8_t call_Sec_hdr_get_ackflag(SEC_HDR sec_hdr)
+{
+	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	return psec_hdr->getMAck();
 }

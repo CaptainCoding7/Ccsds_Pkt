@@ -28,6 +28,7 @@
 
 /* Protocol ID */
 #define SPW_PROT_ID 155
+#define GRSPW_PORT 43
 
 
 struct grspw_device {
@@ -67,9 +68,9 @@ struct pkt_hdr {
 /* Custom pkt_hdr structure */
 struct my_pkt_hdr{
 	unsigned char addr;
-	unsigned char protid; /* necessary to receive data */
-	unsigned char spare;
-	unsigned char user_app;
+	//unsigned char protid; /* necessary to receive data */
+	//unsigned char spare;
+	//unsigned char user_app;
 	unsigned int data[(PKT_SIZE-4)/4];
 };
 
@@ -98,18 +99,19 @@ void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx);
 void init_simple_pkt_data(int *decs, char *word);
 
 /**
- * This function is called to initialize the packet data (not the spacewire header)
+ * This function is called to initialize the packet data
+ * The two last arguments are used to initialize the spw header
  */
-void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]);
-
+void init_pkts(struct grspw_device *devs,
+			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
+			   int dest_port_addr);
 /**
  * This function prints each field of the CCSDS pkt given in argument
  */
 void print_CCSDS_pkt(void *data);
 
-
-int dma_RX(struct grspw_device *dev);
 int dma_TX(struct grspw_device *dev);
+int dma_RX(struct grspw_device *dev);
 
 
 #endif /* PKT_UTILS_H_ */
