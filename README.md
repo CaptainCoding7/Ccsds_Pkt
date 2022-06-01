@@ -1,14 +1,14 @@
 # Ccsds_Pkt
 A project to create and send Spacewire packets based on the CCSDS protocol
 <br>
-Here is view of the general structure of a CCSDS packet.
-<br>
-![image](https://user-images.githubusercontent.com/46071575/171451983-9e680a4a-d8eb-41d6-af75-bcb65595b47e.png)
+Here is view of the general structure of a TC CCSDS packet.
+<br><br>
+![image](https://user-images.githubusercontent.com/46071575/171453553-367724dc-9633-4c5b-a365-0e787e8eba58.png)
 
 
 # Example
 
-This example show the transmission of a packet from a spacewire port of the GR740 board's router to an Amba port of the router (port 3 -> amba port 11).
+This example show the transmission of a TC packet from a spacewire port of the GR740 board's router to an Amba port of the router (port 3 -> port 11).
 The logical address used to select the destination port doesn't perform header deletion so that the address will remain in the CCSDS packet.
 (At this point, the secondary header's fields doesn't contain the right values).
 <br>
