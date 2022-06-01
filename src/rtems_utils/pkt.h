@@ -56,24 +56,6 @@ struct route_entry {
 /******************************************************************************/
 /// Structures
 
-/* SpaceWire packet payload (data) content layout */
-struct pkt_hdr {
-	unsigned char addr;
-	unsigned char protid;
-	unsigned char port_src; /* port index of source */
-	unsigned char resv2; /* Zero for now */
-	unsigned int data[(PKT_SIZE-4)/4];
-};
-
-/* Custom pkt_hdr structure */
-struct my_pkt_hdr{
-	unsigned char addr;
-	//unsigned char protid; /* necessary to receive data */
-	//unsigned char spare;
-	//unsigned char user_app;
-	unsigned int data[(PKT_SIZE-4)/4];
-};
-
 struct spwpkt {
 	struct grspw_pkt p;
 	unsigned long long data[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
@@ -83,12 +65,6 @@ struct spwpkt {
 
 /******  Functions  *******************/
 
-
-/** 
- * Initialize Spacewire header
- * This function is called after the packet data are initialized (in function init_pkts)
- */
-void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx);
 
 /**
  * This function is used to fill an int array from a string array.

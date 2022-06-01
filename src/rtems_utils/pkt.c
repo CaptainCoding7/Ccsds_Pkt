@@ -1,36 +1,6 @@
 #include "pkt.h"
 
 
-void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
-{
-
-	int i;
-	//struct pkt_hdr *pkt_hdr = (struct pkt_hdr *)pkt->data;
-	// hdr is located at the beginning of the data field of grspw_pkt structure)
-	struct my_pkt_hdr *my_pkt_hdr = (struct my_pkt_hdr *)pkt->data;
-	unsigned char *hdr = pkt->hdr;
-
-
-	hdr[0] = route->dstadr[0];
-
-	/// Set the 4 fields of the spw header
-	/// Put last address in pkthdr->addr
-	pkt->hlen = 1;
-	my_pkt_hdr->addr = route->dstadr[1];
-	//my_pkt_hdr->protid = 43;//0x29;//SPW_PROT_ID; // should be 2 for CCSDS protocol
-	//my_pkt_hdr->spare = 0;
-	//my_pkt_hdr->user_app = 0;
-
-	/// print sizes
-
-	//printf("my_pkt_hdr size = %d\n\n", sizeof(*my_pkt_hdr));
-	//printf("grspw_pkt size = %d\n\n", sizeof(*pkt));
-	//printf("grspw_pkt pkt size = %d\n\n", sizeof(pkt));
-
-
-}
-
-
 void init_simple_pkt_data(int *decs, char *word)
 {
 
@@ -53,7 +23,6 @@ void init_simple_pkt_data(int *decs, char *word)
 
 void print_CCSDS_pkt(void *data)
 {
-	printf("addr data = %d\n", &data);
 	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(data);
 	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(data);
 	SPW_HDR spw_hdr = call_CCSDS_Pkt_get_spw_hdr(data);
@@ -213,7 +182,6 @@ int dma_TX(struct grspw_device *dev)
 					printf(" 0x%02x", *c);
 
 				}
-				printf("...\n");
 				print_CCSDS_pkt(pkt->data);
 
 				printf("hlen = %d\n", pkt->hlen);

@@ -274,9 +274,12 @@ rtems_task test_app(rtems_task_argument ignored)
 
 ////////////////////////////////////////////////////////////////////////////////
 ///	APP PARAMETERS                                                           ///
-	devno = 0; // 0 for the first pkt, changes for each pkt
+	/// devno is the number of the GRSPW core used
+	devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
 	src_port = 3;
-	dest_port = 0x2b;//0x9b;
+	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
+	/// 0x2b is the same as 0x9b but without header deletion
+	dest_port = 0x2b; //0x9b;
 	/// The number of packets to transmit
 	nb_pkts_to_transmit=1;
 ///                                                                          ///
@@ -325,9 +328,10 @@ rtems_task test_app(rtems_task_argument ignored)
 		if (pkt->next == NULL)
 			devs[devno].tx_buf_list.tail = NULL;
 
-		//route.dstadr[2]=devno;
-
-		pkt_init_hdr(pkt, &route, devno);
+		// grspw_pkt header contains the source address (will be deleted when TX)
+		unsigned char *hdr = pkt->hdr;
+		hdr[0] = route.dstadr[0];
+		pkt->hlen = 1;
 
 		/* Send packet by adding it to the tx_list */
 		grspw_list_append(&devs[devno].tx_list, pkt);
