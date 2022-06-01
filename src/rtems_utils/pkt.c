@@ -3,15 +3,14 @@
 
 void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx)
 {
+
 	int i;
 	//struct pkt_hdr *pkt_hdr = (struct pkt_hdr *)pkt->data;
 	// hdr is located at the beginning of the data field of grspw_pkt structure)
 	struct my_pkt_hdr *my_pkt_hdr = (struct my_pkt_hdr *)pkt->data;
 	unsigned char *hdr = pkt->hdr;
 
-	/* If path addressing we put non-first Destination Addresses in
-	 * header. route->dstadr[0] is always non-zero.
-	 */
+
 	hdr[0] = route->dstadr[0];
 
 	/// Set the 4 fields of the spw header
@@ -292,7 +291,10 @@ int dma_RX(struct grspw_device *dev)
 					printf("0x%02x ", c[i]);
 
 				printf("\n");
-				print_CCSDS_pkt(pkt->data - 2);
+
+//				for (int i = -2; i < 3; i++)
+//					print_CCSDS_pkt(pkt->data +i );
+				print_CCSDS_pkt(pkt->data);
 
 				printf("\n\n");
 			}

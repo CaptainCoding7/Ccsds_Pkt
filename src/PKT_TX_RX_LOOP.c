@@ -276,7 +276,7 @@ rtems_task test_app(rtems_task_argument ignored)
 ///	APP PARAMETERS                                                           ///
 	devno = 0; // 0 for the first pkt, changes for each pkt
 	src_port = 3;
-	dest_port = 0x9b;//0x2b;
+	dest_port = 0x2b;//0x9b;
 	/// The number of packets to transmit
 	nb_pkts_to_transmit=1;
 ///                                                                          ///
