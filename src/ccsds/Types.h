@@ -57,10 +57,13 @@ using TcAckFlagsValue = UnderlyingType<TcAck>;
 
 /// PA
 using TcAckValue = uint8_t;
+///
+
 using ServiceTypeValue = uint8_t;
 using ServiceSubTypeValue = uint8_t;
 using SourceIdValue = uint8_t;
 using PacketId = uint8_t;
+
 using TfCounter = uint32_t;
 using TfCounterSub = uint16_t;
 using TimeUtcSeconds = uint32_t;

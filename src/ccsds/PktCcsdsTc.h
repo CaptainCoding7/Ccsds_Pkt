@@ -26,7 +26,7 @@ namespace core
 namespace tmtc
 {
 
-class PktCcsdsTc : public Prim_hdr, public Sec_hdr_org
+class PktCcsdsTc : public Prim_hdr, public Sec_hdr
 {
 public:
 	PktCcsdsTc() = default;
@@ -77,7 +77,7 @@ struct PktCcsdsTc::SubServiceDispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const PktCcsdsTc& tc, CcsdsLength length, Visitor&& visitor)
 	{
-		if(tc.serviceSubType() == TcType::SERVICE_SUBTYPE)
+		if(tc.m_serviceSubType() == TcType::SERVICE_SUBTYPE)
 		{
 			if(length == sizeof(TcType))
 			{
@@ -103,7 +103,7 @@ struct PktCcsdsTc::ServiceDispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const PktCcsdsTc& tc, CcsdsLength length, Visitor&& v)
 	{
-		if(tc.serviceType() == SERVICE_TYPE)
+		if(tc.m_serviceType() == SERVICE_TYPE)
 		{
 			return Prim_hdr::DispatchIterator<SubServiceDispatcher<SubservicesDispatchers>...>::dispatch(tc, length, v);
 		}

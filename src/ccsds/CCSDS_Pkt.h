@@ -47,6 +47,10 @@ namespace tmtc
 		{
 		}
 
+		~CCSDS_Pkt_TC()
+		{
+		std::cout << "ccsds pkt destr" << std::endl;
+		}
 
 		void set_prim_hdr(Prim_hdr *ph)
 		{

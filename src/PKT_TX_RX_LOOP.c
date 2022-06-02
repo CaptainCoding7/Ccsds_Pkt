@@ -239,25 +239,6 @@ rtems_task Init(
 	rtems_task_suspend( RTEMS_SELF );
 }
 
-/*
-struct Spw_hdr; // you can supply only an incomplete declaration
-unsigned char call_Spw_hdr_addr(struct Spw_hdr*); // declare the wrapper function
-unsigned char f(struct Spw_hdr *spw_hdr) // now you can call M::foo
-{
-	return call_Spw_hdr_addr(spw_hdr);
-}
-*/
-
-void test_cpp_call()
-{
-	 //spw_hdr = createCCSDS_Pkt();
-	//unsigned char addr = get_Spw_hdr_addr(struct *Spw_hdr);
-
-	//test_create_CCSDS_Pkt();
-	//SPW_HDR spw_hdr = create_spw_hdr();
-	//printf("Spw_hdr->addr = %d\n\n", call_Spw_hdr_get_addr(spw_hdr));
-
-}
 
 /*************************  TEST APP TASK  *******************************/
 
@@ -268,18 +249,19 @@ rtems_task test_app(rtems_task_argument ignored)
 	struct grspw_pkt *pkt;
 	struct route_entry route;
 
-	int src_port, dest_port;
+	int spw_src_port, spw_dest_port, amba_dest_port;
 	int devno, nb_pkts_to_transmit;
 	int pkt_cnt=0;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///	APP PARAMETERS                                                           ///
-	/// devno is the number of the GRSPW core used
+	/// devno is the number of the GRSPW device used
 	devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
-	src_port = 3;
+	spw_src_port = 3;
+	spw_dest_port=6;
 	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
 	/// 0x2b is the same as 0x9b but without header deletion
-	dest_port = 0x2b; //0x9b;
+	amba_dest_port = 0x2b; //0x9b;
 	/// The number of packets to transmit
 	nb_pkts_to_transmit=1;
 ///                                                                          ///
@@ -289,7 +271,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	init_router();
 
 	/* Initialize packets */
-	init_pkts(devs, pkts, dest_port);
+	init_pkts(devs, pkts, amba_dest_port);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
@@ -299,12 +281,13 @@ rtems_task test_app(rtems_task_argument ignored)
 	printf("\n***********  PKT TX/RX TEST  **************\n\n");
 
 	memset(&route, 0, sizeof(route));
-	route.dstadr[0]=src_port;
-	route.dstadr[1]=dest_port;
+	route.dstadr[0]=spw_src_port;
+	route.dstadr[1]=spw_dest_port;
+	route.dstadr[2]=amba_dest_port;
 
-	printf("SPW src port : %d\n", route.dstadr[0]);
-	printf("SPW dest port : %d\n", route.dstadr[1]);
-	printf("%d pkts are waiting for transmission\n\n", nb_pkts_to_transmit);
+	printf("SPW src port : %d\n", spw_src_port);
+	printf("SPW dest port : %d\n", spw_dest_port);
+	printf("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit);
 
 	test_cpp_call();
 
@@ -331,7 +314,8 @@ rtems_task test_app(rtems_task_argument ignored)
 		// grspw_pkt header contains the source address (will be deleted when TX)
 		unsigned char *hdr = pkt->hdr;
 		hdr[0] = route.dstadr[0];
-		pkt->hlen = 1;
+		hdr[1] = route.dstadr[1];
+		pkt->hlen = 2;
 
 		/* Send packet by adding it to the tx_list */
 		grspw_list_append(&devs[devno].tx_list, pkt);

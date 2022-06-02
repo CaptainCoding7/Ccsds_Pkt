@@ -1,25 +1,6 @@
 #include "pkt.h"
 
-
-void init_simple_pkt_data(int *decs, char *word)
-{
-
-	char *pstr = &word[0];
-	int lw = strlen(word)/2;
-	//int decs[lw];
-    char twoLetters[2];
-
-    memset(twoLetters, '\0', sizeof(twoLetters));
-
-	for(int i=0;i<lw;i++)
-	{
-		strncpy(twoLetters, pstr, 2);
-		decs[i] = (int) strtol(twoLetters, NULL, 16);
-		//memset(pkt->p.data+4, dec, PKT_SIZE-4);
-		pstr+=2;
-	}
-	
-}
+CCSDS_PKT ccsds_pkt_global;
 
 void print_CCSDS_pkt(void *data)
 {
@@ -82,21 +63,9 @@ void init_pkts(struct grspw_device *devs,
 	struct spwpkt *pkt;
 	int i, j;
 
-	int decs[4];
-	char *word_test[DEVS_MAX];
-
-	word_test[0] = "DEADFACE";
-	word_test[1] = "CAFEFADE";
-	word_test[2] = "BEAUCADE";
-	word_test[3] = "ACE0FCEA";
-
 	memset(&pkts[0][0], 0, sizeof(pkts));
 
 	for (i = 0; i < DEVS_MAX; i++) {
-
-		init_simple_pkt_data(decs, word_test[i]);
-		//for(int i=0;i<4;i++)
-			//printf("%d\n",decs[i]);
 
 		grspw_list_clr(&devs[i].rx_list);
 		grspw_list_clr(&devs[i].tx_list);
@@ -121,8 +90,13 @@ void init_pkts(struct grspw_device *devs,
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
 				// create a default CCSDS object
-				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
-				pkt->p.data = ccsds_pkt;
+				//CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+				//ccsds_pkt_global = create_CCSDS_Pkt(dest_port_addr);
+
+				//pkt->p.data = ccsds_pkt;
+				//pkt->p.data = ccsds_pkt_global
+
+
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
@@ -170,7 +144,7 @@ int dma_TX(struct grspw_device *dev)
 
 	/* Send packets in the tx_list queue */
 	if (dev->tx_list_cnt > 0) {
-			printf("GRSPW%d: Sending %d packets\n", dev->index,
+			printf("GRSPW%d: Sending %d packet(s)\n", dev->index,
 				dev->tx_list_cnt);
 			for (pkt = dev->tx_list.head; pkt; pkt = pkt->next) {
 				printf(" PKT of length %d bytes: ", pkt->hlen+pkt->dlen);
@@ -183,10 +157,6 @@ int dma_TX(struct grspw_device *dev)
 
 				}
 				print_CCSDS_pkt(pkt->data);
-
-				printf("hlen = %d\n", pkt->hlen);
-				printf("dlen = %d\n", pkt->dlen);
-
 
 			}
 			rc = grspw_dma_tx_send(dev->dma[0], 0, &dev->tx_list,
@@ -235,7 +205,7 @@ int dma_RX(struct grspw_device *dev)
 			return -1;
 		}
 		if (cnt > 0) {
-			printf("GRSPW%d: Received %d packets\n", dev->index, cnt);
+			printf("GRSPW%d: Received %d packet(s)\n", dev->index, cnt);
 			for (pkt = lst.head; pkt; pkt = pkt->next) {
 				if ((pkt->flags & RXPKT_FLAG_RX) == 0) {
 					printf(" PKT not received.. buf ret\n");
@@ -251,6 +221,7 @@ int dma_RX(struct grspw_device *dev)
 				} else
 					printf(" PKT");
 				c = (unsigned char *)pkt->data;
+				//c = (unsigned char *) ccsds_pkt_global;
 				printf(" of length %d bytes: ", pkt->dlen);
 
 
@@ -263,6 +234,7 @@ int dma_RX(struct grspw_device *dev)
 //				for (int i = -2; i < 3; i++)
 //					print_CCSDS_pkt(pkt->data +i );
 				print_CCSDS_pkt(pkt->data);
+				//print_CCSDS_pkt(ccsds_pkt_global);
 
 				printf("\n\n");
 			}
