@@ -105,7 +105,6 @@ Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
 							 //TcAck ack = TcAck::ACCEPTANCE)
 {
 
-
 	setMAck(ack);
 	setMServiceSubType(serviceSubType);
 	setMServiceType(serviceType);

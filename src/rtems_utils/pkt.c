@@ -1,6 +1,5 @@
 #include "pkt.h"
 
-CCSDS_PKT ccsds_pkt_global;
 
 void print_CCSDS_pkt(void *data)
 {
@@ -90,13 +89,9 @@ void init_pkts(struct grspw_device *devs,
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
 				// create a default CCSDS object
-				//CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
-				//ccsds_pkt_global = create_CCSDS_Pkt(dest_port_addr);
-
-				//pkt->p.data = ccsds_pkt;
-				//pkt->p.data = ccsds_pkt_global
-
-				pkt->p.data = create_CCSDS_Pkt(dest_port_addr);
+				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+				//CCSDS_PKT ccsds_pkt = create_sp_CCSDS_Pkt(dest_port_addr);
+				pkt->p.data = ccsds_pkt;
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
@@ -235,6 +230,8 @@ int dma_RX(struct grspw_device *dev)
 //					print_CCSDS_pkt(pkt->data +i );
 				print_CCSDS_pkt(pkt->data);
 				//print_CCSDS_pkt(ccsds_pkt_global);
+
+				delete_CCSDS_Pkt(pkt->data);
 
 				printf("\n\n");
 			}

@@ -73,6 +73,28 @@ extern "C" SEC_HDR create_sec_hdr()
 	return new Sec_hdr();
 }
 
+/****** delete  *****/
+
+/// CCSDS_Pkt -------------------
+extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt)
+{
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	delete pccsds_pkt;
+}
+
+
+/*****************  ... using smart pointer  ***********************/
+
+//CCSDS_Pkt_TC *createCCSDS_Pkt()
+/*
+extern "C" void *create_sp_CCSDS_Pkt(unsigned char dest_port_addr)
+{
+	shared_ptr<CCSDS_Pkt_TC> ccsds_pkt_tc(new CCSDS_Pkt_TC(dest_port_addr));
+	return ccsds_pkt_tc;
+
+}
+*/
+
 /*****************   Getter calls ********************/
 
 /// CCSDS_Pkt -------------------

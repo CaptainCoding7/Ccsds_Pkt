@@ -51,7 +51,14 @@ namespace tmtc
 
 		~CCSDS_Pkt_TC()
 		{
-		std::cout << "ccsds pkt destr" << std::endl;
+		std::cout << " entering ccsds pkt destr" << std::endl;
+//		delete reinterpret_cast<Spw_hdr*>(&m_spw_hdr);
+//		delete reinterpret_cast<Prim_hdr*>(&m_prim_hdr);
+//		delete reinterpret_cast<Sec_hdr*>(&m_sec_hdr)
+//		delete m_spw_hdr;
+//		delete m_prim_hdr;
+//		delete m_sec_hdr;
+		std::cout << " exiting ccsds pkt destr" << std::endl;
 		}
 
 		void set_prim_hdr(Prim_hdr *ph)
@@ -138,6 +145,13 @@ CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
 SPW_HDR create_spw_hdr();
 PRIM_HDR create_prim_hdr();
 SEC_HDR create_sec_hdr();
+
+/// delete
+void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt);
+
+/// sp
+//void *create_sp_CCSDS_Pkt(unsigned char dest_port_addr);
+
 
 /*** Getter calls ***/
 /// CCSDS_Pkt

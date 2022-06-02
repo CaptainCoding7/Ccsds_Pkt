@@ -24,6 +24,7 @@ namespace tmtc
 				unsigned char protid,
 				unsigned char spare,
 				unsigned char user_app);
+		~Spw_hdr();
 
 		unsigned char get_addr()
 		{
@@ -89,6 +90,11 @@ Spw_hdr::Spw_hdr(unsigned char addr,
 			m_user_app(user_app)
 	{
 	}
+
+Spw_hdr::~Spw_hdr()
+{
+	std::cout << "spw_hdr destr" << std::endl;
+}
 
 
 } /* namespace tmtc */

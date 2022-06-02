@@ -105,6 +105,13 @@ public:
 		setCcsdsGrouping(grouping);
 	}
 
+	~Prim_hdr()
+	{
+		std::cout << "prim_hdr destr" << std::endl;
+
+	}
+
+
 	/**
 	 * Sets CcsdsId with a value.
 	 * @param val
