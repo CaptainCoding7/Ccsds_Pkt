@@ -289,8 +289,6 @@ rtems_task test_app(rtems_task_argument ignored)
 	printf("SPW dest port : %d\n", spw_dest_port);
 	printf("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit);
 
-	test_cpp_call();
-
 	while(nb_pkts_to_transmit!=0)
 	{
 

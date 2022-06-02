@@ -29,7 +29,7 @@ namespace core
 namespace tmtc
 {
 
-class Sec_hdr : public uintBe4_t
+class Sec_hdr
 {
 public:
 
@@ -103,7 +103,6 @@ Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
                              int ack = 0)
 							 //TcAckFlags ack = TcAck::ACCEPTANCE)
 							 //TcAck ack = TcAck::ACCEPTANCE)
-	: uintBe4_t(0)
 {
 
 

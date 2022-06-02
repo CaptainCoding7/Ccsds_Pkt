@@ -34,7 +34,9 @@ namespace tmtc
 			set_spw_hdr(new Spw_hdr(dest_port_addr, 2,0,0));
 			//set_prim_hdr(new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE));
 			set_prim_hdr(new Prim_hdr());
-			set_sec_hdr(new Sec_hdr(1, 1, 1, 0));//ack));
+			//set_sec_hdr(new Sec_hdr(1, 1, 1, 0));//ack));
+			set_sec_hdr(new Sec_hdr());//ack));
+
 		}
 
 		CCSDS_Pkt_TC(

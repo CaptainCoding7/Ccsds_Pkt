@@ -96,7 +96,7 @@ void init_pkts(struct grspw_device *devs,
 				//pkt->p.data = ccsds_pkt;
 				//pkt->p.data = ccsds_pkt_global
 
-
+				pkt->p.data = create_CCSDS_Pkt(dest_port_addr);
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
