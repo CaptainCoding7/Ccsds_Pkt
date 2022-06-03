@@ -28,21 +28,14 @@ namespace tmtc
 	class CCSDS_Pkt_TC
 	{
 	public:
-		CCSDS_Pkt_TC(unsigned char dest_port_addr)
-		{
-			TcAckFlags ack;
-			set_spw_hdr(new Spw_hdr(dest_port_addr, 2,0,0));
-			//set_prim_hdr(new Prim_hdr(ID_TC, 1, 500, CcsdsGrouping::STANDALONE));
-			set_prim_hdr(new Prim_hdr());
-			//set_sec_hdr(new Sec_hdr(1, 1, 1, 0));//ack));
-			set_sec_hdr(new Sec_hdr());//ack));
 
-		}
-
+		/**
+		 * This constructor should be called
+		 */
 		CCSDS_Pkt_TC(
-				Spw_hdr spw_hdr,
-				Prim_hdr prim_hdr,
-				Sec_hdr sec_hdr)
+				Spw_hdr &spw_hdr,
+				Prim_hdr &prim_hdr,
+				Sec_hdr &sec_hdr)
 		:		m_spw_hdr(spw_hdr),
 				m_prim_hdr(prim_hdr),
 				m_sec_hdr(sec_hdr)
@@ -51,14 +44,8 @@ namespace tmtc
 
 		~CCSDS_Pkt_TC()
 		{
-		std::cout << " entering ccsds pkt destr" << std::endl;
-//		delete reinterpret_cast<Spw_hdr*>(&m_spw_hdr);
-//		delete reinterpret_cast<Prim_hdr*>(&m_prim_hdr);
-//		delete reinterpret_cast<Sec_hdr*>(&m_sec_hdr)
-//		delete m_spw_hdr;
-//		delete m_prim_hdr;
-//		delete m_sec_hdr;
-		std::cout << " exiting ccsds pkt destr" << std::endl;
+		std::cout << "ccsds pkt destr" << std::endl;
+
 		}
 
 		void set_prim_hdr(Prim_hdr *ph)
@@ -141,8 +128,8 @@ void test_create_CCSDS_Pkt();
 
 
 /*** Creation of C++ objects (+return) ***/
-CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
-SPW_HDR create_spw_hdr();
+CCSDS_PKT create_CCSDS_Pkt(SPW_HDR spw_hdr,PRIM_HDR prim_hdr,SEC_HDR sec_hdr);
+SPW_HDR create_spw_hdr(unsigned char dest_port_addr);
 PRIM_HDR create_prim_hdr();
 SEC_HDR create_sec_hdr();
 

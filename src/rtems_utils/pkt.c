@@ -89,7 +89,11 @@ void init_pkts(struct grspw_device *devs,
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
 				// create a default CCSDS object
-				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+				SPW_HDR spw_hdr = create_spw_hdr(dest_port_addr);
+				PRIM_HDR prim_hdr = create_prim_hdr();
+				SEC_HDR sec_hdr = create_sec_hdr();
+				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(spw_hdr, prim_hdr, sec_hdr);
+
 				//CCSDS_PKT ccsds_pkt = create_sp_CCSDS_Pkt(dest_port_addr);
 				pkt->p.data = ccsds_pkt;
 

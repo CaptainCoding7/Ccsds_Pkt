@@ -54,14 +54,19 @@ extern "C" void test_create_CCSDS_Pkt()
 /*****************   Creation of C++ objects (+return) ********************/
 
 //CCSDS_Pkt_TC *createCCSDS_Pkt()
-extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
+extern "C" CCSDS_PKT create_CCSDS_Pkt(SPW_HDR spw_hdr,PRIM_HDR prim_hdr,SEC_HDR sec_hdr)
 {
-	return new CCSDS_Pkt_TC(dest_port_addr);
+	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
+	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+
+	/// **p = &p
+	return new CCSDS_Pkt_TC(*pspw_hdr,*pprim_hdr,*psec_hdr);
 }
 
-extern "C"  SPW_HDR create_spw_hdr()
+extern "C"  SPW_HDR create_spw_hdr(unsigned char dest_port_addr)
 {
-    return new Spw_hdr(3,2, 0, 0);
+    return new Spw_hdr(dest_port_addr,2, 0, 0);
 }
 
 extern "C" PRIM_HDR create_prim_hdr()
