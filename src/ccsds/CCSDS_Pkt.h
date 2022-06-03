@@ -29,16 +29,14 @@ namespace tmtc
 	{
 	public:
 
-		/**
-		 * This constructor should be called
-		 */
 		CCSDS_Pkt_TC(
-				Spw_hdr &spw_hdr,
-				Prim_hdr &prim_hdr,
-				Sec_hdr &sec_hdr)
-		:		m_spw_hdr(spw_hdr),
-				m_prim_hdr(prim_hdr),
-				m_sec_hdr(sec_hdr)
+				unsigned char addr,
+				unsigned char protid,
+				unsigned char spare,
+				unsigned char user_app)
+		:		m_spw_hdr(addr,protid,spare,user_app),
+				m_prim_hdr(),
+				m_sec_hdr()
 		{
 		}
 
@@ -128,7 +126,8 @@ void test_create_CCSDS_Pkt();
 
 
 /*** Creation of C++ objects (+return) ***/
-CCSDS_PKT create_CCSDS_Pkt(SPW_HDR spw_hdr,PRIM_HDR prim_hdr,SEC_HDR sec_hdr);
+//CCSDS_PKT create_CCSDS_Pkt(SPW_HDR spw_hdr,PRIM_HDR prim_hdr,SEC_HDR sec_hdr);
+CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
 SPW_HDR create_spw_hdr(unsigned char dest_port_addr);
 PRIM_HDR create_prim_hdr();
 SEC_HDR create_sec_hdr();

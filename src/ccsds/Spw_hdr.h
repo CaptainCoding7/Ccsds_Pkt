@@ -80,10 +80,10 @@ Spw_hdr::Spw_hdr()
 		set_user_app(0);
 	}
 
-Spw_hdr::Spw_hdr(unsigned char addr,
-			unsigned char protid,
-			unsigned char spare,
-			unsigned char user_app)
+Spw_hdr::Spw_hdr(unsigned char addr=6,
+			unsigned char protid=2,
+			unsigned char spare=0,
+			unsigned char user_app=0)
 	:		m_addr(addr),
 			m_protid(protid),
 			m_spare(spare),
