@@ -54,27 +54,46 @@ extern "C" void test_create_CCSDS_Pkt()
 /*****************   Creation of C++ objects (+return) ********************/
 
 
+
+/// UPDATE: Use of smart pointers=> need intermediary functions to actually create the smart pointer
+unique_ptr<CCSDS_Pkt_TC> get_CCSDS_Pkt_up(unsigned char dest_port_addr) {
+	return make_unique<CCSDS_Pkt_TC>(dest_port_addr);
+}
+unique_ptr<Spw_hdr> get_Spw_hdr_up(unsigned char dest_port_addr) {
+	return make_unique<Spw_hdr>(dest_port_addr,2, 0, 0);
+}
+unique_ptr<Prim_hdr> get_Prim_hdr_up() {
+	return make_unique<Prim_hdr>();
+}
+unique_ptr<Sec_hdr> get_Sec_hdr_up() {
+	return make_unique<Sec_hdr>();
+}
+
+
 //CCSDS_Pkt_TC *createCCSDS_Pkt()
 extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 {
 	/// **p = &p
-	return new CCSDS_Pkt_TC(dest_port_addr,2, 0, 0);
+	//return new CCSDS_Pkt_TC(*pspw_hdr,*pprim_hdr,*psec_hdr);
+    return new unique_ptr<CCSDS_Pkt_TC>( get_CCSDS_Pkt_up(dest_port_addr) );
 }
 
 
 extern "C"  SPW_HDR create_spw_hdr(unsigned char dest_port_addr)
 {
-    return new Spw_hdr(dest_port_addr,2, 0, 0);
+    //return new Spw_hdr(dest_port_addr,2, 0, 0);
+    return new unique_ptr<Spw_hdr>( get_Spw_hdr_up(dest_port_addr) );
 }
 
 extern "C" PRIM_HDR create_prim_hdr()
 {
-	return new Prim_hdr();
+	//return new Prim_hdr();
+    return new unique_ptr<Prim_hdr>( get_Prim_hdr_up() );
 
 }
 extern "C" SEC_HDR create_sec_hdr()
 {
-	return new Sec_hdr();
+    return new unique_ptr<Sec_hdr>( get_Sec_hdr_up() );
 }
 
 /****** delete  *****/

@@ -88,15 +88,10 @@ void init_pkts(struct grspw_device *devs,
 				/* TX buffer */
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
-				// create a default CCSDS object
-				//SPW_HDR spw_hdr = create_spw_hdr(dest_port_addr);
-				//PRIM_HDR prim_hdr = create_prim_hdr();
-				//SEC_HDR sec_hdr = create_sec_hdr();
-				//CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(spw_hdr, prim_hdr, sec_hdr);
+				// using a smart pointer
+				CCSDS_PKT up_ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
 
-				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
-
-				pkt->p.data = ccsds_pkt;
+				pkt->p.data = up_ccsds_pkt;
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
