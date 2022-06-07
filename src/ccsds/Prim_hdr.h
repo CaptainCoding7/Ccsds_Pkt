@@ -85,18 +85,18 @@ public:
 	/**
 	 * Constructor without initialization.
 	 */
-	Prim_hdr() = default;
+	//Prim_hdr() = default;
 
 	/**
-	 * Full constructor.
+	 * Full constructor with default values
 	 * @param id
 	 * @param counter
 	 * @param length
 	 * @param grouping
 	 */
-	constexpr Prim_hdr(Id id,
-	                   CcsdsCounter counter,
-	                   CcsdsLength length,
+	constexpr Prim_hdr(Id id = ID_TC,
+	                   CcsdsCounter counter = 1,
+	                   CcsdsLength length = 30,
 	                   CcsdsGrouping grouping = CcsdsGrouping::STANDALONE)
 		: m_CcsdsId(id),
 		  m_CcsdsSequence(counter),
@@ -104,6 +104,13 @@ public:
 	{
 		setCcsdsGrouping(grouping);
 	}
+
+	~Prim_hdr()
+	{
+		std::cout << "prim_hdr destr" << std::endl;
+
+	}
+
 
 	/**
 	 * Sets CcsdsId with a value.
@@ -118,8 +125,9 @@ public:
 	 * Returns CcsdsId value.
 	 * @return
 	 */
-	constexpr Id ccsdsId() const
+	constexpr Id get_ccsdsId_BE() const
 	{
+		//std::cout << "addr ID = "<< &m_CcsdsId << std::endl;
 		return static_cast<Id>(m_CcsdsId.value());
 	}
 
@@ -139,8 +147,9 @@ public:
 	 * Get CcsdsCounter value (significant bits only)
 	 * @return
 	 */
-	constexpr CcsdsCounter ccsdsCounter() const
+	constexpr CcsdsCounter get_ccsdsCounter_BE() const
 	{
+		//std::cout << "addr counter = "<< &m_CcsdsSequence << std::endl;
 		return BitFieldHelper<CcsdsSequence>
 			::getField<0, COUNTER_BITCOUNT>(m_CcsdsSequence.value());
 	}
@@ -181,7 +190,7 @@ public:
 		m_CcsdsPLength.setValue(length);
 	}
 
-	constexpr CcsdsLength ccsdsPLength() const
+	constexpr CcsdsLength get_ccsdsPLength_BE() const
 	{
 		return m_CcsdsPLength.value();
 	}

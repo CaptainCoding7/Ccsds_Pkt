@@ -59,7 +59,7 @@ struct PktCcsdsTc::Dispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const Prim_hdr& packet, CcsdsLength length, Visitor&& v)
 	{
-		if(packet.ccsdsId() == ID_TC)
+		if(packet.get_ccsdsId_BE() == ID_TC)
 		{
 			const PktCcsdsTc& tc = static_cast<const PktCcsdsTc&>(packet);
 			return DispatchIterator<ServicesDispatchers...>::dispatch(tc, length, v);
@@ -77,7 +77,7 @@ struct PktCcsdsTc::SubServiceDispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const PktCcsdsTc& tc, CcsdsLength length, Visitor&& visitor)
 	{
-		if(tc.serviceSubType() == TcType::SERVICE_SUBTYPE)
+		if(tc.m_serviceSubType() == TcType::SERVICE_SUBTYPE)
 		{
 			if(length == sizeof(TcType))
 			{
@@ -103,7 +103,7 @@ struct PktCcsdsTc::ServiceDispatcher
 	template<class Visitor>
 	static DispatchResult dispatch(const PktCcsdsTc& tc, CcsdsLength length, Visitor&& v)
 	{
-		if(tc.serviceType() == SERVICE_TYPE)
+		if(tc.m_serviceType() == SERVICE_TYPE)
 		{
 			return Prim_hdr::DispatchIterator<SubServiceDispatcher<SubservicesDispatchers>...>::dispatch(tc, length, v);
 		}

@@ -116,7 +116,8 @@ rtems_task Init( rtems_task_argument argument);	/* forward declaration needed */
 
 #include "rtems_utils/pkt.h"
 #include "rtems_utils/dev.h"
-#include "ccsds/CCSDS_Pkt_Test.h"
+#include "ccsds/CCSDS_Pkt.h"
+
 
 #undef ENABLE_NETWORK
 #undef ENABLE_NETWORK_SMC_LEON3
@@ -239,55 +240,54 @@ rtems_task Init(
 }
 
 
-void test_cpp_call()
-{
-	createCCSDS_Pkt();
-}
-
 /*************************  TEST APP TASK  *******************************/
 
 rtems_task test_app(rtems_task_argument ignored)
 {
+
 	int i;
 	struct grspw_pkt *pkt;
 	struct route_entry route;
 
-	int src_port, dest_port;
+	int spw_src_port, spw_dest_port, amba_dest_port;
 	int devno, nb_pkts_to_transmit;
 	int pkt_cnt=0;
+
+////////////////////////////////////////////////////////////////////////////////
+///	APP PARAMETERS                                                           ///
+	/// devno is the number of the GRSPW device used
+	devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
+	spw_src_port = 3;
+	spw_dest_port=6;
+	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
+	/// 0x2b is the same as 0x9b but without header deletion
+	amba_dest_port = 0x2b; //0x9b;
+	/// The number of packets to transmit
+	nb_pkts_to_transmit=1;
+///                                                                          ///
+////////////////////////////////////////////////////////////////////////////////
 
 	/* Initialize router, AMBA ports */
 	init_router();
 
 	/* Initialize packets */
-	init_pkts(devs, pkts);
+	init_pkts(devs, pkts, amba_dest_port);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
 	rtems_task_wake_after(12);
 
-
+	////////////
 	printf("\n***********  PKT TX/RX TEST  **************\n\n");
 
-////////////////////////////////////////////////////////////////////////////////
-///	APP PARAMETERS											////////////////////
-	devno = 0; // 0 for the first pkt, changes for each pkt ////////////////////
-	src_port = 3;											////////////////////
-	dest_port = 6;											////////////////////
-	/// The number of packets to transmit					////////////////////
-	nb_pkts_to_transmit=0;									////////////////////
-///														    ////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 	memset(&route, 0, sizeof(route));
-	route.dstadr[0]=src_port;
-	route.dstadr[1]=dest_port;
+	route.dstadr[0]=spw_src_port;
+	route.dstadr[1]=spw_dest_port;
+	route.dstadr[2]=amba_dest_port;
 
-	printf("SPW src port : %d\n", route.dstadr[0]);
-	printf("SPW dest port : %d\n", route.dstadr[1]);
-	printf("%d pkts are waiting for transmission\n\n", nb_pkts_to_transmit);
-
-	test_cpp_call();
+	printf("SPW src port : %d\n", spw_src_port);
+	printf("SPW dest port : %d\n", spw_dest_port);
+	printf("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit);
 
 	while(nb_pkts_to_transmit!=0)
 	{
@@ -308,7 +308,12 @@ rtems_task test_app(rtems_task_argument ignored)
 		devs[devno].tx_buf_list_cnt--;
 		if (pkt->next == NULL)
 			devs[devno].tx_buf_list.tail = NULL;
-		pkt_init_hdr(pkt, &route, devno);
+
+		// grspw_pkt header contains the source address (will be deleted when TX)
+		unsigned char *hdr = pkt->hdr;
+		hdr[0] = route.dstadr[0];
+		hdr[1] = route.dstadr[1];
+		pkt->hlen = 2;
 
 		/* Send packet by adding it to the tx_list */
 		grspw_list_append(&devs[devno].tx_list, pkt);

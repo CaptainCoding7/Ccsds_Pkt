@@ -18,12 +18,17 @@
 #include <grlib/grspw_pkt.h>
 #include "grspw_pkt_lib.h"
 
+#include "../ccsds/CCSDS_Pkt.h"
+#include "../ccsds/Apid.h"
+
 #define DEVS_MAX 4 // 32
 #define PKT_SIZE 32
+#define CCSDS_PKT_SIZE 14 //16
 #define DATA_MAX 136 //120 + 16
 
 /* Protocol ID */
 #define SPW_PROT_ID 155
+#define GRSPW_PORT 43
 
 
 struct grspw_device {
@@ -51,22 +56,6 @@ struct route_entry {
 /******************************************************************************/
 /// Structures
 
-/* SpaceWire packet payload (data) content layout */
-struct pkt_hdr {
-	unsigned char addr;
-	unsigned char protid;
-	unsigned char port_src; /* port index of source */
-	unsigned char resv2; /* Zero for now */
-	unsigned int data[(PKT_SIZE-4)/4];
-};
-
-/* Custom pkt_hdr structure */
-struct my_pkt_hdr{
-	unsigned char addr;
-	unsigned char protid; /* necessary to receive data */
-	unsigned int data[(PKT_SIZE-4)/4];
-};
-
 struct spwpkt {
 	struct grspw_pkt p;
 	unsigned long long data[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
@@ -76,10 +65,29 @@ struct spwpkt {
 
 /******  Functions  *******************/
 
-void pkt_init_hdr(struct grspw_pkt *pkt, struct route_entry *route, int idx);
-void init_pkts(struct grspw_device *devs, struct spwpkt pkts[DEVS_MAX][DATA_MAX]);
-int dma_RX(struct grspw_device *dev);
+
+/**
+ * This function is used to fill an int array from a string array.
+ * Each hexadecimal value contained in the string array is converted into decimal 
+ * value and then put into the int array.
+ * This function is called in init_pkts()
+ */
+void init_simple_pkt_data(int *decs, char *word);
+
+/**
+ * This function is called to initialize the packet data
+ * The two last arguments are used to initialize the spw header
+ */
+void init_pkts(struct grspw_device *devs,
+			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
+			   int dest_port_addr);
+/**
+ * This function prints each field of the CCSDS pkt given in argument
+ */
+void print_CCSDS_pkt(void *data);
+
 int dma_TX(struct grspw_device *dev);
+int dma_RX(struct grspw_device *dev);
 
 
 #endif /* PKT_UTILS_H_ */
