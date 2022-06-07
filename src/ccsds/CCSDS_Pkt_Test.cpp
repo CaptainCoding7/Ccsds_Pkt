@@ -55,74 +55,37 @@ extern "C" void test_create_CCSDS_Pkt()
 
 
 /// UPDATE: Use of smart pointers=> need intermediary functions to actually create the smart pointer
-unique_ptr<CCSDS_Pkt_TC> get_CCSDS_Pkt_up(unsigned char dest_port_addr) {
-	return make_unique<CCSDS_Pkt_TC>(dest_port_addr,2,0,0);
+shared_ptr<CCSDS_Pkt_TC> get_CCSDS_Pkt_up(unsigned char dest_port_addr) {
+	return make_shared<CCSDS_Pkt_TC>(dest_port_addr,2,0,0);
 }
-//unique_ptr<Spw_hdr> get_Spw_hdr_up(unsigned char dest_port_addr) {
-//	return make_unique<Spw_hdr>(dest_port_addr,2, 0, 0);
-//}
-//unique_ptr<Prim_hdr> get_Prim_hdr_up() {
-//	return make_unique<Prim_hdr>();
-//}
-//unique_ptr<Sec_hdr> get_Sec_hdr_up() {
-//	return make_unique<Sec_hdr>();
-//}
-
 
 //CCSDS_Pkt_TC *createCCSDS_Pkt()
 extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 {
 	/// **p = &p
 	//return new CCSDS_Pkt_TC(*pspw_hdr,*pprim_hdr,*psec_hdr);
-    return new unique_ptr<CCSDS_Pkt_TC>( get_CCSDS_Pkt_up(dest_port_addr) );
-}
-
-/* unused */
-//extern "C"  SPW_HDR create_spw_hdr(unsigned char dest_port_addr)
-//{
-//    //return new Spw_hdr(dest_port_addr,2, 0, 0);
-//    return new unique_ptr<Spw_hdr>( get_Spw_hdr_up(dest_port_addr) );
-//}
-//extern "C" PRIM_HDR create_prim_hdr()
-//{
-//	//return new Prim_hdr();
-//    return new unique_ptr<Prim_hdr>( get_Prim_hdr_up() );
-//}
-//extern "C" SEC_HDR create_sec_hdr()
-//{
-//    return new unique_ptr<Sec_hdr>( get_Sec_hdr_up() );
-//}
-
-/****** delete  *****/
-
-/// CCSDS_Pkt -------------------
-extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt)
-{
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
-	delete pccsds_pkt;
+    return new shared_ptr<CCSDS_Pkt_TC>( get_CCSDS_Pkt_up(dest_port_addr) );
 }
 
 
 /*****************   Getter calls ********************/
 
 /// CCSDS_Pkt -------------------
+extern "C" SPW_HDR call_CCSDS_Pkt_get_spw_hdr(CCSDS_PKT ccsds_pkt)
+{
+	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	return pccsds_pkt->get_spw_hdr();
+}
 extern "C" PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
 	return pccsds_pkt->get_prim_hdr();
 }
 extern "C" SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
 	return pccsds_pkt->get_sec_hdr();
 }
-
-extern "C" SPW_HDR call_CCSDS_Pkt_get_spw_hdr(CCSDS_PKT ccsds_pkt)
-{
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
-	return pccsds_pkt->get_spw_hdr();
-}
-
 
 /// Spw_hdr -------------------
 extern "C" unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr)

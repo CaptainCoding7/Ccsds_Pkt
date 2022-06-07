@@ -43,7 +43,6 @@ namespace tmtc
 		~CCSDS_Pkt_TC()
 		{
 		std::cout << "ccsds pkt destr" << std::endl;
-
 		}
 
 		void set_prim_hdr(Prim_hdr *ph)
@@ -53,6 +52,7 @@ namespace tmtc
 
 		Prim_hdr *get_prim_hdr()
 		{
+			std::cout << "get prim hdr !"<< std::endl;
 			return &m_prim_hdr;
 		}
 
@@ -64,6 +64,7 @@ namespace tmtc
 
 		Sec_hdr *get_sec_hdr()
 		{
+			std::cout << "get sec hdr !"<< std::endl;
 			return &m_sec_hdr;
 		}
 
@@ -75,6 +76,7 @@ namespace tmtc
 
 		Spw_hdr *get_spw_hdr()
 		{
+			std::cout << "get spw hdr !"<< std::endl;
 			return &m_spw_hdr;
 		}
 

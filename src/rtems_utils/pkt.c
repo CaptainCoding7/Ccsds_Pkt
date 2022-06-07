@@ -89,9 +89,9 @@ void init_pkts(struct grspw_device *devs,
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
 				// using a smart pointer
-				CCSDS_PKT up_ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+				//CCSDS_PKT up_ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
 
-				pkt->p.data = up_ccsds_pkt;
+				pkt->p.data = create_CCSDS_Pkt(dest_port_addr);
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
@@ -151,6 +151,9 @@ int dma_TX(struct grspw_device *dev)
 					printf(" 0x%02x", *c);
 
 				}
+				printf("\n\n");
+
+
 				print_CCSDS_pkt(pkt->data);
 
 			}
@@ -231,7 +234,7 @@ int dma_RX(struct grspw_device *dev)
 				print_CCSDS_pkt(pkt->data);
 				//print_CCSDS_pkt(ccsds_pkt_global);
 
-				delete_CCSDS_Pkt(pkt->data);
+				//delete_CCSDS_Pkt(pkt->data);
 
 				printf("\n\n");
 			}
