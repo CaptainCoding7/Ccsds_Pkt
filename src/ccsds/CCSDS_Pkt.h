@@ -128,9 +128,11 @@ void test_create_CCSDS_Pkt();
 /*** Creation of C++ objects (+return) ***/
 //CCSDS_PKT create_CCSDS_Pkt(SPW_HDR spw_hdr,PRIM_HDR prim_hdr,SEC_HDR sec_hdr);
 CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
-SPW_HDR create_spw_hdr(unsigned char dest_port_addr);
-PRIM_HDR create_prim_hdr();
-SEC_HDR create_sec_hdr();
+
+/* unused */
+//SPW_HDR create_spw_hdr(unsigned char dest_port_addr);
+//PRIM_HDR create_prim_hdr();
+//SEC_HDR create_sec_hdr();
 
 /// delete
 void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt);

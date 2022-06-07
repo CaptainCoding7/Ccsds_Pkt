@@ -61,21 +61,22 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 	return new CCSDS_Pkt_TC(dest_port_addr,2, 0, 0);
 }
 
-
-extern "C"  SPW_HDR create_spw_hdr(unsigned char dest_port_addr)
-{
-    return new Spw_hdr(dest_port_addr,2, 0, 0);
-}
-
-extern "C" PRIM_HDR create_prim_hdr()
-{
-	return new Prim_hdr();
-
-}
-extern "C" SEC_HDR create_sec_hdr()
-{
-	return new Sec_hdr();
-}
+/* unused */
+//
+//extern "C"  SPW_HDR create_spw_hdr(unsigned char dest_port_addr)
+//{
+//    return new Spw_hdr(dest_port_addr,2, 0, 0);
+//}
+//
+//extern "C" PRIM_HDR create_prim_hdr()
+//{
+//	return new Prim_hdr();
+//
+//}
+//extern "C" SEC_HDR create_sec_hdr()
+//{
+//	return new Sec_hdr();
+//}
 
 /****** delete  *****/
 
