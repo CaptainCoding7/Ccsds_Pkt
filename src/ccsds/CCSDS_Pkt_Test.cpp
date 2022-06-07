@@ -55,16 +55,19 @@ extern "C" void test_create_CCSDS_Pkt()
 
 
 /// UPDATE: Use of smart pointers=> need intermediary functions to actually create the smart pointer
-shared_ptr<CCSDS_Pkt_TC> get_CCSDS_Pkt_up(unsigned char dest_port_addr) {
-	return make_shared<CCSDS_Pkt_TC>(dest_port_addr,2,0,0);
+unique_ptr<CCSDS_Pkt_TC> get_CCSDS_Pkt_sp(unsigned char dest_port_addr) {
+	return make_unique<CCSDS_Pkt_TC>(dest_port_addr,2,0,0);
+	//unique_ptr<CCSDS_Pkt_TC> ccsds_pkt(new CCSDS_Pkt_TC(dest_port_addr, 2, 0,0));
+	//return ccsds_pkt;
 }
 
-//CCSDS_Pkt_TC *createCCSDS_Pkt()
 extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 {
 	/// **p = &p
 	//return new CCSDS_Pkt_TC(*pspw_hdr,*pprim_hdr,*psec_hdr);
-    return new shared_ptr<CCSDS_Pkt_TC>( get_CCSDS_Pkt_up(dest_port_addr) );
+	auto pkt = get_CCSDS_Pkt_sp(dest_port_addr);
+    //return (new unique_ptr<CCSDS_Pkt_TC>( get_CCSDS_Pkt_sp(dest_port_addr)))->get();
+	return pkt.release();
 }
 
 
@@ -73,41 +76,44 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 /// CCSDS_Pkt -------------------
 extern "C" SPW_HDR call_CCSDS_Pkt_get_spw_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	//auto &pccsds_pkt = *static_cast<unique_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	auto pccsds_pkt = static_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	return pccsds_pkt->get_spw_hdr();
 }
 extern "C" PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	//auto &pccsds_pkt = *static_cast<unique_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	auto pccsds_pkt = static_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	return pccsds_pkt->get_prim_hdr();
 }
 extern "C" SEC_HDR call_CCSDS_Pkt_get_sec_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto &pccsds_pkt = *reinterpret_cast<shared_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	//auto &pccsds_pkt = *static_cast<unique_ptr<CCSDS_Pkt_TC>*>(ccsds_pkt);
+	auto pccsds_pkt = static_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	return pccsds_pkt->get_sec_hdr();
 }
 
 /// Spw_hdr -------------------
 extern "C" unsigned char call_Spw_hdr_get_addr(SPW_HDR spw_hdr)
 {
-	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	auto pspw_hdr = static_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_addr();
 }
 extern "C" unsigned char call_Spw_hdr_get_protid(SPW_HDR spw_hdr)
 {
-	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	auto pspw_hdr = static_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_protid();
 
 }
 extern "C" unsigned char call_Spw_hdr_get_spare(SPW_HDR spw_hdr)
 {
-	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	auto pspw_hdr = static_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_spare();
 
 }
 extern "C" unsigned char call_Spw_hdr_get_user_app(SPW_HDR spw_hdr)
 {
-	auto pspw_hdr = reinterpret_cast<Spw_hdr*>(spw_hdr);
+	auto pspw_hdr = static_cast<Spw_hdr*>(spw_hdr);
 	return pspw_hdr->get_user_app();
 
 }
@@ -115,42 +121,42 @@ extern "C" unsigned char call_Spw_hdr_get_user_app(SPW_HDR spw_hdr)
 /// Prim_hdr --------------------
 extern "C" enum Id call_Prim_hdr_get_id(PRIM_HDR prim_hdr)
 {
-	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<IDFIELD*>(pprim_hdr->get_ccsdsId_BE());
+	auto pprim_hdr = static_cast<Prim_hdr*>(prim_hdr);
+	//return static_cast<IDFIELD*>(pprim_hdr->get_ccsdsId_BE());
 	return pprim_hdr->get_ccsdsId_BE();
 }
 extern "C" uint16_t call_Prim_hdr_get_counter(PRIM_HDR prim_hdr)
 {
-	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<COUNTERFIELD*>(pprim_hdr->get_ccsdsCounter_BE());
+	auto pprim_hdr = static_cast<Prim_hdr*>(prim_hdr);
+	//return static_cast<COUNTERFIELD*>(pprim_hdr->get_ccsdsCounter_BE());
 	return pprim_hdr->get_ccsdsCounter_BE();
 }
 extern "C" uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
 {
-	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<LENFIELD*>(pprim_hdr->get_ccsdsPLength_BE());
+	auto pprim_hdr = static_cast<Prim_hdr*>(prim_hdr);
+	//return static_cast<LENFIELD*>(pprim_hdr->get_ccsdsPLength_BE());
 	return pprim_hdr->get_ccsdsPLength_BE();
 }
 
 /// Sec_hdr -----------------------
 extern "C" uint8_t call_Sec_hdr_get_serviceType(SEC_HDR sec_hdr)
 {
-	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	auto psec_hdr = static_cast<Sec_hdr*>(sec_hdr);
 	return psec_hdr->getMServiceType();
 }
 extern "C" uint8_t call_Sec_hdr_get_serviceSubType(SEC_HDR sec_hdr)
 {
-	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	auto psec_hdr = static_cast<Sec_hdr*>(sec_hdr);
 	return psec_hdr->getMServiceSubType();
 }
 extern "C" uint8_t call_Sec_hdr_get_sourceId(SEC_HDR sec_hdr)
 {
-	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	auto psec_hdr = static_cast<Sec_hdr*>(sec_hdr);
 	return psec_hdr->getMSourceId();
 }
 
 extern "C" uint8_t call_Sec_hdr_get_ackflag(SEC_HDR sec_hdr)
 {
-	auto psec_hdr = reinterpret_cast<Sec_hdr*>(sec_hdr);
+	auto psec_hdr = static_cast<Sec_hdr*>(sec_hdr);
 	return psec_hdr->getMAck();
 }

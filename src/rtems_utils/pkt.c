@@ -3,9 +3,9 @@
 
 void print_CCSDS_pkt(void *data)
 {
+	SPW_HDR spw_hdr = call_CCSDS_Pkt_get_spw_hdr(data);
 	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(data);
 	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(data);
-	SPW_HDR spw_hdr = call_CCSDS_Pkt_get_spw_hdr(data);
 
 	//getting spw_hdr fields
 	unsigned char spw_addr = call_Spw_hdr_get_addr(spw_hdr);
@@ -89,9 +89,10 @@ void init_pkts(struct grspw_device *devs,
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
 				// using a smart pointer
-				//CCSDS_PKT up_ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+				CCSDS_PKT up_ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
 
-				pkt->p.data = create_CCSDS_Pkt(dest_port_addr);
+				//pkt->p.data = create_CCSDS_Pkt(dest_port_addr);
+				pkt->p.data = up_ccsds_pkt;
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);

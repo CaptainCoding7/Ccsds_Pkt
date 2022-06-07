@@ -133,7 +133,7 @@ CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
 SPW_HDR create_spw_hdr(unsigned char dest_port_addr);
 PRIM_HDR create_prim_hdr();
 SEC_HDR create_sec_hdr();
-
+CCSDS_PKT create_CCSDS_Pkt_old(unsigned char dest_port_addr);
 /// delete
 void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt);
 
