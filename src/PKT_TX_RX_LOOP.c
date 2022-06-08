@@ -142,6 +142,9 @@ extern struct router_hw_info router_hw;
 extern void *router;
 int router_present = 0;
 
+void *toDel;
+
+
 /***********************************************/
 
 /*
@@ -271,7 +274,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	init_router();
 
 	/* Initialize packets */
-	init_pkts(devs, pkts, amba_dest_port);
+	init_pkts(devs, pkts, amba_dest_port, &toDel);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
@@ -333,6 +336,8 @@ rtems_task test_app(rtems_task_argument ignored)
 	for ( i=0; i<nospw; i++)
 		dev_cleanup(i);
 	rtems_task_wake_after(8);
+
+	delete_CCSDS_Pkt(toDel);
 
 	printf("\n\nEXAMPLE COMPLETED.\n\n");
 	exit(0);

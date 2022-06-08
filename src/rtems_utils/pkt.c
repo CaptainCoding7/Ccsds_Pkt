@@ -1,6 +1,5 @@
 #include "pkt.h"
 
-
 void print_CCSDS_pkt(void *data)
 {
 	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(data);
@@ -57,7 +56,8 @@ void print_CCSDS_pkt(void *data)
 
 void init_pkts(struct grspw_device *devs,
 			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
-			   int dest_port_addr)
+			   int dest_port_addr,
+			   void **toDel)
 {
 	struct spwpkt *pkt;
 	int i, j;
@@ -88,15 +88,11 @@ void init_pkts(struct grspw_device *devs,
 				/* TX buffer */
 				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
 
-				// create a default CCSDS object
-				//SPW_HDR spw_hdr = create_spw_hdr(dest_port_addr);
-				//PRIM_HDR prim_hdr = create_prim_hdr();
-				//SEC_HDR sec_hdr = create_sec_hdr();
-				//CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(spw_hdr, prim_hdr, sec_hdr);
 
 				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
 
 				pkt->p.data = ccsds_pkt;
+				*toDel = ccsds_pkt;
 
 				/* Add to device TX list */
 				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
@@ -221,23 +217,13 @@ int dma_RX(struct grspw_device *dev)
 				} else
 					printf(" PKT");
 				c = (unsigned char *)pkt->data;
-				//c = (unsigned char *) ccsds_pkt_global;
 				printf(" of length %d bytes: ", pkt->dlen);
-
-
 				/// PA : Ajout d'une boucle pour l'affichage (avant un seul printf)
 				for(int i=0;i<pkt->dlen;i++)
 					printf("0x%02x ", c[i]);
-
 				printf("\n");
 
-//				for (int i = -2; i < 3; i++)
-//					print_CCSDS_pkt(pkt->data +i );
 				print_CCSDS_pkt(pkt->data);
-				//print_CCSDS_pkt(ccsds_pkt_global);
-
-				delete_CCSDS_Pkt(pkt->data);
-
 				printf("\n\n");
 			}
 
@@ -245,6 +231,7 @@ int dma_RX(struct grspw_device *dev)
 			grspw_list_append_list(&dev->rx_list, &lst);
 			dev->rx_list_cnt += cnt;
 		}
+
 
 		return 0;
 }

@@ -80,7 +80,8 @@ void init_simple_pkt_data(int *decs, char *word);
  */
 void init_pkts(struct grspw_device *devs,
 			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
-			   int dest_port_addr);
+			   int dest_port_addr,
+			   void **toDel);
 /**
  * This function prints each field of the CCSDS pkt given in argument
  */
