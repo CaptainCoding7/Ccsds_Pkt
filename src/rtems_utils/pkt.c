@@ -55,50 +55,48 @@ void print_CCSDS_pkt(void *data)
 
 
 void init_pkts(struct grspw_device *devs,
-			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
-			   int dest_port_addr,
+			   int tx_devno,
+			   int rx_devno,
+			   int dest_log_addr,
+			   size_t nb_pkts,
+			   struct spwpkt pkts[nb_pkts],
 			   void **toDel)
 {
 	struct spwpkt *pkt;
 	int i, j;
 
-	memset(&pkts[0][0], 0, sizeof(pkts));
+	memset(&pkts[0], 0, sizeof(pkts));
 
-	for (i = 0; i < DEVS_MAX; i++) {
-
-		grspw_list_clr(&devs[i].rx_list);
-		grspw_list_clr(&devs[i].tx_list);
-		grspw_list_clr(&devs[i].tx_buf_list);
-		devs[i].rx_list_cnt = 0;
-		devs[i].tx_list_cnt = 0;
-		devs[i].tx_buf_list_cnt = 0;
-
-		for (j = 0, pkt = &pkts[i][0]; j < DATA_MAX; j++, pkt = &pkts[i][j]) {
-			pkt->p.pkt_id = (i << 8)+ j; /* unused */
-			// structures addresses are aligned:
-			pkt->p.hdr = &pkt->hdr[0];
-			pkt->p.data = &pkt->data[0];
-			if (j < 120+8) {
-				/* RX buffer */
-
-				/* Add to device RX list */
-				grspw_list_append(&devs[i].rx_list, &pkt->p);
-				devs[i].rx_list_cnt++;
-			} else {
-				/* TX buffer */
-				pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
+	grspw_list_clr(&devs[rx_devno].rx_list);
+	grspw_list_clr(&devs[tx_devno].tx_list);
+	grspw_list_clr(&devs[tx_devno].tx_buf_list);
+	devs[rx_devno].rx_list_cnt = 0;
+	devs[tx_devno].tx_list_cnt = 0;
+	devs[tx_devno].tx_buf_list_cnt = 0;
 
 
-				CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_port_addr);
+	for (j = 0, pkt = &pkts[0]; j < nb_pkts; j++, pkt = &pkts[j]) {
+		//pkt->p.pkt_id = (i << 8)+ j; /* unused */
+		// structures addresses are aligned:
+		pkt->p.hdr = &pkt->hdr[0];
+		pkt->p.data = &pkt->data[0];
 
-				pkt->p.data = ccsds_pkt;
-				*toDel = ccsds_pkt;
+		/* Add to device RX list */
+		grspw_list_append(&devs[rx_devno].rx_list, &pkt->p);
+		devs[rx_devno].rx_list_cnt++;
 
-				/* Add to device TX list */
-				grspw_list_append(&devs[i].tx_buf_list, &pkt->p);
-				devs[i].tx_buf_list_cnt++;
-			}
-		}
+		/* TX buffer */
+		pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
+
+		CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_log_addr);
+		printf("New packet has been created !\n");
+		pkt->p.data = ccsds_pkt;
+		*toDel = ccsds_pkt;
+
+		/* Add to device TX list */
+		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);
+		devs[tx_devno].tx_buf_list_cnt++;
+
 	}
 
 }

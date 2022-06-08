@@ -136,7 +136,8 @@ rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
 // All packet buffers used by application :
-struct spwpkt pkts[DEVS_MAX][DATA_MAX];
+//struct spwpkt pkts[DEVS_MAX][DATA_MAX];
+struct spwpkt *pkts;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
@@ -253,15 +254,16 @@ rtems_task test_app(rtems_task_argument ignored)
 	struct route_entry route;
 
 	int spw_src_port, spw_dest_port, amba_dest_port;
-	int devno, nb_pkts_to_transmit;
+	int tx_devno, rx_devno, nb_pkts_to_transmit;
 	int pkt_cnt=0;
 
 ////////////////////////////////////////////////////////////////////////////////
-///	APP PARAMETERS                                                           ///
-	/// devno is the number of the GRSPW device used
-	devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
+///	APP PARAMETERS
 	spw_src_port = 3;
-	spw_dest_port=6;
+	spw_dest_port=6;                                                     ///
+	/// devno is the number of the GRSPW device used
+	tx_devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
+	rx_devno = 2;
 	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
 	/// 0x2b is the same as 0x9b but without header deletion
 	amba_dest_port = 0x2b; //0x9b;
@@ -274,7 +276,10 @@ rtems_task test_app(rtems_task_argument ignored)
 	init_router();
 
 	/* Initialize packets */
-	init_pkts(devs, pkts, amba_dest_port, &toDel);
+	//void *pkts_to_del[nb_pkts_to_transmit];
+	pkts = malloc(sizeof(struct spwpkt) * nb_pkts_to_transmit);
+	init_pkts(devs, tx_devno, rx_devno, amba_dest_port,
+			nb_pkts_to_transmit, pkts, &toDel);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
@@ -299,18 +304,18 @@ rtems_task test_app(rtems_task_argument ignored)
 
 		pkt_cnt++;
 		printf("------ PKT %d ------\n-------------------\n", pkt_cnt);
-		printf("TX on GRSPW device %d (AMBA port %d)\n", devno, devno+1);
+		printf("TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1);
 
 		/* Get a TX packet buffer */
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		pkt = devs[devno].tx_buf_list.head;
+		pkt = devs[tx_devno].tx_buf_list.head;
 		if (pkt == NULL) {
 			printf(" No free transmit buffers available\n");
 		}
-		devs[devno].tx_buf_list.head = pkt->next;
-		devs[devno].tx_buf_list_cnt--;
+		devs[tx_devno].tx_buf_list.head = pkt->next;
+		devs[tx_devno].tx_buf_list_cnt--;
 		if (pkt->next == NULL)
-			devs[devno].tx_buf_list.tail = NULL;
+			devs[tx_devno].tx_buf_list.tail = NULL;
 
 		// grspw_pkt header contains the source address (will be deleted when TX)
 		unsigned char *hdr = pkt->hdr;
@@ -319,13 +324,13 @@ rtems_task test_app(rtems_task_argument ignored)
 		pkt->hlen = 2;
 
 		/* Send packet by adding it to the tx_list */
-		grspw_list_append(&devs[devno].tx_list, pkt);
-		devs[devno].tx_list_cnt++;
+		grspw_list_append(&devs[tx_devno].tx_list, pkt);
+		devs[tx_devno].tx_list_cnt++;
 
 	////////////////
 		nb_pkts_to_transmit--;
 		// the device used is changed as a new packet is sent
-		devno = nb_pkts_to_transmit%DEVS_MAX;
+		//devno = nb_pkts_to_transmit%DEVS_MAX;
 	////////////////
 
 		rtems_semaphore_release(dma_sem);

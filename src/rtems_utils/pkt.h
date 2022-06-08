@@ -79,8 +79,11 @@ void init_simple_pkt_data(int *decs, char *word);
  * The two last arguments are used to initialize the spw header
  */
 void init_pkts(struct grspw_device *devs,
-			   struct spwpkt pkts[DEVS_MAX][DATA_MAX],
+			   int tx_devno,
+			   int rx_devno,
 			   int dest_port_addr,
+			   size_t nb_pkts,
+			   struct spwpkt pkts[nb_pkts],
 			   void **toDel);
 /**
  * This function prints each field of the CCSDS pkt given in argument
