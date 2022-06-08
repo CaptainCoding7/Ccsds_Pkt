@@ -135,9 +135,10 @@ rtems_id tid, tid_link, tid_dma;
 rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
-// All packet buffers used by application :
+/// All packet buffers used by application :
 //struct spwpkt pkts[DEVS_MAX][DATA_MAX];
 struct spwpkt *pkts;
+//void **pkts_to_del;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
@@ -254,7 +255,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	struct route_entry route;
 
 	int spw_src_port, spw_dest_port, amba_dest_port;
-	int tx_devno, rx_devno, nb_pkts_to_transmit;
+	int tx_devno, rx_devno, nb_pkts_to_transmit, nb_pkts_init;
 	int pkt_cnt=0;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,8 +268,8 @@ rtems_task test_app(rtems_task_argument ignored)
 	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
 	/// 0x2b is the same as 0x9b but without header deletion
 	amba_dest_port = 0x2b; //0x9b;
-	/// The number of packets to transmit
-	nb_pkts_to_transmit=1;
+	/// The number of packets to transmit, will decrease
+	nb_pkts_to_transmit=2;
 ///                                                                          ///
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -276,10 +277,13 @@ rtems_task test_app(rtems_task_argument ignored)
 	init_router();
 
 	/* Initialize packets */
-	//void *pkts_to_del[nb_pkts_to_transmit];
+	/// this variable won't decrease !
+	nb_pkts_init = nb_pkts_to_transmit;
 	pkts = malloc(sizeof(struct spwpkt) * nb_pkts_to_transmit);
+	//pkts_to_del = malloc(sizeof(void *) * nb_pkts_to_transmit);
+
 	init_pkts(devs, tx_devno, rx_devno, amba_dest_port,
-			nb_pkts_to_transmit, pkts, &toDel);
+			nb_pkts_to_transmit, pkts);//, pkts_to_del);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
@@ -336,15 +340,24 @@ rtems_task test_app(rtems_task_argument ignored)
 		rtems_semaphore_release(dma_sem);
 	}
 
-	rtems_task_wake_after(500);
+
+	rtems_task_wake_after(100);
 	tasks_stop = 1;
 	for ( i=0; i<nospw; i++)
 		dev_cleanup(i);
 	rtems_task_wake_after(8);
 
-	delete_CCSDS_Pkt(toDel);
+	printf("\n\n[DEBUG]--------- MEMORY CLEANING ---------.\n\n");
 
-	printf("\n\nEXAMPLE COMPLETED.\n\n");
+	for (int i = 0; i < nb_pkts_init; i++) {
+		delete_CCSDS_Pkt(pkts[i].p.data, i);
+	}
+
+	free(pkts);
+	printf("=>Array of packets has been freed.\n");
+	//free(pkts_to_del);
+
+	printf("\nEXAMPLE COMPLETED.\n\n");
 	exit(0);
 
 }

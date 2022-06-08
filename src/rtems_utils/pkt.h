@@ -83,8 +83,9 @@ void init_pkts(struct grspw_device *devs,
 			   int rx_devno,
 			   int dest_port_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts],
-			   void **toDel);
+			   struct spwpkt pkts[nb_pkts]//,
+			   //void **pkts_to_del
+			   );
 /**
  * This function prints each field of the CCSDS pkt given in argument
  */

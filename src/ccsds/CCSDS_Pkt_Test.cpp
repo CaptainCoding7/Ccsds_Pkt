@@ -64,11 +64,11 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 /****** delete  *****/
 
 /// CCSDS_Pkt -------------------
-extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt)
+extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no)
 {
 	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	delete pccsds_pkt;
-	cout << "Packet has been deleted !" << endl;
+	cout << "\n=> Packet n_" << no+1 << " has been deleted.\n" << endl;
 }
 
 

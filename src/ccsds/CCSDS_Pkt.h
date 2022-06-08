@@ -128,7 +128,7 @@ void test_create_CCSDS_Pkt();
 CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
 
 /// delete
-void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt);
+void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no);
 
 
 /*** Getter calls ***/

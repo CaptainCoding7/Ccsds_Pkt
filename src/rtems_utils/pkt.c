@@ -59,11 +59,11 @@ void init_pkts(struct grspw_device *devs,
 			   int rx_devno,
 			   int dest_log_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts],
-			   void **toDel)
+			   struct spwpkt pkts[nb_pkts])//,
+			   //void **pkts_to_del)
 {
 	struct spwpkt *pkt;
-	int i, j;
+	int i;
 
 	memset(&pkts[0], 0, sizeof(pkts));
 
@@ -75,8 +75,7 @@ void init_pkts(struct grspw_device *devs,
 	devs[tx_devno].tx_buf_list_cnt = 0;
 
 
-	for (j = 0, pkt = &pkts[0]; j < nb_pkts; j++, pkt = &pkts[j]) {
-		//pkt->p.pkt_id = (i << 8)+ j; /* unused */
+	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
 		// structures addresses are aligned:
 		pkt->p.hdr = &pkt->hdr[0];
 		pkt->p.data = &pkt->data[0];
@@ -91,7 +90,7 @@ void init_pkts(struct grspw_device *devs,
 		CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_log_addr);
 		printf("New packet has been created !\n");
 		pkt->p.data = ccsds_pkt;
-		*toDel = ccsds_pkt;
+		//pkts_to_del[i] = ccsds_pkt;
 
 		/* Add to device TX list */
 		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);
