@@ -58,8 +58,8 @@ struct route_entry {
 
 struct spwpkt {
 	struct grspw_pkt p;
-	unsigned long long data[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
-	unsigned long long hdr[2]; /* up to 16byte header (path address) */
+	unsigned long long ccscds_pkt[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
+	unsigned long long path_hdr[2]; /* up to 16byte header (path address) */
 };
 
 

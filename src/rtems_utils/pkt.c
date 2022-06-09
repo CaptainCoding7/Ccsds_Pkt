@@ -76,8 +76,8 @@ void init_pkts(struct grspw_device *devs,
 	devs[tx_devno].tx_buf_list_cnt = 0;
 
 	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
-		pkt->p.hdr = &pkt->hdr[0];
-		pkt->p.data = &pkt->data[0];
+		pkt->p.hdr = &pkt->path_hdr[0];
+		pkt->p.data = &pkt->ccscds_pkt[0];
 
 		/* RX buffer */
 		/* Add to device RX list */
