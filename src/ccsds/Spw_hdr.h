@@ -10,12 +10,6 @@
 
 #include "../debug_print.h"
 
-namespace ecl
-{
-namespace core
-{
-namespace tmtc
-{
 
 	class Spw_hdr
 	{
@@ -97,10 +91,6 @@ Spw_hdr::~Spw_hdr()
 	DBG(("spw_hdr destr\n"));
 }
 
-
-} /* namespace tmtc */
-} /* namespace core */
-} /* namespace ecl */
 
 
 #endif /* CCSDS_SPW_HDR_H_ */

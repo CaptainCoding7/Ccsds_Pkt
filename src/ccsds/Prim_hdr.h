@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef ECL_CORE_TMTC_PKTCCSDS_H_
-#define ECL_CORE_TMTC_PKTCCSDS_H_
+#ifndef PRIM_HDR_H_
+#define PRIM_HDR_H_
 
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldHelper.h>
@@ -25,12 +25,8 @@
 #include "Types.h"
 #include "Apid.h"
 
-namespace ecl
-{
-namespace core
-{
-namespace tmtc
-{
+using namespace ecl;
+using namespace ecl::core::tmtc;
 
 /**
  * CCSDS Packet Header (6 bytes) - base class of all CCSDS Packets
@@ -306,8 +302,5 @@ struct Prim_hdr::Dispatcher
 	}
 };
 
-} /* namespace tmtc */
-} /* namespace core */
-} /* namespace ecl */
 
-#endif /* ECL_CORE_TMTC_PKTCCSDS_H_ */
+#endif /* PRIM_HDR_H_ */

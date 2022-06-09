@@ -23,7 +23,8 @@
 
 #define DEVS_MAX 4 // 32
 #define PKT_SIZE 32
-#define CCSDS_PKT_SIZE 14 //16
+#define APP_DATA_SIZE 2 //500
+#define CCSDS_PKT_SIZE 18+APP_DATA_SIZE
 #define DATA_MAX 136 //120 + 16
 
 /* Protocol ID */
@@ -58,8 +59,9 @@ struct route_entry {
 
 struct spwpkt {
 	struct grspw_pkt p;
-	unsigned long long data[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
-	unsigned long long hdr[2]; /* up to 16byte header (path address) */
+	//unsigned long long ccsds_pkt[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
+	unsigned long long ccsds_pkt[CCSDS_PKT_SIZE];
+	unsigned long long path_hdr[2]; /* up to 16byte header (path address) */
 };
 
 
