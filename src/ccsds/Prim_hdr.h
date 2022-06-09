@@ -20,6 +20,8 @@
 
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldHelper.h>
+
+#include "../debug_print.h"
 #include "Types.h"
 #include "Apid.h"
 
@@ -107,7 +109,7 @@ public:
 
 	~Prim_hdr()
 	{
-		std::cout << "prim_hdr destr" << std::endl;
+		DBG(("prim_hdr destr\n"));
 
 	}
 

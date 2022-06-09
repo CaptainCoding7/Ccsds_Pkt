@@ -79,7 +79,7 @@ int dev_init(int idx)
 	struct grspw_device *dev = &devs[idx];
 	int i, ctrl, clkdiv, tc;
 
-	printf(" Initializing SpaceWire device %d\n", idx);
+	//printf(" Initializing SpaceWire device %d\n", idx);
 
 	memset(dev, 0, sizeof(struct grspw_device));
 
@@ -132,7 +132,7 @@ int dev_init(int idx)
 		printf(" NOTE: running on SPW-ROUTER DMA SpaceWire link (no link-state available)\n");
 	}
 	else
-		printf(" After Link Start: %d\n", (int)grspw_link_state(dev->dh));
+		//printf(" After Link Start: %d\n", (int)grspw_link_state(dev->dh));
 	dev->run = 0;
 
 	grspw_stats_clr(dev->dh);

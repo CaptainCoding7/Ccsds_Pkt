@@ -24,7 +24,6 @@
 
 /* SpaceWire parameters */
 #define SPW_PROT_ID 155
-
 /* Number of SpaceWire ports supported */
 #define DEVS_MAX 4 //32
 
@@ -158,47 +157,52 @@ void init_router()
 	int i;
 
 /* Initialize two GRSPW AMBA ports */
-	printf("Setting up SpaceWire router\n");
+	DBG(("Setting up SpaceWire router\n"));
+	DBG(("Activating all Links/Ports...\n"));
 	if (router_setup_custom()) {
-		printf("Failed router initialization, assuming that it does not exists\n");
+		DBG(("Failed router initialization, assuming that it does not exists\n"));
 	} else {
 		/* on-chip router found */
 		if (router_hw.nports_amba < 2) {
-			printf("Error. Router with less than 2 AMBA ports not supported\n");
+			DBG(("Error. Router with less than 2 AMBA ports not supported\n"));
 			exit(0);
 		}
 		router_present = 1;
 	}
+	DBG(("OK\n\n"));
 
 	nospw = grspw_dev_count();
 	if (nospw < 1) {
-		printf("Found no SpaceWire cores, aborting\n");
+		DBG(("Found no SpaceWire cores, aborting\n"));
 		exit(0);
 	}
 	if (nospw > DEVS_MAX) {
-		printf("Limiting to %d SpaceWire devices\n", DEVS_MAX);
+		DBG(("Limiting to %d SpaceWire devices\n", DEVS_MAX));
 		nospw = DEVS_MAX;
 	}
 
+	DBG(("Initializing all SpaceWire devices...\n"));
 	memset(devs, 0, sizeof(devs));
 	for (i=0; i<nospw; i++) {
 		if (dev_init(i)) {
-			printf("Failed to initialize GRSPW%d\n", i);
+			DBG(("Failed to initialize GRSPW%d\n", i));
 			exit(0);
 		}
 		fflush(NULL);
 	}
+	DBG(("OK\n\n"));
 
-	printf("\n\nStarting SpW DMA channels\n");
+	DBG(("Starting SpW DMA channels...\n"));
 	for (i = 0; i < nospw; i++) {
-		printf("Starting GRSPW%d: ", i);
+		//DBG(("Starting GRSPW%d: ", i);
 		fflush(NULL);
 		if (grspw_start(DEV(&devs[i]))) {
-			printf("Failed to initialize GRSPW%d\n", i);
+			DBG(("Failed to initialize GRSPW%d\n", i));
 			exit(0);
 		}
-		printf("DMA Started Successfully\n");
+		//DBG(("DMA Started Successfully\n"));
 	}
+	DBG(("OK\n\n"));
 
 	fflush(NULL);
 }
@@ -236,7 +240,7 @@ rtems_task Init(
 	    RTEMS_FIFO | RTEMS_SIMPLE_BINARY_SEMAPHORE | \
 	    RTEMS_NO_INHERIT_PRIORITY | RTEMS_LOCAL | \
 	    RTEMS_NO_PRIORITY_CEILING, 0, &dma_sem) != RTEMS_SUCCESSFUL) {
-		printf("Failed creating Semaphore\n");
+		DBG(("Failed creating Semaphore\n"));
 		exit(0);
 	}
 
@@ -269,9 +273,11 @@ rtems_task test_app(rtems_task_argument ignored)
 	/// 0x2b is the same as 0x9b but without header deletion
 	amba_dest_port = 0x2b; //0x9b;
 	/// The number of packets to transmit, will decrease
-	nb_pkts_to_transmit=2;
+	nb_pkts_to_transmit=1;
 ///                                                                          ///
 ////////////////////////////////////////////////////////////////////////////////
+
+	DBG(("\nStarted test app task\n"));
 
 	/* Initialize router, AMBA ports */
 	init_router();
@@ -290,31 +296,31 @@ rtems_task test_app(rtems_task_argument ignored)
 	rtems_task_wake_after(12);
 
 	////////////
-	printf("\n***********  PKT TX/RX TEST  **************\n\n");
+	DBG(("\n***********  PKT TX/RX TEST  **************\n\n"));
 
 	memset(&route, 0, sizeof(route));
 	route.dstadr[0]=spw_src_port;
 	route.dstadr[1]=spw_dest_port;
 	route.dstadr[2]=amba_dest_port;
 
-	printf("SPW src port : %d\n", spw_src_port);
-	printf("SPW dest port : %d\n", spw_dest_port);
-	printf("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit);
+	DBG(("SPW src port : %d\n", spw_src_port));
+	DBG(("SPW dest port : %d\n", spw_dest_port));
+	DBG(("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit));
 
 	while(nb_pkts_to_transmit!=0)
 	{
 
-		rtems_task_wake_after(500);
+		rtems_task_wake_after(100);
 
 		pkt_cnt++;
-		printf("------ PKT %d ------\n-------------------\n", pkt_cnt);
-		printf("TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1);
+		DBG(("------ PKT %d ------\n-------------------\n", pkt_cnt));
+		DBG(("TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1));
 
 		/* Get a TX packet buffer */
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 		pkt = devs[tx_devno].tx_buf_list.head;
 		if (pkt == NULL) {
-			printf(" No free transmit buffers available\n");
+			DBG((" No free transmit buffers available\n"));
 		}
 		devs[tx_devno].tx_buf_list.head = pkt->next;
 		devs[tx_devno].tx_buf_list_cnt--;
@@ -331,11 +337,7 @@ rtems_task test_app(rtems_task_argument ignored)
 		grspw_list_append(&devs[tx_devno].tx_list, pkt);
 		devs[tx_devno].tx_list_cnt++;
 
-	////////////////
 		nb_pkts_to_transmit--;
-		// the device used is changed as a new packet is sent
-		//devno = nb_pkts_to_transmit%DEVS_MAX;
-	////////////////
 
 		rtems_semaphore_release(dma_sem);
 	}
@@ -347,17 +349,20 @@ rtems_task test_app(rtems_task_argument ignored)
 		dev_cleanup(i);
 	rtems_task_wake_after(8);
 
-	printf("\n\n[DEBUG]--------- MEMORY CLEANING ---------.\n\n");
+	DBG(("\n\n[DEBUG]--------- MEMORY CLEANING ---------.\n\n"));
 
 	for (int i = 0; i < nb_pkts_init; i++) {
 		delete_CCSDS_Pkt(pkts[i].p.data, i);
 	}
 
 	free(pkts);
-	printf("=>Array of packets has been freed.\n");
+	DBG(("=> Array of packets has been freed.\n"));
 	//free(pkts_to_del);
 
-	printf("\nEXAMPLE COMPLETED.\n\n");
+	//DBG(("END OF THE TEST: %d were (was) successfully sended and received.\n", nb_pkts_init));
+	printf("\nEND OF THE TEST: %d were (was) successfully sended and received.\n", nb_pkts_init);
+
+	DBG(("\nEXAMPLE COMPLETED.\n\n"));
 	exit(0);
 
 }
@@ -377,7 +382,7 @@ rtems_task link_ctrl_task(rtems_task_argument unused)
 
 	memset(rtrp, 0, sizeof(rtrp));
 
-	printf("Started link control task\n");
+	DBG(("\nStarted link control task\n"));
 
 	while (tasks_stop == 0) {
 		for (i = 0; i < nospw; i++) {
@@ -392,9 +397,9 @@ rtems_task link_ctrl_task(rtems_task_argument unused)
 				run = 1;
 			if ((run && dev->run == 0) || (run == 0 && dev->run)) {
 				if (run)
-					printf("GRSPW%d: link state entering run-state\n", i);
+					DBG(("GRSPW%d: link state entering run-state\n", i));
 				else
-					printf("GRSPW%d: link state leaving run-state\n", i);
+					DBG(("GRSPW%d: link state leaving run-state\n", i));
 				dev->run = run;
 			}
 		}
@@ -410,9 +415,9 @@ rtems_task link_ctrl_task(rtems_task_argument unused)
 					run = 1;
 				if ((run && rtrp[i] == 0) || (run == 0 && rtrp[i])) {
 					if (run)
-						printf("ROUTER SpW PORT%d: link state entering run-state\n", i+1);
+						DBG(("ROUTER SpW PORT%d: link state entering run-state\n", i+1));
 					else
-						printf("ROUTER SpW PORT%d: link state leaving run-state\n", i+1);
+						DBG(("ROUTER SpW PORT%d: link state leaving run-state\n", i+1));
 					rtrp[i] = run;
 				}
 			}
@@ -421,7 +426,7 @@ rtems_task link_ctrl_task(rtems_task_argument unused)
 		rtems_task_wake_after(4);
 	}
 
-	printf(" Link control task shutdown\n");
+	DBG((" Link control task shutdown\n"));
 
 	rtems_task_delete(RTEMS_SELF);
 }
@@ -435,7 +440,7 @@ rtems_task dma_task(rtems_task_argument unused)
 	int i;
 	struct grspw_device *dev;
 
-	printf("Started DMA control task\n");
+	DBG(("\nStarted DMA control task\n"));
 
 	while (tasks_stop == 0) {
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
@@ -451,7 +456,7 @@ rtems_task dma_task(rtems_task_argument unused)
 		rtems_task_wake_after(20);
 	}
 
-	printf(" DMA task shutdown\n");
+	DBG((" DMA task shutdown\n"));
 
 	rtems_task_delete(RTEMS_SELF);
 
@@ -465,14 +470,14 @@ int dma_process(struct grspw_device *dev)
 	grspw_dma_rx_count(dev->dma[0], &rx_ready, &rx_sched, &rx_recv, &rx_hwcnt);
 	grspw_dma_tx_count(dev->dma[0], &tx_send, &tx_sched, &tx_sent, &tx_hwcnt);
 	if (rx_hwcnt >= 127) {
-		printf(" DMA DRVQ RX_READY: %d\n", rx_ready);
-		printf(" DMA DRVQ RX_SCHED: %d\n", rx_sched);
-		printf(" DMA DRVQ RX_RECV: %d\n", rx_recv);
-		printf(" DMA DRVQ RX_HWCNT: %d\n", rx_hwcnt);
-		printf(" DMA DRVQ TX_SEND: %d\n", tx_send);
-		printf(" DMA DRVQ TX_SCHED: %d\n", tx_sched);
-		printf(" DMA DRVQ TX_SENT: %d\n", tx_sent);
-		printf(" DMA DRVQ TX_HWCNT: %d\n", tx_hwcnt);
+		DBG((" DMA DRVQ RX_READY: %d\n", rx_ready));
+		DBG((" DMA DRVQ RX_SCHED: %d\n", rx_sched));
+		DBG((" DMA DRVQ RX_RECV: %d\n", rx_recv));
+		DBG((" DMA DRVQ RX_HWCNT: %d\n", rx_hwcnt));
+		DBG((" DMA DRVQ TX_SEND: %d\n", tx_send));
+		DBG((" DMA DRVQ TX_SCHED: %d\n", tx_sched));
+		DBG((" DMA DRVQ TX_SENT: %d\n", tx_sent));
+		DBG((" DMA DRVQ TX_HWCNT: %d\n", tx_hwcnt));
 
 	}
 

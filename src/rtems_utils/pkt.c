@@ -23,33 +23,33 @@ void print_CCSDS_pkt(void *data)
 	uint8_t sec_sourceId = call_Sec_hdr_get_sourceId(sec_hdr);
 	uint8_t sec_ackFlag = call_Sec_hdr_get_ackflag(sec_hdr);
 
-	printf("\n ______________________________________________________\n");
-	printf("| --------------------  CCSDS packet  -----------------\n");
-	printf("|           Field           |          Value           \n");
-	printf("|______________________________________________________\n");
-	printf("|     Spw hdr addr (1b)     |           %d             \n"
-			, spw_addr);
-	printf("|     Spw hdr protid (1b)   |           %d             \n"
-			, spw_protid);
-	printf("|     Spw hdr spare (1b)    |           %d             \n"
-			, spw_spare);
-	printf("|     Spw hdr user_app (1b) |           %d             \n"
-			, spw_user_app);
-	printf("|        Prim hdr ID (2b)   |           %d             \n"
-			, prim_id);
-	printf("|    Prim hdr seqCount (2b) |           %d             \n"
-			, prim_seqCount);
-	printf("|        Prim hdr len (2b)  |           %d             \n"
-			, prim_len);
-	printf("|    Sec hdr sourceID (1b)  |           %d             \n"
-			, sec_sourceId);
-	printf("|Sec hdr serviceSubType (1b)|           %d             \n"
-			, sec_serviceSubType);
-	printf("|  Sec hdr serviceType (1b) |           %d             \n"
-			, sec_serviceType);
-	printf("|    Sec hdr ackFlag (1b)   |           %d             \n"
-			, sec_ackFlag);
-	printf("|______________________________________________________\n\n");
+	DBG_print_pkt(("\n ______________________________________________________\n"));
+	DBG_print_pkt(("| --------------------  CCSDS packet  -----------------\n"));
+	DBG_print_pkt(("|           Field           |          Value           \n"));
+	DBG_print_pkt(("|______________________________________________________\n"));
+	DBG_print_pkt(("|     Spw hdr addr (1b)     |           %d             \n"
+			, spw_addr));
+	DBG_print_pkt(("|     Spw hdr protid (1b)   |           %d             \n"
+			, spw_protid));
+	DBG_print_pkt(("|     Spw hdr spare (1b)    |           %d             \n"
+			, spw_spare));
+	DBG_print_pkt(("|     Spw hdr user_app (1b) |           %d             \n"
+			, spw_user_app));
+	DBG_print_pkt(("|        Prim hdr ID (2b)   |           %d             \n"
+			, prim_id));
+	DBG_print_pkt(("|    Prim hdr seqCount (2b) |           %d             \n"
+			, prim_seqCount));
+	DBG_print_pkt(("|        Prim hdr len (2b)  |           %d             \n"
+			, prim_len));
+	DBG_print_pkt(("|    Sec hdr sourceID (1b)  |           %d             \n"
+			, sec_sourceId));
+	DBG_print_pkt(("|Sec hdr serviceSubType (1b)|           %d             \n"
+			, sec_serviceSubType));
+	DBG_print_pkt(("|  Sec hdr serviceType (1b) |           %d             \n"
+			, sec_serviceType));
+	DBG_print_pkt(("|    Sec hdr ackFlag (1b)   |           %d             \n"
+			, sec_ackFlag));
+	DBG_print_pkt(("|______________________________________________________\n\n"));
 
 }
 
@@ -65,8 +65,9 @@ void init_pkts(struct grspw_device *devs,
 	struct spwpkt *pkt;
 	int i;
 
-	memset(&pkts[0], 0, sizeof(pkts));
+	DBG(("Initializing CCSDS TC Packets...\n"));
 
+	/* Reinitializing tx and rx lists */
 	grspw_list_clr(&devs[rx_devno].rx_list);
 	grspw_list_clr(&devs[tx_devno].tx_list);
 	grspw_list_clr(&devs[tx_devno].tx_buf_list);
@@ -74,24 +75,21 @@ void init_pkts(struct grspw_device *devs,
 	devs[tx_devno].tx_list_cnt = 0;
 	devs[tx_devno].tx_buf_list_cnt = 0;
 
-
 	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
-		// structures addresses are aligned:
 		pkt->p.hdr = &pkt->hdr[0];
 		pkt->p.data = &pkt->data[0];
 
+		/* RX buffer */
 		/* Add to device RX list */
 		grspw_list_append(&devs[rx_devno].rx_list, &pkt->p);
 		devs[rx_devno].rx_list_cnt++;
 
 		/* TX buffer */
-		pkt->p.dlen = CCSDS_PKT_SIZE; //PKT_SIZE;
-
+		/* Packet generation */
 		CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_log_addr);
-		printf("New packet has been created !\n");
+		DBG(("New packet has been created !\n"));
 		pkt->p.data = ccsds_pkt;
-		//pkts_to_del[i] = ccsds_pkt;
-
+		pkt->p.dlen = CCSDS_PKT_SIZE;
 		/* Add to device TX list */
 		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);
 		devs[tx_devno].tx_buf_list_cnt++;
@@ -114,20 +112,20 @@ int dma_TX(struct grspw_device *dev)
 	grspw_list_clr(&lst);
 	rc = grspw_dma_tx_reclaim(dev->dma[0], 0, &lst, &cnt);
 	if (rc != 0) {
-		printf("tx_reclaim failed %d\n", rc);
+		DBG(("tx_reclaim failed %d\n", rc));
 		exit(0);
 	}
 	/* put sent packets in end of send queue for retransmission */
 	if (cnt > 0) {
-		/*printf("GRSPW%d: Reclaimed %d TX packet buffers\n",
+		/*DBG(("GRSPW%d: Reclaimed %d TX packet buffers\n",
 			dev->index, cnt);*/
 		/* Clear transmission flags */
 		pkt = lst.head;
 		while (pkt) {
 			if ((pkt->flags & TXPKT_FLAG_TX) == 0)
-				printf(" One Packet TX failed\n");
+				DBG((" One Packet TX failed\n"));
 			else if (pkt->flags & TXPKT_FLAG_LINKERR)
-				printf(" One Packet with TX errors\n");
+				DBG((" One Packet with TX errors\n"));
 			pkt = pkt->next;
 		}
 
@@ -137,16 +135,16 @@ int dma_TX(struct grspw_device *dev)
 
 	/* Send packets in the tx_list queue */
 	if (dev->tx_list_cnt > 0) {
-			printf("GRSPW%d: Sending %d packet(s)\n", dev->index,
-				dev->tx_list_cnt);
+			DBG(("GRSPW%d: Sending %d packet(s)\n", dev->index,
+				dev->tx_list_cnt));
 			for (pkt = dev->tx_list.head; pkt; pkt = pkt->next) {
-				printf(" PKT of length %d bytes: ", pkt->hlen+pkt->dlen);
+				DBG_print_pkt((" PKT of length %d bytes: ", pkt->hlen+pkt->dlen));
 				for (i = 0; i < pkt->hlen+pkt->dlen /*&& i < 8*/; i++) {
 					if (i < pkt->hlen)
 						c = i + (unsigned char *)pkt->hdr;
 					else
 						c = i - pkt->hlen + (unsigned char *)pkt->data;
-					printf(" 0x%02x", *c);
+					DBG_print_pkt((" 0x%02x", *c));
 
 				}
 				print_CCSDS_pkt(pkt->data);
@@ -155,7 +153,7 @@ int dma_TX(struct grspw_device *dev)
 			rc = grspw_dma_tx_send(dev->dma[0], 0, &dev->tx_list,
 							dev->tx_list_cnt);
 			if (rc != 0) {
-				printf("tx_send failed %d\n", rc);
+				DBG(("tx_send failed %d\n", rc));
 				exit(0);
 			}
 			dev->tx_list_cnt = 0;
@@ -180,10 +178,10 @@ int dma_RX(struct grspw_device *dev)
 			rc = grspw_dma_rx_prepare(dev->dma[0], 0, &dev->rx_list,
 								dev->rx_list_cnt);
 			if (rc != 0) {
-				printf("rx_prep failed %d\n", rc);
+				DBG(("rx_prep failed %d\n", rc));
 				return -1;
 			}
-			/*printf("GRSPW%d: Prepared %d RX packet buffers for future "
+			/*DBG(("GRSPW%d: Prepared %d RX packet buffers for future "
 			       "reception\n", dev->index, dev->rx_list_cnt);*/
 			grspw_list_clr(&dev->rx_list);
 			dev->rx_list_cnt = 0;
@@ -194,34 +192,34 @@ int dma_RX(struct grspw_device *dev)
 		cnt = -1; /* as many packets as possible */
 		rc = grspw_dma_rx_recv(dev->dma[0], 0, &lst, &cnt);
 		if (rc != 0) {
-			printf("rx_recv failed %d\n", rc);
+			DBG(("rx_recv failed %d\n", rc));
 			return -1;
 		}
 		if (cnt > 0) {
-			printf("GRSPW%d: Received %d packet(s)\n", dev->index, cnt);
+			DBG(("GRSPW%d: Received %d packet(s)\n", dev->index, cnt));
 			for (pkt = lst.head; pkt; pkt = pkt->next) {
 				if ((pkt->flags & RXPKT_FLAG_RX) == 0) {
-					printf(" PKT not received.. buf ret\n");
+					DBG((" PKT not received.. buf ret\n"));
 					continue;
 				} else if (pkt->flags &
 				           (RXPKT_FLAG_EEOP | RXPKT_FLAG_TRUNK)) {
-					printf(" PKT RX errors:");
+					DBG((" PKT RX errors:"));
 					if (pkt->flags & RXPKT_FLAG_TRUNK)
-						printf(" truncated");
+						DBG((" truncated"));
 					if (pkt->flags & RXPKT_FLAG_EEOP)
-						printf(" EEP");
-					printf(" (0x%x)", pkt->flags);
+						DBG((" EEP"));
+					DBG((" (0x%x)", pkt->flags));
 				} else
-					printf(" PKT");
+					DBG_print_pkt((" PKT"));
 				c = (unsigned char *)pkt->data;
-				printf(" of length %d bytes: ", pkt->dlen);
-				/// PA : Ajout d'une boucle pour l'affichage (avant un seul printf)
+				DBG_print_pkt((" of length %d bytes: ", pkt->dlen));
+				/// PA : Ajout d'une boucle pour l'affichage (avant un seul DBG()
 				for(int i=0;i<pkt->dlen;i++)
-					printf("0x%02x ", c[i]);
-				printf("\n");
+					DBG_print_pkt(("0x%02x ", c[i]));
+				DBG(("\n"));
 
 				print_CCSDS_pkt(pkt->data);
-				printf("\n\n");
+				DBG(("\n\n"));
 			}
 
 			/* Reuse packet buffers by moving packets to rx_list */

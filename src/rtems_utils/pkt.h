@@ -8,7 +8,6 @@
 #ifndef PKT_UTILS_H_
 #define PKT_UTILS_H_
 
-
 #include <rtems.h>
 
 #include <stdio.h>
@@ -20,6 +19,7 @@
 
 #include "../ccsds/CCSDS_Pkt.h"
 #include "../ccsds/Apid.h"
+#include "../debug_print.h"
 
 #define DEVS_MAX 4 // 32
 #define PKT_SIZE 32
@@ -76,15 +76,16 @@ void init_simple_pkt_data(int *decs, char *word);
 
 /**
  * This function is called to initialize the packet data
- * The two last arguments are used to initialize the spw header
+ * We create as many packets as determined by nb_pkts.
+ * Each packet will be added to the tx list of the th device and the
+ * rx list of the rx device
  */
 void init_pkts(struct grspw_device *devs,
 			   int tx_devno,
 			   int rx_devno,
 			   int dest_port_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts]//,
-			   //void **pkts_to_del
+			   struct spwpkt pkts[nb_pkts]
 			   );
 /**
  * This function prints each field of the CCSDS pkt given in argument

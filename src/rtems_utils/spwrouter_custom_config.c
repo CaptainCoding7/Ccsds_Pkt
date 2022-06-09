@@ -207,7 +207,7 @@ int router_configure(void)
 	int i, linkstate, type;
 	char *typestr;
 
-	printf("Configuring Router\n");
+	//printf("Configuring Router\n");
 
 	router = router_open(0);
 	if ( router == NULL ){
@@ -218,7 +218,7 @@ int router_configure(void)
 	if ( router_hwinfo_get(router, &router_hw) != ROUTER_ERR_OK ) {
 		return -2;
 	}
-	router_print_hwinfo(&router_hw);
+	//router_print_hwinfo(&router_hw);
 
 	if ( router_write_disable(router) != ROUTER_ERR_OK ) {
 		return -3;
@@ -235,7 +235,7 @@ int router_configure(void)
 	if ( router_cfgsts_get(router, &cfgsts) != ROUTER_ERR_OK ) {
 		return -6;
 	}
-	printf("ROUTER CFG/STS: 0x%08x\n", (unsigned int) cfgsts);
+	//printf("ROUTER CFG/STS: 0x%08x\n", (unsigned int) cfgsts);
 
 	router_nports = router_hw.nports_spw + router_hw.nports_amba +
 			router_hw.nports_fifo;
@@ -265,12 +265,11 @@ int router_configure(void)
 		else
 			linkstate = (sts >> 12) & 0x7;
 
-		printf("PORT[%02d]:  TYPE=%s CTRL=0x%08x  STATUS=0x%08x  LINKSTATE=%s\n",
-			i, typestr, (unsigned int) ctrl, (unsigned int) sts, linkstate_names[linkstate]);
+//		printf("PORT[%02d]:  TYPE=%s CTRL=0x%08x  STATUS=0x%08x  LINKSTATE=%s\n",
+//			i, typestr, (unsigned int) ctrl, (unsigned int) sts, linkstate_names[linkstate]);
 	}
 
 	/* Enable and Start all Links */
-	printf("Activating all Links/Ports\n");
 	for (i=0; i<router_nports+1; i++) {
 
 		if ( i == 0 ) {
@@ -304,6 +303,7 @@ int router_configure(void)
 			break;
 		}
 	}
+	//printf("Activating all Links/Ports\n");
 
 	/* Print Current Link Status */
 	for (i=1; i<router_hw.nports_spw+1; i++) {
@@ -331,9 +331,10 @@ int router_configure(void)
 		else
 			linkstate = (sts >> 12) & 0x7;
 
-		printf("PORT[%02d]:  TYPE=%s   CTRL=0x%08x   STATUS=0x%08x   LINK-STATE=%s\n",
-			i, typestr, (unsigned int) ctrl, (unsigned int) sts, linkstate_names[linkstate]);
+//		printf("PORT[%02d]:  TYPE=%s   CTRL=0x%08x   STATUS=0x%08x   LINK-STATE=%s\n",
+//			i, typestr, (unsigned int) ctrl, (unsigned int) sts, linkstate_names[linkstate]);
 	}
+
 
 	return 0;
 }

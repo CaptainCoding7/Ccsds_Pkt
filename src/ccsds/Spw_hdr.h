@@ -8,6 +8,7 @@
 #ifndef CCSDS_SPW_HDR_H_
 #define CCSDS_SPW_HDR_H_
 
+#include "../debug_print.h"
 
 namespace ecl
 {
@@ -93,7 +94,7 @@ Spw_hdr::Spw_hdr(unsigned char addr=6,
 
 Spw_hdr::~Spw_hdr()
 {
-	std::cout << "spw_hdr destr" << std::endl;
+	DBG(("spw_hdr destr\n"));
 }
 
 

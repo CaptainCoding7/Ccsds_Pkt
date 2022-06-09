@@ -16,7 +16,7 @@
 #include "Prim_hdr.h"
 #include "Sec_hdr.h"
 #include "Spw_hdr.h"
-
+#include "../debug_print.h"
 
 namespace ecl
 {
@@ -42,7 +42,7 @@ namespace tmtc
 
 		~CCSDS_Pkt_TC()
 		{
-		std::cout << "ccsds pkt destr" << std::endl;
+		DBG(("ccsds pkt destr\n"));
 
 		}
 

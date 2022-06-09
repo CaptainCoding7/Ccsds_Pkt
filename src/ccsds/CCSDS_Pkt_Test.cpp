@@ -17,6 +17,7 @@
 #include "Prim_hdr.h"
 #include "Sec_hdr.h"
 #include "CCSDS_Pkt.h"
+#include "../debug_print.h"
 
 
 using namespace ecl::core::tmtc;
@@ -27,6 +28,7 @@ using namespace std;
 void print_size(string s, int size)
 {
 	cout << "Size of " << s << " = " << size << " bytes." << endl;
+	DBG(("Size of %s = %d bytes.", s, size));
 }
 
 extern "C" void test_create_CCSDS_Pkt()
@@ -54,7 +56,6 @@ extern "C" void test_create_CCSDS_Pkt()
 /*****************   Creation of C++ objects (+return) ********************/
 
 
-//CCSDS_Pkt_TC *createCCSDS_Pkt()
 extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
 {
 	/// **p = &p
@@ -68,7 +69,7 @@ extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no)
 {
 	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	delete pccsds_pkt;
-	cout << "\n=> Packet n_" << no+1 << " has been deleted.\n" << endl;
+	DBG(("=> Packet n_%d has been deleted.\n",no+1));
 }
 
 

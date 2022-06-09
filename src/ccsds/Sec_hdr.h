@@ -21,6 +21,7 @@
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldInteger.h>
 #include "Types.h"
+#include "../debug_print.h"
 
 namespace ecl
 {
@@ -113,7 +114,7 @@ Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
 
 Sec_hdr::~Sec_hdr()
 {
-	std::cout << "sec_hdr destr" << std::endl;
+	DBG(("sec_hdr destr\n"));
 }
 
 
