@@ -135,9 +135,7 @@ rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
 /// All packet buffers used by application :
-//struct spwpkt pkts[DEVS_MAX][DATA_MAX];
 struct spwpkt *pkts;
-//void **pkts_to_del;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;

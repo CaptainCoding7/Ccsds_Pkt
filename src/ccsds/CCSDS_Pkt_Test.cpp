@@ -141,7 +141,7 @@ extern "C" SEC_HDR_TC call_Pkt_data_get_sec_hdr(PKT_DATA pkt_data)
 	auto ppkt_data = reinterpret_cast<Pkt_data*>(pkt_data);
 	return ppkt_data->getMSec_hdr();
 }
-extern "C" const uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data)
+extern "C" uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data)
 {
 	auto ppkt_data = reinterpret_cast<Pkt_data*>(pkt_data);
 	return ppkt_data->getMData();

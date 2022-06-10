@@ -63,7 +63,7 @@ struct grspw_config dev_def_cfg =
  		{
  			{
  				.flags = DMAFLAG_NO_SPILL,
- 				.rxmaxlen = PKT_SIZE+4,
+ 				.rxmaxlen = CCSDS_PKT_SIZE+4,
  				.rx_irq_en_cnt = 0, /* Disable RX IRQ generation */
  				.tx_irq_en_cnt = 0, /* Disable TX IRQ generation */
  			},

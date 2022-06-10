@@ -8,12 +8,13 @@
 #ifndef CCSDS_CCSDS_PKT_H_
 #define CCSDS_CCSDS_PKT_H_
 
+#include "Pkt_data.h"
+#include "Spw_hdr.h"
+#include "Prim_hdr.h"
+
 
 #ifdef __cplusplus
 
-#include "Prim_hdr.h"
-#include "Pkt_data.h"
-#include "Spw_hdr.h"
 #include "../debug_print.h"
 
 	class CCSDS_Pkt_TC
@@ -66,7 +67,6 @@
 		Spw_hdr m_spw_hdr;
 		Prim_hdr m_prim_hdr;
 		Pkt_data m_pkt_data;
-
 	};
 
 
@@ -90,7 +90,14 @@ extern "C"
 {
 #endif
 
-// C compatible enum for TcAck
+
+/*** Sizes constants ***/
+
+#define CCSDS_PKT_SIZE SPW_HDR_SIZE + PRIM_HDR_SIZE + PKT_DATA_SIZE
+// dividing by 8 since long long = 64bits = 8 bytes
+#define CCSDS_PKT_LONG_LONG_SIZE CCSDS_PKT_SIZE/8+1 // 518/8~64
+
+// C-compatible enum for TcAck
 enum TcAck
 {
 	ACCEPTANCE,
@@ -129,7 +136,7 @@ uint16_t call_Prim_hdr_get_counter(PRIM_HDR prim_hdr);
 uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr);
 /// CCSDS_PKT_DATA
 SEC_HDR_TC call_Pkt_data_get_sec_hdr(PKT_DATA pkt_data);
-const uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data);
+uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data);
 uint16_t call_Pkt_data_get_crc(PKT_DATA pkt_data);
 /// SEC_HDR
 uint8_t call_Sec_hdr_get_ackflag(SEC_HDR_TC sec_hdr);

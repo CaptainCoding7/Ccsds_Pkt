@@ -8,12 +8,19 @@
 #ifndef PKT_DATA_H_
 #define PKT_DATA_H_
 
+#define APP_DATA_SIZE 500
+#define PKT_DATA_SIZE SEC_HDR_SIZE + APP_DATA_SIZE + 2 // (CRC size)
+
+#include "Sec_hdr_TC.h"
+
+
+#ifdef __cplusplus
 
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldInteger.h>
 #include "Types.h"
 #include "../debug_print.h"
-#include "Sec_hdr_TC.h"
+
 
 class Pkt_data
 {
@@ -24,7 +31,7 @@ public:
 
 	~Pkt_data();
 
-	uint16_t getMCrc() const {
+	uint16_t getMCrc() {
 		return m_crc;
 	}
 
@@ -32,7 +39,7 @@ public:
 		m_crc = mCrc;
 	}
 
-	const uint8_t* getMData() const {
+	uint8_t *getMData() {
 		return m_app_data;
 	}
 
@@ -50,7 +57,7 @@ public:
 
 private:
 	Sec_hdr_TC m_sec_hdr;
-	uint8_t m_app_data[2];
+	uint8_t m_app_data[APP_DATA_SIZE];
 	uint16_t m_crc;
 
 };
@@ -58,9 +65,10 @@ private:
 
 void Pkt_data::generateData()
 {
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < APP_DATA_SIZE; i++) {
 		m_app_data[i] = i%10;
 	}
+	DBG(("\n app_data size = %d\n",sizeof(m_app_data)));
 }
 
 Pkt_data::Pkt_data():
@@ -74,6 +82,7 @@ Pkt_data::~Pkt_data()
 {
 	DBG(("pkt_data destr\n"));
 }
+#endif
 
 
 #endif /* PKT_DATA_H_ */

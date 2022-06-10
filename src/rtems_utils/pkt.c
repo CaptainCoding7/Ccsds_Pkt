@@ -19,7 +19,7 @@ void print_CCSDS_pkt(void *ccsds_pkt)
 
 	// getting pkt data fields
 	SEC_HDR_TC sec_hdr_TC = call_Pkt_data_get_sec_hdr(pkt_data);
-	const uint8_t *app_data = call_Pkt_data_get_app_data(pkt_data);
+	uint8_t *app_data = call_Pkt_data_get_app_data(pkt_data);
 	uint16_t crc = call_Pkt_data_get_crc(pkt_data);
 
 	//getting sec hdr fields

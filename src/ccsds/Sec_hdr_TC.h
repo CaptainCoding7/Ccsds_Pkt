@@ -18,6 +18,10 @@
 #ifndef SEC_HDR_H_
 #define SEC_HDR_H_
 
+#define SEC_HDR_SIZE 6
+
+#ifdef __cplusplus
+
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldInteger.h>
 #include "Types.h"
@@ -129,5 +133,6 @@ Sec_hdr_TC::~Sec_hdr_TC()
 	DBG(("sec_hdr destr\n"));
 }
 
+#endif
 
 #endif /* SEC_HDR_H_ */

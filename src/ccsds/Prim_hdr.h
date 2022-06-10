@@ -18,6 +18,11 @@
 #ifndef PRIM_HDR_H_
 #define PRIM_HDR_H_
 
+#define PRIM_HDR_SIZE 6
+
+#ifdef __cplusplus
+
+
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldHelper.h>
 
@@ -302,5 +307,6 @@ struct Prim_hdr::Dispatcher
 	}
 };
 
+#endif
 
 #endif /* PRIM_HDR_H_ */

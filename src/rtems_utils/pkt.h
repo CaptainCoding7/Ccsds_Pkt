@@ -21,16 +21,6 @@
 #include "../ccsds/Apid.h"
 #include "../debug_print.h"
 
-#define DEVS_MAX 4 // 32
-#define PKT_SIZE 32
-#define APP_DATA_SIZE 2 //500
-#define CCSDS_PKT_SIZE 18+APP_DATA_SIZE
-#define DATA_MAX 136 //120 + 16
-
-/* Protocol ID */
-#define SPW_PROT_ID 155
-#define GRSPW_PORT 43
-
 
 struct grspw_device {
 	/* GRSPW Device layout - must be the same as 'struct grspw_dev' */
@@ -60,8 +50,10 @@ struct route_entry {
 struct spwpkt {
 	struct grspw_pkt p;
 	//unsigned long long ccsds_pkt[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
-	unsigned long long ccsds_pkt[CCSDS_PKT_SIZE];
-	unsigned long long path_hdr[2]; /* up to 16byte header (path address) */
+	//unsigned long long ccsds_pkt[CCSDS_PKT_LONG_LONG_SIZE];
+	//unsigned long long path_hdr[2]; /* up to 16byte header (path address) */
+	uint8_t ccsds_pkt[CCSDS_PKT_SIZE];
+	uint8_t path_hdr[2]; /* up to 16byte header (path address) */
 };
 
 
