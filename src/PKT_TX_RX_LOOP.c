@@ -271,7 +271,7 @@ rtems_task test_app(rtems_task_argument ignored)
 	/// 0x2b is the same as 0x9b but without header deletion
 	amba_dest_port = 0x2b; //0x9b;
 	/// The number of packets to transmit, will decrease
-	nb_pkts_to_transmit=1;
+	nb_pkts_to_transmit=5;
 ///                                                                          ///
 ////////////////////////////////////////////////////////////////////////////////
 

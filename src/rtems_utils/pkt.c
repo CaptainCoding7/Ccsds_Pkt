@@ -63,9 +63,10 @@ void print_CCSDS_pkt(void *ccsds_pkt)
 			, app_data[1]));
 	DBG_print_pkt(("|      App data 3 (1b)      |           %d             \n"
 			, app_data[2]));
-	DBG_print_pkt(("|                 (... 496 bytes of app data ...)      \n"));
-	DBG_print_pkt(("|      App data 500 (1b)    |           %d             \n"
-			, app_data[499]));
+	DBG_print_pkt(("|                 (... %d bytes of app data ...)       \n"
+	, APP_DATA_SIZE -4));
+	DBG_print_pkt(("|      App data %d (1b)    |           %d             \n"
+			, APP_DATA_SIZE -1, app_data[APP_DATA_SIZE -1]));
 	DBG_print_pkt(("|           crc (2b)        |           %d             \n"
 			, crc));
 	DBG_print_pkt(("|______________________________________________________\n\n"));
@@ -163,7 +164,7 @@ int dma_TX(struct grspw_device *dev)
 						c = i + (unsigned char *)pkt->hdr;
 					else
 						c = i - pkt->hlen + (unsigned char *)pkt->data;
-					DBG_print_pkt((" 0x%02x", *c));
+					//DBG_print_pkt((" 0x%02x", *c));
 
 				}
 				print_CCSDS_pkt(pkt->data);
@@ -191,6 +192,7 @@ int dma_RX(struct grspw_device *dev)
 	struct grspw_pkt *pkt;
 	unsigned char *c;
 
+	DBG(("entering in dma_RX\n"));
 
 	/* Prepare receiver with packet buffers */
 		if (dev->rx_list_cnt > 0) {
@@ -233,8 +235,8 @@ int dma_RX(struct grspw_device *dev)
 				c = (unsigned char *)pkt->data;
 				DBG_print_pkt((" of length %d bytes: ", pkt->dlen));
 				/// PA : Ajout d'une boucle pour l'affichage (avant un seul DBG()
-				for(int i=0;i<pkt->dlen;i++)
-					DBG_print_pkt(("0x%02x ", c[i]));
+				//for(int i=0;i<pkt->dlen;i++)
+					//DBG_print_pkt(("0x%02x ", c[i]));
 				DBG(("\n"));
 
 				print_CCSDS_pkt(pkt->data);
