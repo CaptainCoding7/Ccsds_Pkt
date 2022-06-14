@@ -35,33 +35,27 @@ class Sec_hdr_TC
 {
 public:
 
-	using AckField = uintBe1_t;
+	//using AckField = uintBe1_t;
 	using ServiceTypeField = uintBe1_t;
 	using ServiceSubTypeField = uintBe1_t;
 	using SourceIdField = uintBe2_t;
 	using SpareField = uintBe1_t;
 
 	Sec_hdr_TC(
-		    TcAckValue ackFlag,
+		    TcAckFlags ackFlag,
 			ServiceTypeValue serviceType,
 		    ServiceSubTypeValue serviceSubType,
 		    SourceIdValue sourceId,
 			SpareValue spare);
-		    //TcAck ack);
-		    //TcAckFlags ack);
 
 	~Sec_hdr_TC();
 
-	//const TcAckFlags& getMAck() const {
-	//const TcAck& getMAck() const {
-	TcAckValue getMAck() {
-		return m_ack;
+	TcAckFlagsValue getMAck() {
+		return m_ack.value();
 	}
 
-	//void (const TcAckFlags &mAck) {
-	//void setMAck(const TcAck &mAck) {
-	void setMAck(TcAckValue mAck){
-		m_ack = mAck;
+	void setMAck(TcAckFlagsValue mAck) {
+		m_ack.setValue(mAck);
 	}
 
 	ServiceSubTypeValue getMServiceSubType() const {
@@ -97,35 +91,35 @@ public:
 	}
 
 private:
-	AckField m_ack;
+	//AckField m_ack;
+	TcAckFlags m_ack;
 	ServiceTypeField m_serviceType;
 	ServiceSubTypeField m_serviceSubType;
 	SourceIdField m_sourceId;
 	SpareField m_spare;
-	//TcAckFlags m_ack;
-	//TcAck m_ack;
-}
-PACKED_DATA_CLASS;
+};
+
 
 // ================================================================================================
 // Sec_hdr_TC inline methods bodies
 // ------------------------------------------------------------------------------------------------
 
 /// We add some default values
-Sec_hdr_TC::Sec_hdr_TC(TcAckValue ack = 0,
+Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
+		   	   	   	   TcAckFlags ack= TcAck::START,
 					   ServiceTypeValue serviceType = 1,
                        ServiceSubTypeValue serviceSubType = 1,
                        SourceIdValue sourceId = 1,
 					   SpareValue spare = 0)
-							 //TcAckFlags ack = TcAck::ACCEPTANCE)
-							 //TcAck ack = TcAck::ACCEPTANCE)
 {
 
-	setMAck(ack);
+	setMAck(ack.value());
 	setMServiceSubType(serviceSubType);
 	setMServiceType(serviceType);
 	setMSourceId(sourceId);
 	setMSpare(spare);
+
+	DBG(("size of m_ack = %d\n",sizeof(m_ack)));
 }
 
 Sec_hdr_TC::~Sec_hdr_TC()

@@ -82,9 +82,9 @@ void init_pkts(struct grspw_device *devs,
 			   struct spwpkt pkts[nb_pkts]
 			   );
 /**
- * This function prints each field of the CCSDS pkt given in argument
+ * This function get each field of the CCSDS pkt given in argument
  */
-void print_CCSDS_pkt(void *data);
+void get_CCSDS_pkt_fields(void *data, char *transactionType);
 
 int dma_TX(struct grspw_device *dev);
 int dma_RX(struct grspw_device *dev);

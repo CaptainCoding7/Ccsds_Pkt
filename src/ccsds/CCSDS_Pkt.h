@@ -97,17 +97,6 @@ extern "C"
 // dividing by 8 since long long = 64bits = 8 bytes
 #define CCSDS_PKT_LONG_LONG_SIZE CCSDS_PKT_SIZE/8+1 // 518/8~64
 
-// C-compatible enum for TcAck
-enum TcAck
-{
-	ACCEPTANCE,
-	START,
-	PROGRESS,
-	COMPLETION,
-	_COUNT,
-	_BEGIN = ACCEPTANCE,
-	_END = _COUNT
-};
 
 /** Test functions **/
 void test_create_CCSDS_Pkt();
