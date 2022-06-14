@@ -284,7 +284,6 @@ rtems_task test_app(rtems_task_argument ignored)
 	/// this variable won't decrease !
 	nb_pkts_init = nb_pkts_to_transmit;
 	pkts = malloc(sizeof(struct spwpkt) * nb_pkts_to_transmit);
-	//pkts_to_del = malloc(sizeof(void *) * nb_pkts_to_transmit);
 
 	init_pkts(devs, tx_devno, rx_devno, amba_dest_port,
 			nb_pkts_to_transmit, pkts);//, pkts_to_del);
@@ -298,8 +297,8 @@ rtems_task test_app(rtems_task_argument ignored)
 
 	memset(&route, 0, sizeof(route));
 	route.dstadr[0]=spw_src_port;
-	//route.dstadr[1]=spw_dest_port;
-	route.dstadr[1]=amba_dest_port;
+	route.dstadr[1]=spw_dest_port;
+	route.dstadr[2]=amba_dest_port;
 
 	DBG(("SPW src port : %d\n", spw_src_port));
 	DBG(("SPW dest port : %d\n", spw_dest_port));
@@ -327,8 +326,8 @@ rtems_task test_app(rtems_task_argument ignored)
 		// grspw_pkt header contains the source address (will be deleted when TX)
 		unsigned char *hdr = pkt->hdr;
 		hdr[0] = route.dstadr[0];
-		//hdr[1] = route.dstadr[1];
-		pkt->hlen = 1;
+		hdr[1] = route.dstadr[1];
+		pkt->hlen = 2;
 
 		/* Send packet by adding it to the tx_list */
 		grspw_list_append(&devs[tx_devno].tx_list, pkt);
