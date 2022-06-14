@@ -1,5 +1,5 @@
 /**
- * @file Sec_hdr.h
+ * @file Sec_hdr_TC.h
  * @date 25 juin 2020
  * @author fchateau
  * @note
@@ -15,48 +15,47 @@
  *
  */
 
-#ifndef ECL_CORE_TMTC_HEADERTC_H_
-#define ECL_CORE_TMTC_HEADERTC_H_
+#ifndef SEC_HDR_H_
+#define SEC_HDR_H_
+
+#define SEC_HDR_SIZE 6
+
+#ifdef __cplusplus
 
 #include <ecl/WordBe.h>
 #include <ecl/BitFieldInteger.h>
 #include "Types.h"
 #include "../debug_print.h"
 
-namespace ecl
-{
-namespace core
-{
-namespace tmtc
-{
+using namespace ecl;
+using namespace ecl::core::tmtc;
 
-class Sec_hdr
+
+class Sec_hdr_TC
 {
 public:
 
+	//using AckField = uintBe1_t;
 	using ServiceTypeField = uintBe1_t;
 	using ServiceSubTypeField = uintBe1_t;
-	using SourceIdField = uintBe1_t;
+	using SourceIdField = uintBe2_t;
+	using SpareField = uintBe1_t;
 
-	Sec_hdr(ServiceTypeValue serviceType,
+	Sec_hdr_TC(
+		    TcAckFlags ackFlag,
+			ServiceTypeValue serviceType,
 		    ServiceSubTypeValue serviceSubType,
 		    SourceIdValue sourceId,
-		    //TcAck ack);
-		    //TcAckFlags ack);
-		    int ackFlag);
+			SpareValue spare);
 
-	~Sec_hdr();
+	~Sec_hdr_TC();
 
-	//const TcAckFlags& getMAck() const {
-	//const TcAck& getMAck() const {
-	int getMAck() {
-		return m_ack;
+	TcAckFlagsValue getMAck() {
+		return m_ack.value();
 	}
 
-	//void (const TcAckFlags &mAck) {
-	//void setMAck(const TcAck &mAck) {
-	void setMAck(int mAck){
-		m_ack = mAck;
+	void setMAck(TcAckFlagsValue mAck) {
+		m_ack.setValue(mAck);
 	}
 
 	ServiceSubTypeValue getMServiceSubType() const {
@@ -83,43 +82,51 @@ public:
 		m_sourceId.setValue(mSourceId);
 	}
 
+	SpareValue getMSpare() const {
+		return m_spare;
+	}
+
+	void setMSpare(SpareValue mSpare) {
+		m_spare = mSpare;
+	}
+
 private:
+	//AckField m_ack;
+	TcAckFlags m_ack;
 	ServiceTypeField m_serviceType;
 	ServiceSubTypeField m_serviceSubType;
 	SourceIdField m_sourceId;
-	int m_ack;
-	//TcAckFlags m_ack;
-	//TcAck m_ack;
-}
-PACKED_DATA_CLASS;
+	SpareField m_spare;
+};
+
 
 // ================================================================================================
-// Sec_hdr inline methods bodies
+// Sec_hdr_TC inline methods bodies
 // ------------------------------------------------------------------------------------------------
 
 /// We add some default values
-Sec_hdr::Sec_hdr(ServiceTypeValue serviceType = 1,
-                             ServiceSubTypeValue serviceSubType = 1,
-                             SourceIdValue sourceId = 1,
-                             int ack = 0)
-							 //TcAckFlags ack = TcAck::ACCEPTANCE)
-							 //TcAck ack = TcAck::ACCEPTANCE)
+Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
+		   	   	   	   TcAckFlags ack= TcAck::START,
+					   ServiceTypeValue serviceType = 1,
+                       ServiceSubTypeValue serviceSubType = 1,
+                       SourceIdValue sourceId = 1,
+					   SpareValue spare = 0)
 {
 
-	setMAck(ack);
+	setMAck(ack.value());
 	setMServiceSubType(serviceSubType);
 	setMServiceType(serviceType);
 	setMSourceId(sourceId);
+	setMSpare(spare);
+
+	DBG(("size of m_ack = %d\n",sizeof(m_ack)));
 }
 
-Sec_hdr::~Sec_hdr()
+Sec_hdr_TC::~Sec_hdr_TC()
 {
 	DBG(("sec_hdr destr\n"));
 }
 
+#endif
 
-} /* namespace tmtc */
-} /* namespace core */
-} /* namespace ecl */
-
-#endif /* ECL_CORE_TMTC_HEADERTC_H_ */
+#endif /* SEC_HDR_H_ */

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include <grlib/grspw_router.h>
+#include "../ccsds/CCSDS_Pkt.h"
+#include "../debug_print.h"
 
 void * router = NULL;
 struct router_hw_info router_hw;
@@ -236,6 +238,16 @@ int router_configure(void)
 		return -6;
 	}
 	//printf("ROUTER CFG/STS: 0x%08x\n", (unsigned int) cfgsts);
+
+//
+//	for (int i = 30; i < 50; ++i) {
+//
+//		DBG(( "Port %d : max rx pkt len = %d\n", i, router_port_maxplen_get(router, i, CCSDS_PKT_SIZE)));
+//		//printf("Test\n");
+//	}
+
+	//DBG(( "Max rx pkt len = %d\n", router_port_maxplen_get(router, 43, CCSDS_PKT_SIZE)));
+
 
 	router_nports = router_hw.nports_spw + router_hw.nports_amba +
 			router_hw.nports_fifo;

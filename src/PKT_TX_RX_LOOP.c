@@ -135,9 +135,7 @@ rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
 /// All packet buffers used by application :
-//struct spwpkt pkts[DEVS_MAX][DATA_MAX];
 struct spwpkt *pkts;
-//void **pkts_to_del;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
@@ -300,8 +298,8 @@ rtems_task test_app(rtems_task_argument ignored)
 
 	memset(&route, 0, sizeof(route));
 	route.dstadr[0]=spw_src_port;
-	route.dstadr[1]=spw_dest_port;
-	route.dstadr[2]=amba_dest_port;
+	//route.dstadr[1]=spw_dest_port;
+	route.dstadr[1]=amba_dest_port;
 
 	DBG(("SPW src port : %d\n", spw_src_port));
 	DBG(("SPW dest port : %d\n", spw_dest_port));
@@ -313,8 +311,7 @@ rtems_task test_app(rtems_task_argument ignored)
 		rtems_task_wake_after(100);
 
 		pkt_cnt++;
-		DBG(("------ PKT %d ------\n-------------------\n", pkt_cnt));
-		DBG(("TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1));
+		newPkt_breakpoint(pkt_cnt, tx_devno);
 
 		/* Get a TX packet buffer */
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
@@ -330,8 +327,8 @@ rtems_task test_app(rtems_task_argument ignored)
 		// grspw_pkt header contains the source address (will be deleted when TX)
 		unsigned char *hdr = pkt->hdr;
 		hdr[0] = route.dstadr[0];
-		hdr[1] = route.dstadr[1];
-		pkt->hlen = 2;
+		//hdr[1] = route.dstadr[1];
+		pkt->hlen = 1;
 
 		/* Send packet by adding it to the tx_list */
 		grspw_list_append(&devs[tx_devno].tx_list, pkt);
@@ -359,8 +356,9 @@ rtems_task test_app(rtems_task_argument ignored)
 	DBG(("=> Array of packets has been freed.\n"));
 	//free(pkts_to_del);
 
-	//DBG(("END OF THE TEST: %d were (was) successfully sended and received.\n", nb_pkts_init));
-	printf("\nEND OF THE TEST: %d were (was) successfully sended and received.\n", nb_pkts_init);
+	end_breakpoint(nb_pkts_init);
+	DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", nb_pkts_init));
+	//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", nb_pkts_init);
 
 	DBG(("\nEXAMPLE COMPLETED.\n\n"));
 	exit(0);

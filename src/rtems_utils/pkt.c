@@ -1,10 +1,43 @@
 #include "pkt.h"
 
-void print_CCSDS_pkt(void *data)
+/******************  BREAKPOINT FUNCTIONS  ******************************/
+
+void end_breakpoint(int nb)
 {
-	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(data);
-	SEC_HDR sec_hdr = call_CCSDS_Pkt_get_sec_hdr(data);
-	SPW_HDR spw_hdr = call_CCSDS_Pkt_get_spw_hdr(data);
+}
+
+void newPkt_breakpoint(int pkt_cnt, int tx_devno)
+{
+}
+
+void print_CCSDS_pkt_breakpoint(
+	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
+	unsigned char spw_user_app,
+	enum Id prim_id, uint16_t prim_seqCount, uint16_t prim_len,
+	uint8_t sec_ackFlag, uint8_t sec_serviceType, uint8_t sec_serviceSubType,
+	uint16_t sec_sourceId, uint8_t sec_spare,
+	uint8_t *app_data, uint16_t crc,
+	char *transactionType)
+{
+}
+
+void pkt_tx_breakpoint(int index, int count, int len)
+{
+}
+
+void pkt_rx_breakpoint(int index, int count, int len)
+{
+}
+
+
+
+/***************************************************/
+
+void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
+{
+	PRIM_HDR prim_hdr = call_CCSDS_Pkt_get_prim_hdr(ccsds_pkt);
+	PKT_DATA pkt_data = call_CCSDS_Pkt_get_pkt_data(ccsds_pkt);
+	SPW_HDR spw_hdr = call_CCSDS_Pkt_get_spw_hdr(ccsds_pkt);
 
 	//getting spw_hdr fields
 	unsigned char spw_addr = call_Spw_hdr_get_addr(spw_hdr);
@@ -17,11 +50,25 @@ void print_CCSDS_pkt(void *data)
 	uint16_t prim_seqCount = call_Prim_hdr_get_counter(prim_hdr);
 	uint16_t prim_len = call_Prim_hdr_get_len(prim_hdr);
 
+	// getting pkt data fields
+	SEC_HDR_TC sec_hdr_TC = call_Pkt_data_get_sec_hdr(pkt_data);
+	uint8_t *app_data = call_Pkt_data_get_app_data(pkt_data);
+	uint16_t crc = call_Pkt_data_get_crc(pkt_data);
+
 	//getting sec hdr fields
-	uint8_t sec_serviceType = call_Sec_hdr_get_serviceType(sec_hdr);
-	uint8_t sec_serviceSubType = call_Sec_hdr_get_serviceSubType(sec_hdr);
-	uint8_t sec_sourceId = call_Sec_hdr_get_sourceId(sec_hdr);
-	uint8_t sec_ackFlag = call_Sec_hdr_get_ackflag(sec_hdr);
+	uint8_t sec_ackFlag = call_Sec_hdr_get_ackflag(sec_hdr_TC);
+	uint8_t sec_serviceType = call_Sec_hdr_get_serviceType(sec_hdr_TC);
+	uint8_t sec_serviceSubType = call_Sec_hdr_get_serviceSubType(sec_hdr_TC);
+	uint16_t sec_sourceId = call_Sec_hdr_get_sourceId(sec_hdr_TC);
+	uint8_t sec_spare = call_Sec_hdr_get_spare(sec_hdr_TC);
+
+	print_CCSDS_pkt_breakpoint(
+			spw_addr, spw_protid, spw_spare, spw_user_app,
+			prim_id, prim_seqCount, prim_len,
+			sec_ackFlag, sec_serviceType, sec_serviceSubType, sec_sourceId, sec_spare,
+			app_data, crc,
+			transactionType);
+
 
 	DBG_print_pkt(("\n ______________________________________________________\n"));
 	DBG_print_pkt(("| --------------------  CCSDS packet  -----------------\n"));
@@ -41,14 +88,28 @@ void print_CCSDS_pkt(void *data)
 			, prim_seqCount));
 	DBG_print_pkt(("|        Prim hdr len (2b)  |           %d             \n"
 			, prim_len));
-	DBG_print_pkt(("|    Sec hdr sourceID (1b)  |           %d             \n"
-			, sec_sourceId));
-	DBG_print_pkt(("|Sec hdr serviceSubType (1b)|           %d             \n"
-			, sec_serviceSubType));
-	DBG_print_pkt(("|  Sec hdr serviceType (1b) |           %d             \n"
-			, sec_serviceType));
 	DBG_print_pkt(("|    Sec hdr ackFlag (1b)   |           %d             \n"
 			, sec_ackFlag));
+	DBG_print_pkt(("|  Sec hdr serviceType (1b) |           %d             \n"
+			, sec_serviceType));
+	DBG_print_pkt(("|Sec hdr serviceSubType (1b)|           %d             \n"
+			, sec_serviceSubType));
+	DBG_print_pkt(("|    Sec hdr sourceID (2b)  |           %d             \n"
+			, sec_sourceId));
+	DBG_print_pkt(("|    Sec hdr spare (1b)     |           %d             \n"
+			, sec_spare));
+	DBG_print_pkt(("|      App data 1 (1b)      |           %d             \n"
+			, app_data[0]));
+	DBG_print_pkt(("|      App data 2 (1b)      |           %d             \n"
+			, app_data[1]));
+	DBG_print_pkt(("|      App data 3 (1b)      |           %d             \n"
+			, app_data[2]));
+	DBG_print_pkt(("|                 (... %d bytes of app data ...)       \n"
+	, APP_DATA_SIZE -4));
+	DBG_print_pkt(("|      App data %d (1b)    |           %d             \n"
+			, APP_DATA_SIZE -1, app_data[APP_DATA_SIZE -1]));
+	DBG_print_pkt(("|           crc (2b)        |           %d             \n"
+			, crc));
 	DBG_print_pkt(("|______________________________________________________\n\n"));
 
 }
@@ -59,8 +120,7 @@ void init_pkts(struct grspw_device *devs,
 			   int rx_devno,
 			   int dest_log_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts])//,
-			   //void **pkts_to_del)
+			   struct spwpkt pkts[nb_pkts])
 {
 	struct spwpkt *pkt;
 	int i;
@@ -77,7 +137,7 @@ void init_pkts(struct grspw_device *devs,
 
 	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
 		pkt->p.hdr = &pkt->path_hdr[0];
-		pkt->p.data = &pkt->ccscds_pkt[0];
+		pkt->p.data = &pkt->ccsds_pkt[0];
 
 		/* RX buffer */
 		/* Add to device RX list */
@@ -138,6 +198,7 @@ int dma_TX(struct grspw_device *dev)
 			DBG(("GRSPW%d: Sending %d packet(s)\n", dev->index,
 				dev->tx_list_cnt));
 			for (pkt = dev->tx_list.head; pkt; pkt = pkt->next) {
+				pkt_tx_breakpoint(dev->index, dev->tx_list_cnt, pkt->dlen);
 				DBG_print_pkt((" PKT of length %d bytes: ", pkt->hlen+pkt->dlen));
 				for (i = 0; i < pkt->hlen+pkt->dlen /*&& i < 8*/; i++) {
 					if (i < pkt->hlen)
@@ -147,7 +208,7 @@ int dma_TX(struct grspw_device *dev)
 					DBG_print_pkt((" 0x%02x", *c));
 
 				}
-				print_CCSDS_pkt(pkt->data);
+				get_CCSDS_pkt_fields(pkt->data, "TX");
 
 			}
 			rc = grspw_dma_tx_send(dev->dma[0], 0, &dev->tx_list,
@@ -172,6 +233,7 @@ int dma_RX(struct grspw_device *dev)
 	struct grspw_pkt *pkt;
 	unsigned char *c;
 
+	//DBG(("entering in dma_RX\n"));
 
 	/* Prepare receiver with packet buffers */
 		if (dev->rx_list_cnt > 0) {
@@ -211,14 +273,17 @@ int dma_RX(struct grspw_device *dev)
 					DBG((" (0x%x)", pkt->flags));
 				} else
 					DBG_print_pkt((" PKT"));
-				c = (unsigned char *)pkt->data;
+
+				pkt_rx_breakpoint(dev->index, cnt, pkt->dlen);
 				DBG_print_pkt((" of length %d bytes: ", pkt->dlen));
+
+				c = (unsigned char *)pkt->data;
 				/// PA : Ajout d'une boucle pour l'affichage (avant un seul DBG()
 				for(int i=0;i<pkt->dlen;i++)
 					DBG_print_pkt(("0x%02x ", c[i]));
 				DBG(("\n"));
 
-				print_CCSDS_pkt(pkt->data);
+				get_CCSDS_pkt_fields(pkt->data, "RX");
 				DBG(("\n\n"));
 			}
 

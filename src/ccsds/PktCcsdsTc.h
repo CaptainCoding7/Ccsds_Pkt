@@ -16,7 +16,7 @@
 #define ECL_CORE_TMTC_PKTCCSDSTC_H_
 
 #include "Prim_hdr.h"
-#include "Sec_hdr.h"
+#include "Sec_hdr_TC.h"
 #include "TrailerTc.h"
 
 namespace ecl
@@ -26,7 +26,7 @@ namespace core
 namespace tmtc
 {
 
-class PktCcsdsTc : public Prim_hdr, public Sec_hdr
+class PktCcsdsTc : public Prim_hdr, public Sec_hdr_TC
 {
 public:
 	PktCcsdsTc() = default;

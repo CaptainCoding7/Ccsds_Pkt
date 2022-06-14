@@ -1,0 +1,75 @@
+set remotetimeout 10000
+set height 0
+set print array on
+tar extended-remote localhost:2222
+load
+
+break end_breakpoint
+commands
+	printf "\nEND OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", nb
+	cont
+end	
+
+break newPkt_breakpoint
+commands
+	printf "\n------ PKT %d ------\n-------------------\n", pkt_cnt
+	printf "TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1
+	cont
+end
+	
+	
+break test_app
+commands
+	  printf "\nStarted test app task\n"  
+	  printf "\n***********  PKT TX/RX TEST  **************\n\n"  
+	  printf "SPW src port : %d\n", spw_src_port  
+	  printf "SPW dest port : %d\n", spw_dest_port  
+	  printf "%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit  
+	  cont
+end
+
+break pkt_tx_breakpoint
+commands
+	printf "\nGRSPW%d: Sending %d packet(s) of length %d bytes: \n", index, count, len
+	cont
+end
+
+break pkt_rx_breakpoint
+commands
+	printf "\nGRSPW%d: Receiving %d packet(s) of length %d bytes: \n", index, count, len
+	cont
+end
+
+break print_CCSDS_pkt_breakpoint
+commands
+	printf " \n <><><> %s packet <><><>\n", transactionType
+	printf "\n ______________________________________________________\n"
+	printf "| --------------------  CCSDS packet  -----------------\n" 
+	printf "|           Field           |          Value           \n" 
+	printf "|______________________________________________________\n" 
+	printf "|     Spw hdr addr (1b)     |           %d             \n", spw_addr 
+	printf "|     Spw hdr protid (1b)   |           %d             \n", spw_protid 
+	printf "|     Spw hdr spare (1b)    |           %d             \n", spw_spare 
+	printf "|     Spw hdr user_app (1b) |           %d             \n", spw_user_app 
+	printf "|        Prim hdr ID (2b)   |           %d             \n", prim_id 
+	printf "|    Prim hdr seqCount (2b) |           %d             \n", prim_seqCount 
+	printf "|        Prim hdr len (2b)  |           %d             \n", prim_len 
+	printf "|    Sec hdr ackFlag (1b)   |           %d             \n", sec_ackFlag 
+	printf "|  Sec hdr serviceType (1b) |           %d             \n", sec_serviceType 
+	printf "|Sec hdr serviceSubType (1b)|           %d             \n", sec_serviceSubType 
+	printf "|    Sec hdr sourceID (2b)  |           %d             \n", sec_sourceId 
+	printf "|    Sec hdr spare (1b)     |           %d             \n", sec_spare 
+	printf "|      App data 1 (1b)      |           %d             \n", app_data[0] 
+	printf "|      App data 2 (1b)      |           %d             \n", app_data[1] 
+	printf "|      App data 3 (1b)      |           %d             \n", app_data[2] 
+	printf "|                 (... %d bytes of app data ...)       \n", APP_DATA_SIZE -4 
+	printf "|      App data %d (1b)    |           %d             \n", APP_DATA_SIZE -1, app_data[APP_DATA_SIZE -1] 
+	printf "|           crc (2b)        |           %d             \n", crc 
+	printf "|______________________________________________________\n\n" 
+
+	cont
+end
+
+
+start
+cont

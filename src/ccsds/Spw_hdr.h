@@ -8,14 +8,12 @@
 #ifndef CCSDS_SPW_HDR_H_
 #define CCSDS_SPW_HDR_H_
 
+#define SPW_HDR_SIZE 4
+
+#ifdef __cplusplus
+
 #include "../debug_print.h"
 
-namespace ecl
-{
-namespace core
-{
-namespace tmtc
-{
 
 	class Spw_hdr
 	{
@@ -97,10 +95,6 @@ Spw_hdr::~Spw_hdr()
 	DBG(("spw_hdr destr\n"));
 }
 
-
-} /* namespace tmtc */
-} /* namespace core */
-} /* namespace ecl */
-
+#endif
 
 #endif /* CCSDS_SPW_HDR_H_ */
