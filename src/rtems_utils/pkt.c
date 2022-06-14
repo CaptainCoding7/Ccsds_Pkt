@@ -11,11 +11,12 @@ void newPkt_breakpoint(int pkt_cnt, int tx_devno)
 }
 
 void print_CCSDS_pkt_breakpoint(
+
 	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
 	unsigned char spw_user_app,
 	enum Id prim_id, uint16_t prim_seqCount, uint16_t prim_len,
-	uint8_t sec_ackFlag, uint8_t sec_serviceType, uint8_t sec_serviceSubType,
-	uint16_t sec_sourceId, uint8_t sec_spare,
+	int sec_pus_version, uint8_t sec_ackFlag, uint8_t sec_serviceType,
+	uint8_t sec_serviceSubType,	uint16_t sec_sourceId, uint8_t sec_spare,
 	uint8_t *app_data, uint16_t crc,
 	char *transactionType)
 {
@@ -56,6 +57,7 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 	uint16_t crc = call_Pkt_data_get_crc(pkt_data);
 
 	//getting sec hdr fields
+	int sec_pus_version = call_Sec_hdr_get_pus_version(sec_hdr_TC);
 	uint8_t sec_ackFlag = call_Sec_hdr_get_ackflag(sec_hdr_TC);
 	uint8_t sec_serviceType = call_Sec_hdr_get_serviceType(sec_hdr_TC);
 	uint8_t sec_serviceSubType = call_Sec_hdr_get_serviceSubType(sec_hdr_TC);
@@ -65,8 +67,8 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 	print_CCSDS_pkt_breakpoint(
 			spw_addr, spw_protid, spw_spare, spw_user_app,
 			prim_id, prim_seqCount, prim_len,
-			sec_ackFlag, sec_serviceType, sec_serviceSubType, sec_sourceId, sec_spare,
-			app_data, crc,
+			sec_pus_version, sec_ackFlag, sec_serviceType, sec_serviceSubType,
+			sec_sourceId, sec_spare, app_data, crc,
 			transactionType);
 
 
@@ -88,6 +90,8 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 			, prim_seqCount));
 	DBG_print_pkt(("|        Prim hdr len (2b)  |           %d             \n"
 			, prim_len));
+	DBG_print_pkt(("| Sec hdr pusVersion (1/2b) |           %d             \n"
+			, sec_pus_version));
 	DBG_print_pkt(("|    Sec hdr ackFlag (1b)   |           %d             \n"
 			, sec_ackFlag));
 	DBG_print_pkt(("|  Sec hdr serviceType (1b) |           %d             \n"
@@ -146,9 +150,9 @@ void init_pkts(struct grspw_device *devs,
 
 		/* TX buffer */
 		/* Packet generation */
-		CCSDS_PKT ccsds_pkt = create_CCSDS_Pkt(dest_log_addr);
+		CCSDS_PKT ccsds_pkt_tc = create_CCSDS_Pkt_TC(dest_log_addr);
 		DBG(("New packet has been created !\n"));
-		pkt->p.data = ccsds_pkt;
+		pkt->p.data = ccsds_pkt_tc;
 		pkt->p.dlen = CCSDS_PKT_SIZE;
 		/* Add to device TX list */
 		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);

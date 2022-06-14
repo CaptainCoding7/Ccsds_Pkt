@@ -54,6 +54,7 @@ commands
 	printf "|        Prim hdr ID (2b)   |           %d             \n", prim_id 
 	printf "|    Prim hdr seqCount (2b) |           %d             \n", prim_seqCount 
 	printf "|        Prim hdr len (2b)  |           %d             \n", prim_len 
+	printf "| Sec hdr pusVersion (1/2b) |           %d             \n", sec_pus_version
 	printf "|    Sec hdr ackFlag (1b)   |           %d             \n", sec_ackFlag 
 	printf "|  Sec hdr serviceType (1b) |           %d             \n", sec_serviceType 
 	printf "|Sec hdr serviceSubType (1b)|           %d             \n", sec_serviceSubType 

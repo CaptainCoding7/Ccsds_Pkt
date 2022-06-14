@@ -31,7 +31,7 @@ using namespace ecl;
 using namespace ecl::core::tmtc;
 
 
-class Sec_hdr_TC
+class Sec_hdr_TC : public uintBe6_t
 {
 public:
 
@@ -41,7 +41,7 @@ public:
 	using SourceIdField = uintBe2_t;
 	using SpareField = uintBe1_t;
 
-	Sec_hdr_TC(
+	constexpr Sec_hdr_TC(
 		    TcAckFlags ackFlag,
 			ServiceTypeValue serviceType,
 		    ServiceSubTypeValue serviceSubType,
@@ -50,53 +50,24 @@ public:
 
 	~Sec_hdr_TC();
 
-	TcAckFlagsValue getMAck() {
-		return m_ack.value();
-	}
 
-	void setMAck(TcAckFlagsValue mAck) {
-		m_ack.setValue(mAck);
-	}
-
-	ServiceSubTypeValue getMServiceSubType() const {
-		return m_serviceSubType.value();
-	}
-
-	void setMServiceSubType(ServiceSubTypeValue mServiceSubType) {
-		m_serviceSubType.setValue(mServiceSubType);
-	}
-
-	ServiceTypeValue getMServiceType() const {
-		return m_serviceType.value();
-	}
-
-	void setMServiceType(ServiceTypeValue mServiceType) {
-		m_serviceType.setValue(mServiceType);
-	}
-
-	SourceIdValue getMSourceId() const {
-		return m_sourceId.value();
-	}
-
-	void setMSourceId(SourceIdValue mSourceId) {
-		m_sourceId.setValue(mSourceId);
-	}
-
-	SpareValue getMSpare() const {
-		return m_spare;
-	}
-
-	void setMSpare(SpareValue mSpare) {
-		m_spare = mSpare;
-	}
+	DECLARE_BIT(hasSecondaryHeader, 47)
+	DECLARE_CASTED_FIELD(m_version, 44, 3, PusVersion)
+	DECLARE_CASTED_FIELD(m_ackFlags, 40, 4, TcAckFlagsValue)
+	DECLARE_CASTED_FIELD(m_serviceType, 32, 8, ServiceTypeValue)
+	DECLARE_CASTED_FIELD(m_serviceSubType, 24, 8, ServiceSubTypeValue)
+	DECLARE_CASTED_FIELD(m_sourceId, 8, 16, SourceIdValue)
+	DECLARE_CASTED_FIELD(m_spare, 0, 8, SpareValue)
 
 private:
-	//AckField m_ack;
-	TcAckFlags m_ack;
-	ServiceTypeField m_serviceType;
-	ServiceSubTypeField m_serviceSubType;
-	SourceIdField m_sourceId;
-	SpareField m_spare;
+//	//AckField m_ack;
+//	TcAckFlags m_ack;
+//	ServiceTypeField m_serviceType;
+//	ServiceSubTypeField m_serviceSubType;
+//	SourceIdField m_sourceId;
+//	SpareField m_spare;
+
+
 };
 
 
@@ -105,19 +76,22 @@ private:
 // ------------------------------------------------------------------------------------------------
 
 /// We add some default values
-Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
+constexpr Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
 		   	   	   	   TcAckFlags ack= TcAck::START,
 					   ServiceTypeValue serviceType = 1,
                        ServiceSubTypeValue serviceSubType = 1,
                        SourceIdValue sourceId = 1,
 					   SpareValue spare = 0)
+: uintBe6_t(0)
+
 {
 
-	setMAck(ack.value());
-	setMServiceSubType(serviceSubType);
-	setMServiceType(serviceType);
-	setMSourceId(sourceId);
-	setMSpare(spare);
+	set_hasSecondaryHeader(false);
+	set_m_version(2);
+	set_m_ackFlags(ack.value());
+	set_m_serviceType(serviceType);
+	set_m_serviceSubType(serviceSubType);
+	set_m_sourceId(sourceId);
 
 	DBG(("size of m_ack = %d\n",sizeof(m_ack)));
 }

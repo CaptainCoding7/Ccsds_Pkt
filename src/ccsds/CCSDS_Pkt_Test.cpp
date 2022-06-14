@@ -7,10 +7,10 @@
 
 #include <iostream>
 
-#include "HeaderTmSb.h"
-#include "PktCcsdsTc.h"
-#include "PktCcsdsTmSb.h"
-#include "TrailerTc.h"
+//#include "HeaderTmSb.h"
+//#include "PktCcsdsTc.h"
+//#include "PktCcsdsTmSb.h"
+//#include "TrailerTc.h"
 #include "Types.h"
 #include "Apid.h"
 
@@ -56,7 +56,7 @@ extern "C" void test_create_CCSDS_Pkt()
 /*****************   Creation of C++ objects (+return) ********************/
 
 
-extern "C" CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr)
+extern "C" CCSDS_PKT create_CCSDS_Pkt_TC(unsigned char dest_port_addr)
 {
 	/// **p = &p
 	return {new CCSDS_Pkt_TC(dest_port_addr,2, 0, 0)};
@@ -154,29 +154,42 @@ extern "C" uint16_t call_Pkt_data_get_crc(PKT_DATA pkt_data)
 
 
 /// Sec_hdr_TC -----------------------
+
+extern "C" int call_Sec_hdr_get_pus_version(SEC_HDR_TC sec_hdr)
+{
+	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
+	//return psec_hdr->getMAck();
+	//printf("size of sec_hdr = %d\n", sizeof(psec_hdr));
+	return psec_hdr->m_version();
+}
 extern "C" uint8_t call_Sec_hdr_get_ackflag(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	return psec_hdr->getMAck();
+	//return psec_hdr->getMAck();
+	return psec_hdr->m_ackFlags();
 }
 extern "C" uint8_t call_Sec_hdr_get_serviceType(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	return psec_hdr->getMServiceType();
+	//return psec_hdr->getMServiceType();
+	return psec_hdr->m_serviceType();
 }
 extern "C" uint8_t call_Sec_hdr_get_serviceSubType(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	return psec_hdr->getMServiceSubType();
+	//return psec_hdr->getMServiceSubType();
+	return psec_hdr->m_serviceSubType();
 }
 extern "C" uint16_t call_Sec_hdr_get_sourceId(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	return psec_hdr->getMSourceId();
+	//return psec_hdr->getMSourceId();
+	return psec_hdr->m_sourceId();
 }
 extern "C" uint8_t call_Sec_hdr_get_spare(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	return psec_hdr->getMSpare();
+	//return psec_hdr->getMSpare();
+	return psec_hdr->m_spare();
 }
 

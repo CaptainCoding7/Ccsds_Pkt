@@ -103,7 +103,7 @@ void test_create_CCSDS_Pkt();
 
 
 /*** Creation of C++ objects (+return) ***/
-CCSDS_PKT create_CCSDS_Pkt(unsigned char dest_port_addr);
+CCSDS_PKT create_CCSDS_Pkt_TC(unsigned char dest_port_addr);
 
 /// delete
 void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no);
@@ -128,6 +128,7 @@ SEC_HDR_TC call_Pkt_data_get_sec_hdr(PKT_DATA pkt_data);
 uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data);
 uint16_t call_Pkt_data_get_crc(PKT_DATA pkt_data);
 /// SEC_HDR
+int call_Sec_hdr_get_pus_version(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_get_ackflag(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_get_serviceType(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_get_serviceSubType(SEC_HDR_TC sec_hdr);
