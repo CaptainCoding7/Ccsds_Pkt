@@ -37,8 +37,9 @@ GRSPW0: Sending 1 packet(s) of length 518 bytes:
 |     Spw hdr user_app (1b) |           0             
 |        Prim hdr ID (2b)   |           6720             
 |    Prim hdr seqCount (2b) |           1             
-|        Prim hdr len (2b)  |           30             
-|    Sec hdr ackFlag (1b)   |           2             
+|        Prim hdr len (2b)  |           30
+| Sec hdr pusVersion (1/2b) |           2     
+|    Sec hdr ackFlag (1/2b) |           2             
 |  Sec hdr serviceType (1b) |           1             
 |Sec hdr serviceSubType (1b)|           1             
 |    Sec hdr sourceID (2b)  |           1             
@@ -66,8 +67,9 @@ GRSPW2: Receiving 1 packet(s) of length 519 bytes:
 |     Spw hdr user_app (1b) |           0             
 |        Prim hdr ID (2b)   |           6720             
 |    Prim hdr seqCount (2b) |           1             
-|        Prim hdr len (2b)  |           30             
-|    Sec hdr ackFlag (1b)   |           2             
+|        Prim hdr len (2b)  |           30            
+| Sec hdr pusVersion (1/2b) |           2             
+|    Sec hdr ackFlag (1/2b) |           2             
 |  Sec hdr serviceType (1b) |           1             
 |Sec hdr serviceSubType (1b)|           1             
 |    Sec hdr sourceID (2b)  |           1             
