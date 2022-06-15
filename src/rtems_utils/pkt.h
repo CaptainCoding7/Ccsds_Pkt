@@ -17,6 +17,7 @@
 #include <grlib/grspw_pkt.h>
 #include "grspw_pkt_lib.h"
 
+#include "app_params.h"
 #include "../ccsds/CCSDS_Pkt.h"
 #include "../ccsds/Apid.h"
 #include "../debug_print.h"
@@ -45,7 +46,7 @@ struct route_entry {
 };
 
 /******************************************************************************/
-/// Structures
+/// Custom structures
 
 struct spw_tc_pkt {
 	struct grspw_pkt p;
@@ -80,9 +81,20 @@ void print_CCSDS_pkt_breakpoint(
 	uint8_t *app_data, uint16_t crc,
 	char *transactionType);
 
+void print_CCSDS_pkt_TM_breakpoint(
+	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
+	unsigned char spw_user_app,
+	enum Id prim_id, uint16_t prim_seqCount, uint16_t prim_len,
+	int sec_pus_version, int sec_scTimeRefStatus, uint8_t sec_serviceType,
+	uint8_t sec_serviceSubType,	uint16_t sec_msgTypeCounter, uint16_t sec_destId, 
+	uint8_t sec_spare, uint8_t *app_data, uint16_t crc,
+	char *transactionType);
+
 void pkt_tx_breakpoint(int index, int count, int len);
 
 void pkt_rx_breakpoint(int index, int count, int len);
+
+/***************************************/
 
 /**
  * This function is used to fill an int array from a string array.
@@ -99,23 +111,15 @@ void init_simple_pkt_data(int *decs, char *word);
  * rx list of the rx device
  */
 void init_ccsds_tc_pkts(struct grspw_device *devs,
-			   int tx_devno,
-			   int rx_devno,
-			   int dest_port_addr,
-			   size_t nb_pkts,
-			   struct spw_tc_pkt pkts[nb_pkts]
-			   );
+			   			struct spw_tc_pkt pkts[nb_pkts]
+			   			);
 
 /**
  * This function is called to initialize the TM packets data
  */
 void init_ccsds_tm_pkts(struct grspw_device *devs,
-			   int tx_devno,
-			   int rx_devno,
-			   int dest_port_addr,
-			   size_t nb_pkts,
-			   struct spw_tm_pkt pkts[nb_pkts]
-			   );
+			   			struct spw_tm_pkt pkts[nb_pkts]
+			  			);
 /**
  * This function get each field of the CCSDS pkt given in argument
  */
