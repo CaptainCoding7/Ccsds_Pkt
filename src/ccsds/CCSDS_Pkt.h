@@ -17,6 +17,8 @@
 
 #include "../debug_print.h"
 
+
+
 	class CCSDS_Pkt_TC
 	{
 	public:
@@ -28,7 +30,7 @@
 				unsigned char user_app)
 		:		m_spw_hdr(addr,protid,spare,user_app),
 				m_prim_hdr(),
-				m_pkt_data()
+				m_pkt_data_tc()
 		{
 		}
 
@@ -42,14 +44,14 @@
 			return &m_prim_hdr;
 		}
 
-		void set_pkt_data(Pkt_data *pd)
+		void set_pkt_data(Pkt_data_TC *pd)
 		{
-			m_pkt_data = *pd;
+			m_pkt_data_tc = *pd;
 		}
 
-		Pkt_data *get_pkt_data()
+		Pkt_data_TC *get_pkt_data()
 		{
-			return &m_pkt_data;
+			return &m_pkt_data_tc;
 		}
 
 		void set_spw_hdr(Spw_hdr *spwh)
@@ -66,7 +68,60 @@
 	private:
 		Spw_hdr m_spw_hdr;
 		Prim_hdr m_prim_hdr;
-		Pkt_data m_pkt_data;
+		Pkt_data_TC m_pkt_data_tc;
+	};
+
+
+	class CCSDS_Pkt_TM
+	{
+	public:
+
+		CCSDS_Pkt_TM(
+				unsigned char addr,
+				unsigned char protid,
+				unsigned char spare,
+				unsigned char user_app)
+		:		m_spw_hdr(addr,protid,spare,user_app),
+				m_prim_hdr(),
+				m_pkt_data_tm()
+		{
+		}
+
+		void set_prim_hdr(Prim_hdr *ph)
+		{
+			m_prim_hdr = *ph;
+		}
+
+		Prim_hdr *get_prim_hdr()
+		{
+			return &m_prim_hdr;
+		}
+
+		void set_pkt_data(Pkt_data_TM *pd)
+		{
+			m_pkt_data_tm = *pd;
+		}
+
+		Pkt_data_TM *get_pkt_data()
+		{
+			return &m_pkt_data_tm;
+		}
+
+		void set_spw_hdr(Spw_hdr *spwh)
+		{
+			m_spw_hdr = *spwh;
+		}
+
+
+		Spw_hdr *get_spw_hdr()
+		{
+			return &m_spw_hdr;
+		}
+
+	private:
+		Spw_hdr m_spw_hdr;
+		Prim_hdr m_prim_hdr;
+		Pkt_data_TM m_pkt_data_tm;
 	};
 
 
@@ -93,9 +148,12 @@ extern "C"
 
 /*** Sizes constants ***/
 
-#define CCSDS_PKT_SIZE SPW_HDR_SIZE + PRIM_HDR_SIZE + PKT_DATA_SIZE
+#define CCSDS_PKT_TC_SIZE SPW_HDR_SIZE + PRIM_HDR_SIZE + PKT_DATA_TC_SIZE
+#define CCSDS_PKT_TM_SIZE SPW_HDR_SIZE + PRIM_HDR_SIZE + PKT_DATA_TM_SIZE
+
 // dividing by 8 since long long = 64bits = 8 bytes
-#define CCSDS_PKT_LONG_LONG_SIZE CCSDS_PKT_SIZE/8+1 // 518/8~64
+#define CCSDS_PKT_TC_LONG_LONG_SIZE CCSDS_PKT_TC_SIZE/8+1 // 518/8~64
+#define CCSDS_PKT_TM_LONG_LONG_SIZE CCSDS_PKT_TM_SIZE/8+1 // 518/8~64
 
 
 /** Test functions **/

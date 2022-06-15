@@ -135,7 +135,7 @@ rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
 /// All packet buffers used by application :
-struct spwpkt *pkts;
+struct spw_tc_pkt *pkts;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
@@ -283,9 +283,9 @@ rtems_task test_app(rtems_task_argument ignored)
 	/* Initialize packets */
 	/// this variable won't decrease !
 	nb_pkts_init = nb_pkts_to_transmit;
-	pkts = malloc(sizeof(struct spwpkt) * nb_pkts_to_transmit);
+	pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts_to_transmit);
 
-	init_pkts(devs, tx_devno, rx_devno, amba_dest_port,
+	init_ccsds_tc_pkts(devs, tx_devno, rx_devno, amba_dest_port,
 			nb_pkts_to_transmit, pkts);//, pkts_to_del);
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);

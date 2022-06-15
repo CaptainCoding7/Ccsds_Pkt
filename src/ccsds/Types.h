@@ -55,9 +55,6 @@ using PusVersion = uint8_t;
 using TcAckFlags = FlagSet<TcAck>;
 using TcAckFlagsValue = UnderlyingType<TcAck>;
 
-/// PA
-using TcAckValue = uint8_t;
-///
 using ServiceTypeValue = uint8_t;
 using ServiceSubTypeValue = uint8_t;
 using SourceIdValue = uint16_t;

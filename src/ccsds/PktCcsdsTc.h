@@ -16,7 +16,7 @@
 #define ECL_CORE_TMTC_PKTCCSDSTC_H_
 
 #include "Prim_hdr.h"
-#include "Sec_hdr_TC.h"
+#include "Sec_hdr.h"
 #include "TrailerTc.h"
 
 namespace ecl

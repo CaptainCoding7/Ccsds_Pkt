@@ -109,9 +109,9 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 	DBG_print_pkt(("|      App data 3 (1b)      |           %d             \n"
 			, app_data[2]));
 	DBG_print_pkt(("|                 (... %d bytes of app data ...)       \n"
-	, APP_DATA_SIZE -4));
+			, APP_DATA_TC_SIZE -4));
 	DBG_print_pkt(("|      App data %d (1b)    |           %d             \n"
-			, APP_DATA_SIZE -1, app_data[APP_DATA_SIZE -1]));
+			, APP_DATA_TC_SIZE -1, app_data[APP_DATA_SIZE_TC -1]));
 	DBG_print_pkt(("|           crc (2b)        |           %d             \n"
 			, crc));
 	DBG_print_pkt(("|______________________________________________________\n\n"));
@@ -119,14 +119,14 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 }
 
 
-void init_pkts(struct grspw_device *devs,
+void init_ccsds_tc_pkts(struct grspw_device *devs,
 			   int tx_devno,
 			   int rx_devno,
 			   int dest_log_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts])
+			   struct spw_tc_pkt pkts[nb_pkts])
 {
-	struct spwpkt *pkt;
+	struct spw_tc_pkt *pkt;
 	int i;
 
 	DBG(("Initializing CCSDS TC Packets...\n"));
@@ -141,7 +141,7 @@ void init_pkts(struct grspw_device *devs,
 
 	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
 		pkt->p.hdr = &pkt->path_hdr[0];
-		pkt->p.data = &pkt->ccsds_pkt[0];
+		pkt->p.data = &pkt->ccsds_tc_pkt[0];
 
 		/* RX buffer */
 		/* Add to device RX list */
@@ -153,7 +153,7 @@ void init_pkts(struct grspw_device *devs,
 		CCSDS_PKT ccsds_pkt_tc = create_CCSDS_Pkt_TC(dest_log_addr);
 		DBG(("New packet has been created !\n"));
 		pkt->p.data = ccsds_pkt_tc;
-		pkt->p.dlen = CCSDS_PKT_SIZE;
+		pkt->p.dlen = CCSDS_PKT_TC_SIZE;
 		/* Add to device TX list */
 		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);
 		devs[tx_devno].tx_buf_list_cnt++;
@@ -162,6 +162,48 @@ void init_pkts(struct grspw_device *devs,
 
 }
 
+void init_ccsds_tm_pkts(struct grspw_device *devs,
+			   int tx_devno,
+			   int rx_devno,
+			   int dest_log_addr,
+			   size_t nb_pkts,
+			   struct spw_tm_pkt pkts[nb_pkts])
+{
+	struct spw_tm_pkt *pkt;
+	int i;
+
+	DBG(("Initializing CCSDS TM Packets...\n"));
+
+	/* Reinitializing tx and rx lists */
+	grspw_list_clr(&devs[rx_devno].rx_list);
+	grspw_list_clr(&devs[tx_devno].tx_list);
+	grspw_list_clr(&devs[tx_devno].tx_buf_list);
+	devs[rx_devno].rx_list_cnt = 0;
+	devs[tx_devno].tx_list_cnt = 0;
+	devs[tx_devno].tx_buf_list_cnt = 0;
+
+	for (i = 0, pkt = &pkts[0]; i < nb_pkts; i++, pkt = &pkts[i]) {
+		pkt->p.hdr = &pkt->path_hdr[0];
+		pkt->p.data = &pkt->ccsds_tm_pkt[0];
+
+		/* RX buffer */
+		/* Add to device RX list */
+		grspw_list_append(&devs[rx_devno].rx_list, &pkt->p);
+		devs[rx_devno].rx_list_cnt++;
+
+		/* TX buffer */
+		/* Packet generation */
+		CCSDS_PKT ccsds_pkt_tm = create_CCSDS_Pkt_TM(dest_log_addr);
+		DBG(("New packet has been created !\n"));
+		pkt->p.data = ccsds_pkt_tm;
+		pkt->p.dlen = CCSDS_PKT_TM_SIZE;
+		/* Add to device TX list */
+		grspw_list_append(&devs[tx_devno].tx_buf_list, &pkt->p);
+		devs[tx_devno].tx_buf_list_cnt++;
+
+	}
+
+}
 
 int dma_TX(struct grspw_device *dev)
 {

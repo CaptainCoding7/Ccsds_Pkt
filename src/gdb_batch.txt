@@ -55,7 +55,7 @@ commands
 	printf "|    Prim hdr seqCount (2b) |           %d             \n", prim_seqCount 
 	printf "|        Prim hdr len (2b)  |           %d             \n", prim_len 
 	printf "| Sec hdr pusVersion (1/2b) |           %d             \n", sec_pus_version
-	printf "|    Sec hdr ackFlag (1b)   |           %d             \n", sec_ackFlag 
+	printf "|    Sec hdr ackFlag (1/2b) |           %d             \n", sec_ackFlag 
 	printf "|  Sec hdr serviceType (1b) |           %d             \n", sec_serviceType 
 	printf "|Sec hdr serviceSubType (1b)|           %d             \n", sec_serviceSubType 
 	printf "|    Sec hdr sourceID (2b)  |           %d             \n", sec_sourceId 
@@ -63,8 +63,8 @@ commands
 	printf "|      App data 1 (1b)      |           %d             \n", app_data[0] 
 	printf "|      App data 2 (1b)      |           %d             \n", app_data[1] 
 	printf "|      App data 3 (1b)      |           %d             \n", app_data[2] 
-	printf "|                 (... %d bytes of app data ...)       \n", APP_DATA_SIZE -4 
-	printf "|      App data %d (1b)    |           %d             \n", APP_DATA_SIZE -1, app_data[APP_DATA_SIZE -1] 
+	printf "|                 (... %d bytes of app data ...)       \n", APP_DATA_TC_SIZE -4 
+	printf "|      App data %d (1b)    |           %d             \n", APP_DATA_TC_SIZE -1, app_data[APP_DATA_TC_SIZE -1] 
 	printf "|           crc (2b)        |           %d             \n", crc 
 	printf "|______________________________________________________\n\n" 
 

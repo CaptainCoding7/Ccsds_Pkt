@@ -47,15 +47,20 @@ struct route_entry {
 /******************************************************************************/
 /// Structures
 
-struct spwpkt {
+struct spw_tc_pkt {
 	struct grspw_pkt p;
 	//unsigned long long ccsds_pkt[PKT_SIZE/8+1]; /* 32 bytes of data - 4byte data-header (8 extra bytes to avoid truncated bad packets)*/
 	//unsigned long long ccsds_pkt[CCSDS_PKT_LONG_LONG_SIZE];
 	//unsigned long long path_hdr[2]; /* up to 16byte header (path address) */
-	uint8_t ccsds_pkt[CCSDS_PKT_SIZE];
+	uint8_t ccsds_tc_pkt[CCSDS_PKT_TC_SIZE];
 	uint8_t path_hdr[2]; /* up to 16byte header (path address) */
 };
 
+struct spw_tm_pkt {
+	struct grspw_pkt p;
+	uint8_t ccsds_tm_pkt[CCSDS_PKT_TM_SIZE];
+	uint8_t path_hdr[2]; /* up to 16byte header (path address) */
+};
 
 /******  Functions  *******************/
 
@@ -69,17 +74,28 @@ struct spwpkt {
 void init_simple_pkt_data(int *decs, char *word);
 
 /**
- * This function is called to initialize the packet data
+ * This function is called to initialize the TC packets data
  * We create as many packets as determined by nb_pkts.
  * Each packet will be added to the tx list of the th device and the
  * rx list of the rx device
  */
-void init_pkts(struct grspw_device *devs,
+void init_ccsds_tc_pkts(struct grspw_device *devs,
 			   int tx_devno,
 			   int rx_devno,
 			   int dest_port_addr,
 			   size_t nb_pkts,
-			   struct spwpkt pkts[nb_pkts]
+			   struct spw_tc_pkt pkts[nb_pkts]
+			   );
+
+/**
+ * This function is called to initialize the TM packets data
+ */
+void init_ccsds_tm_pkts(struct grspw_device *devs,
+			   int tx_devno,
+			   int rx_devno,
+			   int dest_port_addr,
+			   size_t nb_pkts,
+			   struct spw_tm_pkt pkts[nb_pkts]
 			   );
 /**
  * This function get each field of the CCSDS pkt given in argument

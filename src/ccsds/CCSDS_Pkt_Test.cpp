@@ -17,7 +17,7 @@
 #include "Prim_hdr.h"
 #include "CCSDS_Pkt.h"
 #include "../debug_print.h"
-#include "Sec_hdr_TC.h"
+#include "Sec_hdr.h"
 
 
 using namespace ecl::core::tmtc;
@@ -60,6 +60,12 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt_TC(unsigned char dest_port_addr)
 {
 	/// **p = &p
 	return {new CCSDS_Pkt_TC(dest_port_addr,2, 0, 0)};
+}
+
+extern "C" CCSDS_PKT create_CCSDS_Pkt_TM(unsigned char dest_port_addr)
+{
+	/// **p = &p
+	return {new CCSDS_Pkt_TM(dest_port_addr,2, 0, 0)};
 }
 
 /****** delete  *****/
@@ -138,17 +144,17 @@ extern "C" uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
 /// CCSDS_Pkt_data ----------------
 extern "C" SEC_HDR_TC call_Pkt_data_get_sec_hdr(PKT_DATA pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
 	return ppkt_data->getMSec_hdr();
 }
 extern "C" uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
 	return ppkt_data->getMData();
 }
 extern "C" uint16_t call_Pkt_data_get_crc(PKT_DATA pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
 	return ppkt_data->getMCrc();
 }
 
