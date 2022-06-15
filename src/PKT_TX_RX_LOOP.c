@@ -113,6 +113,7 @@ rtems_task Init( rtems_task_argument argument);	/* forward declaration needed */
 
 #include <grlib/grspw_router.h>
 
+#include "app_params.h"
 #include "rtems_utils/pkt.h"
 #include "rtems_utils/dev.h"
 #include "ccsds/CCSDS_Pkt.h"
@@ -134,8 +135,8 @@ rtems_id tid, tid_link, tid_dma;
 rtems_id dma_sem;
 int nospw = 0;
 int tasks_stop = 0;
-/// All packet buffers used by application :
-struct spw_tc_pkt *pkts;
+struct spw_tc_pkt *tc_pkts;
+struct spw_tm_pkt *tm_pkts;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
@@ -255,38 +256,28 @@ rtems_task test_app(rtems_task_argument ignored)
 	int i;
 	struct grspw_pkt *pkt;
 	struct route_entry route;
-
-	int spw_src_port, spw_dest_port, amba_dest_port;
-	int tx_devno, rx_devno, nb_pkts_to_transmit, nb_pkts_init;
-	int pkt_cnt=0;
-
-////////////////////////////////////////////////////////////////////////////////
-///	APP PARAMETERS
-	spw_src_port = 3;
-	spw_dest_port=6;                                                     ///
-	/// devno is the number of the GRSPW device used
-	tx_devno = 0; // 0 for the first pkt (changes for each pkt in the loop)
-	rx_devno = 2;
-	/// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
-	/// 0x2b is the same as 0x9b but without header deletion
-	amba_dest_port = 0x2b; //0x9b;
-	/// The number of packets to transmit, will decrease
-	nb_pkts_to_transmit=1;
-///                                                                          ///
-////////////////////////////////////////////////////////////////////////////////
+	/// this variable will decrease !
+	int nb_pkts = NB_PKTS_TO_TRANSMIT;	
+	int pkt_cnt = 0;
 
 	DBG(("\nStarted test app task\n"));
 
 	/* Initialize router, AMBA ports */
 	init_router();
 
-	/* Initialize packets */
-	/// this variable won't decrease !
-	nb_pkts_init = nb_pkts_to_transmit;
-	pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts_to_transmit);
-
-	init_ccsds_tc_pkts(devs, tx_devno, rx_devno, amba_dest_port,
-			nb_pkts_to_transmit, pkts);//, pkts_to_del);
+	/* Initializing CCSDS pkt according to its type */
+	if(PKT_TYPE==TC_PKT)
+	{
+		/* Initializing TC packets */
+		tc_pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts);
+		init_ccsds_tc_pkts(devs, tc_pkts);//, pkts_to_del);
+	}
+	else if(PKT_TYPE==TM_PKT)
+	{
+		/* Initializing TM packets */
+		tm_pkts = malloc(sizeof(struct spw_tm_pkt) * nb_pkts);
+		init_ccsds_tm_pkts(devs, tm_pkts);//, pkts_to_del);
+	}
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
 	rtems_task_start(tid_dma, dma_task, 0);
@@ -296,32 +287,32 @@ rtems_task test_app(rtems_task_argument ignored)
 	DBG(("\n***********  PKT TX/RX TEST  **************\n\n"));
 
 	memset(&route, 0, sizeof(route));
-	route.dstadr[0]=spw_src_port;
-	route.dstadr[1]=spw_dest_port;
-	route.dstadr[2]=amba_dest_port;
+	route.dstadr[0]=SPW_SRC_PORT;
+	route.dstadr[1]=SPW_DEST_PORT;
+	route.dstadr[2]=AMBA_LOG_DEST_PORT;
 
-	DBG(("SPW src port : %d\n", spw_src_port));
-	DBG(("SPW dest port : %d\n", spw_dest_port));
-	DBG(("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit));
+	DBG(("SPW src port : %d\n", SPW_SRC_PORT));
+	DBG(("SPW dest port : %d\n", SPW_DEST_PORT));
+	DBG(("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts));
 
-	while(nb_pkts_to_transmit!=0)
+	while(nb_pkts!=0)
 	{
 
 		rtems_task_wake_after(100);
 
 		pkt_cnt++;
-		newPkt_breakpoint(pkt_cnt, tx_devno);
+		newPkt_breakpoint(pkt_cnt, TX_DEVNO);
 
 		/* Get a TX packet buffer */
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		pkt = devs[tx_devno].tx_buf_list.head;
+		pkt = devs[TX_DEVNO].tx_buf_list.head;
 		if (pkt == NULL) {
 			DBG((" No free transmit buffers available\n"));
 		}
-		devs[tx_devno].tx_buf_list.head = pkt->next;
-		devs[tx_devno].tx_buf_list_cnt--;
+		devs[TX_DEVNO].tx_buf_list.head = pkt->next;
+		devs[TX_DEVNO].tx_buf_list_cnt--;
 		if (pkt->next == NULL)
-			devs[tx_devno].tx_buf_list.tail = NULL;
+			devs[TX_DEVNO].tx_buf_list.tail = NULL;
 
 		// grspw_pkt header contains the source address (will be deleted when TX)
 		unsigned char *hdr = pkt->hdr;
@@ -330,10 +321,10 @@ rtems_task test_app(rtems_task_argument ignored)
 		pkt->hlen = 2;
 
 		/* Send packet by adding it to the tx_list */
-		grspw_list_append(&devs[tx_devno].tx_list, pkt);
-		devs[tx_devno].tx_list_cnt++;
+		grspw_list_append(&devs[TX_DEVNO].tx_list, pkt);
+		devs[TX_DEVNO].tx_list_cnt++;
 
-		nb_pkts_to_transmit--;
+		nb_pkts--;
 
 		rtems_semaphore_release(dma_sem);
 	}
@@ -347,17 +338,24 @@ rtems_task test_app(rtems_task_argument ignored)
 
 	DBG(("\n\n[DEBUG]--------- MEMORY CLEANING ---------.\n\n"));
 
-	for (int i = 0; i < nb_pkts_init; i++) {
-		delete_CCSDS_Pkt(pkts[i].p.data, i);
+	if(PKT_TYPE==TC_PKT)
+	{
+		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
+			delete_CCSDS_Pkt(tc_pkts[i].p.data, i);
+		free(tc_pkts);
+	}
+	else if(PKT_TYPE==TM_PKT)
+	{
+		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
+			delete_CCSDS_Pkt(tm_pkts[i].p.data, i);
+		free(tm_pkts);
 	}
 
-	free(pkts);
 	DBG(("=> Array of packets has been freed.\n"));
-	//free(pkts_to_del);
 
-	end_breakpoint(nb_pkts_init);
-	DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", nb_pkts_init));
-	//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", nb_pkts_init);
+	end_breakpoint(NB_PKTS_TO_TRANSMIT);
+	DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT));
+	//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT);
 
 	DBG(("\nEXAMPLE COMPLETED.\n\n"));
 	exit(0);
