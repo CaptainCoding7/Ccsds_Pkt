@@ -64,7 +64,7 @@ public:
 
 
 	DECLARE_BIT(hasSecondaryHeader, 47)
-	DECLARE_CASTED_FIELD(m_version, 44, 3, PusVersion)
+	DECLARE_CASTED_FIELD(m_pus_version, 44, 3, PusVersion)
 	DECLARE_CASTED_FIELD(m_ackFlags, 40, 4, TcAckFlagsValue)
 	DECLARE_CASTED_FIELD(m_serviceType, 32, 8, ServiceTypeValue)
 	DECLARE_CASTED_FIELD(m_serviceSubType, 24, 8, ServiceSubTypeValue)
@@ -85,7 +85,7 @@ constexpr Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
 {
 
 	set_hasSecondaryHeader(false);
-	set_m_version(2);
+	set_m_pus_version(2);
 	set_m_ackFlags(ack.value());
 	set_m_serviceType(serviceType);
 	set_m_serviceSubType(serviceSubType);
@@ -118,7 +118,7 @@ public:
 	~Sec_hdr_TM();
 
 	DECLARE_BIT(hasSecondaryHeader, 63)
-	DECLARE_CASTED_FIELD(m_version, 60, 3, PusVersion)
+	DECLARE_CASTED_FIELD(m_pus_version, 60, 3, PusVersion)
 	DECLARE_CASTED_FIELD(m_scTimeRefStatus, 56, 4, ScTimeRefStatusValue)
 	DECLARE_CASTED_FIELD(m_serviceType, 48, 8, ServiceTypeValue)
 	DECLARE_CASTED_FIELD(m_serviceSubType, 40, 8, ServiceSubTypeValue)
@@ -142,7 +142,7 @@ constexpr Sec_hdr_TM::Sec_hdr_TM(
 {
 
 	set_hasSecondaryHeader(false);
-	set_m_version(2);
+	set_m_pus_version(2);
 	set_m_scTimeRefStatus(scTimeRefStatus);
 	set_m_serviceType(serviceType);
 	set_m_serviceSubType(serviceSubType);
