@@ -26,132 +26,105 @@
 #include "Types.h"
 #include "../debug_print.h"
 
+
 // ================================================================================================
-// Pkt_data_TC
+// Pkt_data parent class
 // ------------------------------------------------------------------------------------------------
 
-class Pkt_data_TC
+template <size_t app_data_size>
+class Pkt_data
 {
 public:
-
-
-	Pkt_data_TC();
-
-	~Pkt_data_TC();
-
+	Pkt_data()
+	:m_crc{77}
+	{
+		for (int i = 0; i < app_data_size; i++) {
+			m_app_data[i] = i%10;
+		}
+		DBG(("\n app_data size = %d\n",sizeof(m_app_data)));
+	}
+	~Pkt_data()
+	{
+		DBG(("pkt_data base destr\n"));
+	}
 	uint16_t getMCrc() {
 		return m_crc;
 	}
-
 	void setMCrc(uint16_t mCrc) {
 		m_crc = mCrc;
 	}
-
 	uint8_t *getMData() {
 		return m_app_data;
 	}
 
-	void setMSec_hdr(Sec_hdr_TC *sh)
-	{
-		m_sec_hdr = *sh;
-	}
-
-	Sec_hdr_TC *getMSec_hdr()
-	{
-		return &m_sec_hdr;
-	}
-
-	void generateData();
-
 private:
-	Sec_hdr_TC m_sec_hdr;
-	uint8_t m_app_data[APP_DATA_TC_SIZE];
+	uint8_t m_app_data[app_data_size];
 	uint16_t m_crc;
-
+	// sec_hdr in derived class
 };
 
-
-void Pkt_data_TC::generateData()
-{
-	for (int i = 0; i < APP_DATA_TC_SIZE; i++) {
-		m_app_data[i] = i%10;
-	}
-	DBG(("\n app_data size = %d\n",sizeof(m_app_data)));
-}
-
-Pkt_data_TC::Pkt_data_TC():
-		m_sec_hdr()
-{
-	generateData();
-	setMCrc(77);
-}
-
-Pkt_data_TC::~Pkt_data_TC()
-{
-	DBG(("pkt_data destr\n"));
-}
-
 // ================================================================================================
-// Pkt_data_TM
+// Pkt_data_TC derived class
 // ------------------------------------------------------------------------------------------------
 
-class Pkt_data_TM
+class Pkt_data_TC : Pkt_data<APP_DATA_TC_SIZE>
 {
 public:
 
+	Pkt_data_TC()
+	:Pkt_data(),
+	 m_sec_hdr_tc()
+	{}
 
-	Pkt_data_TM();
-
-	~Pkt_data_TM();
-
-	uint16_t getMCrc() {
-		return m_crc;
-	}
-
-	void setMCrc(uint16_t mCrc) {
-		m_crc = mCrc;
-	}
-
-	uint8_t *getMData() {
-		return m_app_data;
-	}
-
-	void setMSec_hdr(Sec_hdr_TM *sh)
+	~Pkt_data_TC()
 	{
-		m_sec_hdr = *sh;
+		DBG(("pkt_data TC destr\n"));
 	}
-
-	Sec_hdr_TM *getMSec_hdr()
+	void setMSec_hdr_tc(Sec_hdr_TC *sh)
 	{
-		return &m_sec_hdr;
+		m_sec_hdr_tc = *sh;
 	}
 
-	void generateData();
+	Sec_hdr_TC *getMSec_hdr_tc()
+	{
+		return &m_sec_hdr_tc;
+	}
 
 private:
-	Sec_hdr_TM m_sec_hdr;
-	uint8_t m_app_data[APP_DATA_TM_SIZE];
-	uint16_t m_crc;
-
+	Sec_hdr_TC m_sec_hdr_tc;
 };
 
 
-void Pkt_data_TM::generateData()
+// ================================================================================================
+// Pkt_data_TM derived class
+// ------------------------------------------------------------------------------------------------
+
+class Pkt_data_TM : Pkt_data<APP_DATA_TM_SIZE>
 {
-	for (int i = 0; i < APP_DATA_TM_SIZE; i++) {
-		m_app_data[i] = i%10;
+public:
+
+	Pkt_data_TM()
+	:Pkt_data(),
+	 m_sec_hdr_tm()
+	{}
+
+	~Pkt_data_TM()
+	{
+		DBG(("pkt_data TM destr\n"));
 	}
-	DBG(("\n app_data size = %d\n",sizeof(m_app_data)));
-}
+	void setMSec_hdr_tm(Sec_hdr_TM *sh)
+	{
+		m_sec_hdr_tm = *sh;
+	}
 
-Pkt_data_TM::Pkt_data_TM():
-		m_sec_hdr()
-{
-	generateData();
-	setMCrc(77);
-}
+	Sec_hdr_TM *getMSec_hdr_tm()
+	{
+		return &m_sec_hdr_tm;
+	}
 
-
+private:
+	Sec_hdr_TM m_sec_hdr_tm;
+};
 
 
 

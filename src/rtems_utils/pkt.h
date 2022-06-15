@@ -63,7 +63,26 @@ struct spw_tm_pkt {
 };
 
 /******  Functions  *******************/
+/***************************************/
 
+/******************  BREAKPOINT FUNCTIONS  ******************************/
+
+void end_breakpoint(int nb);
+
+void newPkt_breakpoint(int pkt_cnt, int tx_devno);
+
+void print_CCSDS_pkt_breakpoint(
+	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
+	unsigned char spw_user_app,
+	enum Id prim_id, uint16_t prim_seqCount, uint16_t prim_len,
+	int sec_pus_version, uint8_t sec_ackFlag, uint8_t sec_serviceType,
+	uint8_t sec_serviceSubType,	uint16_t sec_sourceId, uint8_t sec_spare,
+	uint8_t *app_data, uint16_t crc,
+	char *transactionType);
+
+void pkt_tx_breakpoint(int index, int count, int len);
+
+void pkt_rx_breakpoint(int index, int count, int len);
 
 /**
  * This function is used to fill an int array from a string array.

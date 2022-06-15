@@ -18,111 +18,125 @@
 #include "../debug_print.h"
 
 
+/**
+ * CCSDS_Pkt parent class
+ */
+class CCSDS_Pkt
+{
+public:
 
-	class CCSDS_Pkt_TC
+	CCSDS_Pkt(
+			unsigned char addr,
+			unsigned char protid,
+			unsigned char spare,
+			unsigned char user_app)
+	:		m_spw_hdr(addr,protid,spare,user_app),
+			m_prim_hdr()
 	{
-	public:
+	}
 
-		CCSDS_Pkt_TC(
-				unsigned char addr,
-				unsigned char protid,
-				unsigned char spare,
-				unsigned char user_app)
-		:		m_spw_hdr(addr,protid,spare,user_app),
-				m_prim_hdr(),
-				m_pkt_data_tc()
-		{
-		}
-
-		void set_prim_hdr(Prim_hdr *ph)
-		{
-			m_prim_hdr = *ph;
-		}
-
-		Prim_hdr *get_prim_hdr()
-		{
-			return &m_prim_hdr;
-		}
-
-		void set_pkt_data(Pkt_data_TC *pd)
-		{
-			m_pkt_data_tc = *pd;
-		}
-
-		Pkt_data_TC *get_pkt_data()
-		{
-			return &m_pkt_data_tc;
-		}
-
-		void set_spw_hdr(Spw_hdr *spwh)
-		{
-			m_spw_hdr = *spwh;
-		}
-
-
-		Spw_hdr *get_spw_hdr()
-		{
-			return &m_spw_hdr;
-		}
-
-	private:
-		Spw_hdr m_spw_hdr;
-		Prim_hdr m_prim_hdr;
-		Pkt_data_TC m_pkt_data_tc;
-	};
-
-
-	class CCSDS_Pkt_TM
+	virtual ~CCSDS_Pkt()
 	{
-	public:
-
-		CCSDS_Pkt_TM(
-				unsigned char addr,
-				unsigned char protid,
-				unsigned char spare,
-				unsigned char user_app)
-		:		m_spw_hdr(addr,protid,spare,user_app),
-				m_prim_hdr(),
-				m_pkt_data_tm()
-		{
-		}
-
-		void set_prim_hdr(Prim_hdr *ph)
-		{
-			m_prim_hdr = *ph;
-		}
-
-		Prim_hdr *get_prim_hdr()
-		{
-			return &m_prim_hdr;
-		}
-
-		void set_pkt_data(Pkt_data_TM *pd)
-		{
-			m_pkt_data_tm = *pd;
-		}
-
-		Pkt_data_TM *get_pkt_data()
-		{
-			return &m_pkt_data_tm;
-		}
-
-		void set_spw_hdr(Spw_hdr *spwh)
-		{
-			m_spw_hdr = *spwh;
-		}
+		DBG(("ccsds pkt base destr\n"));
+	}
 
 
-		Spw_hdr *get_spw_hdr()
-		{
-			return &m_spw_hdr;
-		}
+	void set_spw_hdr(Spw_hdr *spwh)
+	{
+		m_spw_hdr = *spwh;
+	}
 
-	private:
-		Spw_hdr m_spw_hdr;
-		Prim_hdr m_prim_hdr;
-		Pkt_data_TM m_pkt_data_tm;
-	};
+	Spw_hdr *get_spw_hdr()
+	{
+		return &m_spw_hdr;
+	}
+
+	void set_prim_hdr(Prim_hdr *ph)
+	{
+		m_prim_hdr = *ph;
+	}
+
+	Prim_hdr *get_prim_hdr()
+	{
+		return &m_prim_hdr;
+	}
+
+private:
+	Spw_hdr m_spw_hdr;
+	Prim_hdr m_prim_hdr;
+};
+
+
+class CCSDS_Pkt_TC : CCSDS_Pkt
+{
+public:
+
+	CCSDS_Pkt_TC(
+			unsigned char addr,
+			unsigned char protid,
+			unsigned char spare,
+			unsigned char user_app)
+		:	CCSDS_Pkt{addr, protid, spare, user_app},
+			m_pkt_data_tc{}
+	{
+	}
+
+	~CCSDS_Pkt_TC()
+	{
+		DBG(("ccsds pkt TC destr\n"));
+
+	}
+
+	void set_pkt_data(Pkt_data_TC *pd)
+	{
+		m_pkt_data_tc = *pd;
+	}
+
+	Pkt_data_TC *get_pkt_data()
+	{
+		return &m_pkt_data_tc;
+	}
+
+private:
+
+	Pkt_data_TC m_pkt_data_tc;
+};
+
+
+class CCSDS_Pkt_TM : CCSDS_Pkt
+{
+public:
+
+	CCSDS_Pkt_TM(
+			unsigned char addr,
+			unsigned char protid,
+			unsigned char spare,
+			unsigned char user_app)
+		:	CCSDS_Pkt{addr, protid, spare, user_app},
+			m_pkt_data_tm{}
+	{
+	}
+
+	~CCSDS_Pkt_TM()
+	{
+		DBG(("ccsds pkt TM destr\n"));
+
+	}
+
+	void set_pkt_data(Pkt_data_TM *pd)
+	{
+		m_pkt_data_tm = *pd;
+	}
+
+	Pkt_data_TM *get_pkt_data()
+	{
+		return &m_pkt_data_tm;
+	}
+
+private:
+
+	Pkt_data_TM m_pkt_data_tm;
+};
 
 
 #endif

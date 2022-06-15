@@ -91,12 +91,11 @@ constexpr Sec_hdr_TC::Sec_hdr_TC(//TcAckValue ack = 0,
 	set_m_serviceSubType(serviceSubType);
 	set_m_sourceId(sourceId);
 	set_m_spare(spare);
-	DBG(("size of m_ack = %d\n",sizeof(m_ack)));
 }
 
 Sec_hdr_TC::~Sec_hdr_TC()
 {
-	DBG(("sec_hdr destr\n"));
+	DBG(("sec_hdr tc destr\n"));
 }
 
 // ================================================================================================
@@ -151,7 +150,11 @@ constexpr Sec_hdr_TM::Sec_hdr_TM(
 	set_m_destId(destId);
 	set_m_spare(spare);
 
-	DBG(("size of m_ack = %d\n",sizeof(m_ack)));
+}
+
+Sec_hdr_TM::~Sec_hdr_TM()
+{
+	DBG(("sec_hdr tm destr\n"));
 }
 
 

@@ -72,7 +72,7 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt_TM(unsigned char dest_port_addr)
 
 extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt*>(ccsds_pkt);
 	delete pccsds_pkt;
 	DBG(("=> Packet n_%d has been deleted.\n",no+1));
 }
@@ -83,12 +83,12 @@ extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no)
 /// CCSDS_Pkt -------------------
 extern "C" SPW_HDR call_CCSDS_Pkt_get_spw_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt*>(ccsds_pkt);
 	return pccsds_pkt->get_spw_hdr();
 }
 extern "C" PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt*>(ccsds_pkt);
 	return pccsds_pkt->get_prim_hdr();
 }
 extern "C" PKT_DATA call_CCSDS_Pkt_get_pkt_data(CCSDS_PKT ccsds_pkt)
@@ -145,16 +145,16 @@ extern "C" uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
 extern "C" SEC_HDR_TC call_Pkt_data_get_sec_hdr(PKT_DATA pkt_data)
 {
 	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
-	return ppkt_data->getMSec_hdr();
+	return ppkt_data->getMSec_hdr_tc();
 }
 extern "C" uint8_t *call_Pkt_data_get_app_data(PKT_DATA pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TC_SIZE>*>(pkt_data);
 	return ppkt_data->getMData();
 }
 extern "C" uint16_t call_Pkt_data_get_crc(PKT_DATA pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TC_SIZE>*>(pkt_data);
 	return ppkt_data->getMCrc();
 }
 
