@@ -40,11 +40,11 @@ commands
 	cont
 end
 
-break print_CCSDS_pkt_breakpoint
+break print_CCSDS_pkt_TC_breakpoint
 commands
 	printf " \n <><><> %s packet <><><>\n", transactionType
 	printf "\n ______________________________________________________\n"
-	printf "| --------------------  CCSDS packet  -----------------\n" 
+	printf "| ------------------  CCSDS TC packet  ----------------\n" 
 	printf "|           Field           |          Value           \n" 
 	printf "|______________________________________________________\n" 
 	printf "|     Spw hdr addr (1b)     |           %d             \n", spw_addr 
@@ -71,6 +71,37 @@ commands
 	cont
 end
 
+break print_CCSDS_pkt_TM_breakpoint
+commands
+	printf " \n <><><> %s packet <><><>\n", transactionType
+	printf "\n ______________________________________________________\n"
+	printf "| ------------------  CCSDS TM packet  ----------------\n" 
+	printf "|           Field           |          Value           \n" 
+	printf "|______________________________________________________\n" 
+	printf "|     Spw hdr addr (1b)     |           %d             \n", spw_addr 
+	printf "|     Spw hdr protid (1b)   |           %d             \n", spw_protid 
+	printf "|     Spw hdr spare (1b)    |           %d             \n", spw_spare 
+	printf "|     Spw hdr user_app (1b) |           %d             \n", spw_user_app 
+	printf "|        Prim hdr ID (2b)   |           %d             \n", prim_id 
+	printf "|    Prim hdr seqCount (2b) |           %d             \n", prim_seqCount 
+	printf "|        Prim hdr len (2b)  |           %d             \n", prim_len 
+	printf "| Sec hdr pusVersion (1/2b) |           %d             \n", sec_pus_version
+	printf "|    Sec hdr ackFlag (1/2b) |           %d             \n", sec_scTimeRefStatus 
+	printf "|  Sec hdr serviceType (1b) |           %d             \n", sec_serviceType 
+	printf "|Sec hdr serviceSubType (1b)|           %d             \n", sec_serviceSubType 
+	printf "|Sec hdr msgTypeCounter (2b)|           %d             \n", sec_msgTypeCounter
+	printf "|    Sec hdr sourceID (2b)  |           %d             \n", sec_destId 
+	printf "|    Sec hdr spare (1b)     |           %d             \n", sec_spare 
+	printf "|      App data 1 (1b)      |           %d             \n", app_data[0] 
+	printf "|      App data 2 (1b)      |           %d             \n", app_data[1] 
+	printf "|      App data 3 (1b)      |           %d             \n", app_data[2] 
+	printf "|                 (... %d bytes of app data ...)       \n", APP_DATA_TM_SIZE -4 
+	printf "|      App data %d (1b)    |           %d             \n", APP_DATA_TM_SIZE -1, app_data[APP_DATA_TM_SIZE -1] 
+	printf "|           crc (2b)        |           %d             \n", crc 
+	printf "|______________________________________________________\n\n" 
+
+	cont
+end
 
 start
 cont
