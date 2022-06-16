@@ -17,7 +17,7 @@
 #include <grlib/grspw_pkt.h>
 #include "grspw_pkt_lib.h"
 
-#include "app_params.h"
+#include "../app_params.h"
 #include "../ccsds/CCSDS_Pkt.h"
 #include "../ccsds/Apid.h"
 #include "../debug_print.h"
@@ -111,14 +111,14 @@ void init_simple_pkt_data(int *decs, char *word);
  * rx list of the rx device
  */
 void init_ccsds_tc_pkts(struct grspw_device *devs,
-			   			struct spw_tc_pkt pkts[nb_pkts]
+			   			struct spw_tc_pkt pkts[NB_PKTS_TO_TRANSMIT]
 			   			);
 
 /**
  * This function is called to initialize the TM packets data
  */
 void init_ccsds_tm_pkts(struct grspw_device *devs,
-			   			struct spw_tm_pkt pkts[nb_pkts]
+			   			struct spw_tm_pkt pkts[NB_PKTS_TO_TRANSMIT]
 			  			);
 /**
  * This function get each field of the CCSDS pkt given in argument

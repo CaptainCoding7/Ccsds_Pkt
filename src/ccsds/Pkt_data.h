@@ -72,8 +72,8 @@ class Pkt_data_TC : Pkt_data<APP_DATA_TC_SIZE>
 public:
 
 	Pkt_data_TC()
-	:Pkt_data(),
-	 m_sec_hdr_tc()
+	:Pkt_data{},
+	 m_sec_hdr_tc{}
 	{}
 
 	~Pkt_data_TC()
@@ -104,8 +104,8 @@ class Pkt_data_TM : Pkt_data<APP_DATA_TM_SIZE>
 public:
 
 	Pkt_data_TM()
-	:Pkt_data(),
-	 m_sec_hdr_tm()
+	:Pkt_data{},
+	 m_sec_hdr_tm{}
 	{}
 
 	~Pkt_data_TM()

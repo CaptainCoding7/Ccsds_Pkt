@@ -13,7 +13,7 @@ end
 break newPkt_breakpoint
 commands
 	printf "\n------ PKT %d ------\n-------------------\n", pkt_cnt
-	printf "TX on GRSPW device %d (AMBA port %d)\n", tx_devno, tx_devno+1
+	printf "TX on GRSPW device %d (AMBA port %d)\n", TX_DEVNO, TX_DEVNO+1
 	cont
 end
 	
@@ -22,9 +22,9 @@ break test_app
 commands
 	  printf "\nStarted test app task\n"  
 	  printf "\n***********  PKT TX/RX TEST  **************\n\n"  
-	  printf "SPW src port : %d\n", spw_src_port  
-	  printf "SPW dest port : %d\n", spw_dest_port  
-	  printf "%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts_to_transmit  
+	  printf "SPW src port : %d\n", SPW_SRC_PORT  
+	  printf "SPW dest port : %d\n", SPW_DEST_PORT  
+	  printf "%d pkt(s) are (is) waiting for transmission\n\n", NB_PKTS_TO_TRANSMIT  
 	  cont
 end
 

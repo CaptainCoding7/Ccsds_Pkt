@@ -260,6 +260,8 @@ rtems_task test_app(rtems_task_argument ignored)
 	int nb_pkts = NB_PKTS_TO_TRANSMIT;	
 	int pkt_cnt = 0;
 
+
+
 	DBG(("\nStarted test app task\n"));
 
 	/* Initialize router, AMBA ports */
@@ -270,13 +272,13 @@ rtems_task test_app(rtems_task_argument ignored)
 	{
 		/* Initializing TC packets */
 		tc_pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts);
-		init_ccsds_tc_pkts(devs, tc_pkts);//, pkts_to_del);
+		init_ccsds_tc_pkts(devs, tc_pkts);
 	}
 	else if(PKT_TYPE==TM_PKT)
 	{
 		/* Initializing TM packets */
 		tm_pkts = malloc(sizeof(struct spw_tm_pkt) * nb_pkts);
-		init_ccsds_tm_pkts(devs, tm_pkts);//, pkts_to_del);
+		init_ccsds_tm_pkts(devs, tm_pkts);
 	}
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
@@ -341,13 +343,13 @@ rtems_task test_app(rtems_task_argument ignored)
 	if(PKT_TYPE==TC_PKT)
 	{
 		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
-			delete_CCSDS_Pkt(tc_pkts[i].p.data, i);
+			delete_CCSDS_Pkt_TC(tc_pkts[i].p.data, i);
 		free(tc_pkts);
 	}
 	else if(PKT_TYPE==TM_PKT)
 	{
 		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
-			delete_CCSDS_Pkt(tm_pkts[i].p.data, i);
+			delete_CCSDS_Pkt_TM(tm_pkts[i].p.data, i);
 		free(tm_pkts);
 	}
 

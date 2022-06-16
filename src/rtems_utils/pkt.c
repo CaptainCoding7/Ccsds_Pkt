@@ -79,52 +79,8 @@ void get_CCSDS_pkt_fields(void *ccsds_pkt, char *transactionType)
 				sec_pus_version, sec_ackFlag, sec_serviceType, sec_serviceSubType,
 				sec_sourceId, sec_spare, app_data, crc,
 				transactionType);
-
-		DBG_print_pkt(("\n ______________________________________________________\n"));
-		DBG_print_pkt(("| --------------------  CCSDS packet  -----------------\n"));
-		DBG_print_pkt(("|           Field           |          Value           \n"));
-		DBG_print_pkt(("|______________________________________________________\n"));
-		DBG_print_pkt(("|     Spw hdr addr (1b)     |           %d             \n"
-				, spw_addr));
-		DBG_print_pkt(("|     Spw hdr protid (1b)   |           %d             \n"
-				, spw_protid));
-		DBG_print_pkt(("|     Spw hdr spare (1b)    |           %d             \n"
-				, spw_spare));
-		DBG_print_pkt(("|     Spw hdr user_app (1b) |           %d             \n"
-				, spw_user_app));
-		DBG_print_pkt(("|        Prim hdr ID (2b)   |           %d             \n"
-				, prim_id));
-		DBG_print_pkt(("|    Prim hdr seqCount (2b) |           %d             \n"
-				, prim_seqCount));
-		DBG_print_pkt(("|        Prim hdr len (2b)  |           %d             \n"
-				, prim_len));
-		DBG_print_pkt(("| Sec hdr pusVersion (1/2b) |           %d             \n"
-				, sec_pus_version));
-		DBG_print_pkt(("|    Sec hdr ackFlag (1b)   |           %d             \n"
-				, sec_ackFlag));
-		DBG_print_pkt(("|  Sec hdr serviceType (1b) |           %d             \n"
-				, sec_serviceType));
-		DBG_print_pkt(("|Sec hdr serviceSubType (1b)|           %d             \n"
-				, sec_serviceSubType));
-		DBG_print_pkt(("|    Sec hdr sourceID (2b)  |           %d             \n"
-				, sec_sourceId));
-		DBG_print_pkt(("|    Sec hdr spare (1b)     |           %d             \n"
-				, sec_spare));
-		DBG_print_pkt(("|      App data 1 (1b)      |           %d             \n"
-				, app_data[0]));
-		DBG_print_pkt(("|      App data 2 (1b)      |           %d             \n"
-				, app_data[1]));
-		DBG_print_pkt(("|      App data 3 (1b)      |           %d             \n"
-				, app_data[2]));
-		DBG_print_pkt(("|                 (... %d bytes of app data ...)       \n"
-				, APP_DATA_TC_SIZE -4));
-		DBG_print_pkt(("|      App data %d (1b)    |           %d             \n"
-				, APP_DATA_TC_SIZE -1, app_data[APP_DATA_SIZE_TC -1]));
-		DBG_print_pkt(("|           crc (2b)        |           %d             \n"
-				, crc));
-		DBG_print_pkt(("|______________________________________________________\n\n"));
-
 	}
+
 	else if(PKT_TYPE==TM_PKT)
 	{
 		// getting pkt data TC fields
@@ -193,7 +149,7 @@ void init_ccsds_tc_pkts(struct grspw_device *devs,
 }
 
 void init_ccsds_tm_pkts(struct grspw_device *devs,
-			   			struct spw_tm_pkt pkts[nb_pkts])
+			   			struct spw_tm_pkt pkts[NB_PKTS_TO_TRANSMIT])
 {
 	struct spw_tm_pkt *pkt;
 	int i;
@@ -210,7 +166,7 @@ void init_ccsds_tm_pkts(struct grspw_device *devs,
 
 	for (i = 0, pkt = &pkts[0]; i < NB_PKTS_TO_TRANSMIT; i++, pkt = &pkts[i]) {
 		pkt->p.hdr = &pkt->path_hdr[0];
-		pkt->p.data = &pkt->ccsds_tc_pkt[0];
+		pkt->p.data = &pkt->ccsds_tm_pkt[0];
 
 		/* RX buffer */
 		/* Add to device RX list */
@@ -278,6 +234,7 @@ int dma_TX(struct grspw_device *dev)
 					DBG_print_pkt((" 0x%02x", *c));
 
 				}
+				DBG_print_pkt(("\n\n"));
 				get_CCSDS_pkt_fields(pkt->data, "TX");
 
 			}
@@ -351,6 +308,7 @@ int dma_RX(struct grspw_device *dev)
 				/// PA : Ajout d'une boucle pour l'affichage (avant un seul DBG()
 				for(int i=0;i<pkt->dlen;i++)
 					DBG_print_pkt(("0x%02x ", c[i]));
+				DBG_print_pkt(("\n\n"));
 				DBG(("\n"));
 
 				get_CCSDS_pkt_fields(pkt->data, "RX");

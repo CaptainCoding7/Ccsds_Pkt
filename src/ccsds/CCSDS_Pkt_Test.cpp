@@ -70,13 +70,19 @@ extern "C" CCSDS_PKT create_CCSDS_Pkt_TM(unsigned char dest_port_addr)
 
 /****** delete  *****/
 
-extern "C" void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no)
+extern "C" void delete_CCSDS_Pkt_TC(CCSDS_PKT ccsds_pkt, int no)
 {
-	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt*>(ccsds_pkt);
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
 	delete pccsds_pkt;
 	DBG(("=> Packet n_%d has been deleted.\n",no+1));
 }
 
+extern "C" void delete_CCSDS_Pkt_TM(CCSDS_PKT ccsds_pkt, int no)
+{
+	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TM*>(ccsds_pkt);
+	delete pccsds_pkt;
+	DBG(("=> Packet n_%d has been deleted.\n",no+1));
+}
 
 /*****************   Getter calls ********************/
 
@@ -94,7 +100,7 @@ extern "C" PRIM_HDR call_CCSDS_Pkt_get_prim_hdr(CCSDS_PKT ccsds_pkt)
 extern "C" PKT_DATA_TC call_CCSDS_Pkt_TC_get_pkt_data(CCSDS_PKT_TC ccsds_pkt)
 {
 	auto pccsds_pkt = reinterpret_cast<CCSDS_Pkt_TC*>(ccsds_pkt);
-	return pccsds_pkt->get_pkt_data():
+	return pccsds_pkt->get_pkt_data();
 }
 extern "C" PKT_DATA_TM call_CCSDS_Pkt_TM_get_pkt_data(CCSDS_PKT_TM ccsds_pkt)
 {
@@ -153,12 +159,12 @@ extern "C" SEC_HDR_TC call_Pkt_data_TC_get_sec_hdr(PKT_DATA_TC pkt_data)
 }
 extern "C" uint8_t *call_Pkt_data_TC_get_app_data(PKT_DATA_TC pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TC*>(pkt_data);
-	return ppkt_data->getMData():
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TC_SIZE>*>(pkt_data);
+	return ppkt_data->getMData();
 }
 extern "C" uint16_t call_Pkt_data_TC_get_crc(PKT_DATA_TC pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TC>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TC_SIZE>*>(pkt_data);
 	return ppkt_data->getMCrc();
 }
 /// CCSDS_Pkt_data_TM ----------------
@@ -169,12 +175,12 @@ extern "C" SEC_HDR_TM call_Pkt_data_TM_get_sec_hdr(PKT_DATA_TM pkt_data)
 }
 extern "C" uint8_t *call_Pkt_data_TM_get_app_data(PKT_DATA_TM pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TM*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TM_SIZE>*>(pkt_data);
 	return ppkt_data->getMData();
 }
 extern "C" uint16_t call_Pkt_data_TM_get_crc(PKT_DATA_TM pkt_data)
 {
-	auto ppkt_data = reinterpret_cast<Pkt_data_TM*>(pkt_data);
+	auto ppkt_data = reinterpret_cast<Pkt_data<APP_DATA_TM_SIZE>*>(pkt_data);
 	return ppkt_data->getMCrc();
 }
 

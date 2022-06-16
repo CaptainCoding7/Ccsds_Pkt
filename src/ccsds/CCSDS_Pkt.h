@@ -30,12 +30,12 @@ public:
 			unsigned char protid,
 			unsigned char spare,
 			unsigned char user_app)
-	:		m_spw_hdr(addr,protid,spare,user_app),
-			m_prim_hdr()
+	:		m_spw_hdr{addr,protid,spare,user_app},
+			m_prim_hdr{}
 	{
 	}
 
-	virtual ~CCSDS_Pkt()
+	~CCSDS_Pkt()
 	{
 		DBG(("ccsds pkt base destr\n"));
 	}
@@ -67,7 +67,7 @@ private:
 };
 
 
-class CCSDS_Pkt_TC : CCSDS_Pkt
+class CCSDS_Pkt_TC : public CCSDS_Pkt
 {
 public:
 
@@ -103,7 +103,7 @@ private:
 };
 
 
-class CCSDS_Pkt_TM : CCSDS_Pkt
+class CCSDS_Pkt_TM : public CCSDS_Pkt
 {
 public:
 
@@ -184,7 +184,8 @@ CCSDS_PKT create_CCSDS_Pkt_TC(unsigned char dest_port_addr);
 CCSDS_PKT create_CCSDS_Pkt_TM(unsigned char dest_port_addr);
 
 /// delete
-void delete_CCSDS_Pkt(CCSDS_PKT ccsds_pkt, int no);
+void delete_CCSDS_Pkt_TC(CCSDS_PKT ccsds_pkt, int no);
+void delete_CCSDS_Pkt_TM(CCSDS_PKT ccsds_pkt, int no);
 
 
 /*** Getter calls ***/
@@ -224,7 +225,7 @@ uint16_t call_Sec_hdr_TC_get_sourceId(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_TC_get_spare(SEC_HDR_TC sec_hdr);
 /// SEC_HDR_TM
 int call_Sec_hdr_TM_get_pus_version(SEC_HDR_TC sec_hdr);
-uint8_t call_Sec_hdr_TM_get_scTimeRefStatus(SEC_HDR_TC sec_hdr);
+int call_Sec_hdr_TM_get_scTimeRefStatus(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_TM_get_serviceType(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_TM_get_serviceSubType(SEC_HDR_TC sec_hdr);
 uint16_t call_Sec_hdr_TM_get_msgTypeCounter(SEC_HDR_TC sec_hdr);

@@ -5,8 +5,8 @@
  *      Author: pa267340
  */
 
-#ifndef DEBUG_PR#define_H_
-#define DEBUG_PR#define_H_
+#ifndef APP_PARAMS_H
+#define APP_PARAMS_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///	APP PARAMETERS
@@ -17,7 +17,7 @@
 #define RX_DEVNO 2
 /// 0x2b and 0x9b are logical addresses mapped to AMBA port 2
 /// 0x2b is the same as 0x9b but without header deletion
-#define AMBA_LOG_DEST_PORT 0x2b //0x9b;
+#define AMBA_LOG_DEST_PORT 43 //0x2b;
 /// The initial number of packets to transmit
 #define NB_PKTS_TO_TRANSMIT 1
 // whether it's a TC or a TM
@@ -28,4 +28,4 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif /* DEBUG_PR#define_H_ */
+#endif /* APP_PARAMS_H */
