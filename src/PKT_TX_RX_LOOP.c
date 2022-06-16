@@ -260,8 +260,6 @@ rtems_task test_app(rtems_task_argument ignored)
 	int nb_pkts = NB_PKTS_TO_TRANSMIT;	
 	int pkt_cnt = 0;
 
-
-
 	DBG(("\nStarted test app task\n"));
 
 	/* Initialize router, AMBA ports */

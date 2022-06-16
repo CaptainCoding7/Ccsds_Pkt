@@ -18,6 +18,11 @@
 #include "../debug_print.h"
 
 
+// ================================================================================================
+// CCSDS_Pkt parent class
+// ------------------------------------------------------------------------------------------------
+
+
 /**
  * CCSDS_Pkt parent class
  */
@@ -66,6 +71,10 @@ private:
 	Prim_hdr m_prim_hdr;
 };
 
+// ================================================================================================
+// CCSDS_Pkt_TC derived class
+// ------------------------------------------------------------------------------------------------
+
 
 class CCSDS_Pkt_TC : public CCSDS_Pkt
 {
@@ -101,6 +110,10 @@ private:
 
 	Pkt_data_TC m_pkt_data_tc;
 };
+
+// ================================================================================================
+// CCSDS_Pkt_TM derived class
+// ------------------------------------------------------------------------------------------------
 
 
 class CCSDS_Pkt_TM : public CCSDS_Pkt
@@ -180,12 +193,12 @@ void test_create_CCSDS_Pkt();
 
 
 /*** Creation of C++ objects (+return) ***/
-CCSDS_PKT create_CCSDS_Pkt_TC(unsigned char dest_port_addr);
-CCSDS_PKT create_CCSDS_Pkt_TM(unsigned char dest_port_addr);
+CCSDS_PKT_TC create_CCSDS_Pkt_TC(unsigned char dest_port_addr);
+CCSDS_PKT_TM create_CCSDS_Pkt_TM(unsigned char dest_port_addr);
 
 /// delete
-void delete_CCSDS_Pkt_TC(CCSDS_PKT ccsds_pkt, int no);
-void delete_CCSDS_Pkt_TM(CCSDS_PKT ccsds_pkt, int no);
+void delete_CCSDS_Pkt_TC(CCSDS_PKT_TC ccsds_pkt, int no);
+void delete_CCSDS_Pkt_TM(CCSDS_PKT_TM ccsds_pkt, int no);
 
 
 /*** Getter calls ***/
@@ -224,13 +237,13 @@ uint8_t call_Sec_hdr_TC_get_serviceSubType(SEC_HDR_TC sec_hdr);
 uint16_t call_Sec_hdr_TC_get_sourceId(SEC_HDR_TC sec_hdr);
 uint8_t call_Sec_hdr_TC_get_spare(SEC_HDR_TC sec_hdr);
 /// SEC_HDR_TM
-int call_Sec_hdr_TM_get_pus_version(SEC_HDR_TC sec_hdr);
-int call_Sec_hdr_TM_get_scTimeRefStatus(SEC_HDR_TC sec_hdr);
-uint8_t call_Sec_hdr_TM_get_serviceType(SEC_HDR_TC sec_hdr);
-uint8_t call_Sec_hdr_TM_get_serviceSubType(SEC_HDR_TC sec_hdr);
-uint16_t call_Sec_hdr_TM_get_msgTypeCounter(SEC_HDR_TC sec_hdr);
-uint16_t call_Sec_hdr_TM_get_destId(SEC_HDR_TC sec_hdr);
-uint8_t call_Sec_hdr_TM_get_spare(SEC_HDR_TC sec_hdr);
+int call_Sec_hdr_TM_get_pus_version(SEC_HDR_TM sec_hdr);
+int call_Sec_hdr_TM_get_scTimeRefStatus(SEC_HDR_TM sec_hdr);
+uint8_t call_Sec_hdr_TM_get_serviceType(SEC_HDR_TM sec_hdr);
+uint8_t call_Sec_hdr_TM_get_serviceSubType(SEC_HDR_TM sec_hdr);
+uint16_t call_Sec_hdr_TM_get_msgTypeCounter(SEC_HDR_TM sec_hdr);
+uint16_t call_Sec_hdr_TM_get_destId(SEC_HDR_TM sec_hdr);
+uint8_t call_Sec_hdr_TM_get_spare(SEC_HDR_TM sec_hdr);
 
 #ifdef __cplusplus
 }

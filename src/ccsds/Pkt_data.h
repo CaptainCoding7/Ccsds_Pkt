@@ -18,7 +18,6 @@
 
 #include "Sec_hdr.h"
 
-
 #ifdef __cplusplus
 
 #include <ecl/WordBe.h>
