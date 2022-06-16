@@ -10,6 +10,10 @@ void newPkt_breakpoint(int pkt_cnt, int tx_devno)
 {
 }
 
+void print_string_breakpoint(char *str)
+{
+}
+
 void print_CCSDS_pkt_TC_breakpoint(
 	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
 	unsigned char spw_user_app,
@@ -260,6 +264,7 @@ int dma_RX(struct grspw_device *dev)
 	struct grspw_pkt *pkt;
 	unsigned char *c;
 
+
 	//DBG(("entering in dma_RX\n"));
 
 	/* Prepare receiver with packet buffers */
@@ -298,16 +303,29 @@ int dma_RX(struct grspw_device *dev)
 					if (pkt->flags & RXPKT_FLAG_EEOP)
 						DBG((" EEP"));
 					DBG((" (0x%x)", pkt->flags));
-				} else
-					DBG_print_pkt((" PKT"));
-
-				pkt_rx_breakpoint(dev->index, cnt, pkt->dlen);
-				DBG_print_pkt((" of length %d bytes: ", pkt->dlen));
+				}
 
 				c = (unsigned char *)pkt->data;
-				/// PA : Ajout d'une boucle pour l'affichage (avant un seul DBG()
+
+				/* Bytes printing */
+				#if 0
+				char str[3000];
+				char bstr[10];
+
+				pkt_rx_breakpoint(dev->index, cnt, pkt->dlen);
+				DBG_print_pkt(("PKT of length %d bytes: ", pkt->dlen));
+
+				sprintf(str,"PKT of length %d bytes: ",pkt->dlen);
+
 				for(int i=0;i<pkt->dlen;i++)
+				{
 					DBG_print_pkt(("0x%02x ", c[i]));
+					sprintf(bstr,"0x%02x ", c[i]);
+					strcat(str, bstr);
+				}
+				print_string_breakpoint(str);
+				#endif
+
 				DBG_print_pkt(("\n\n"));
 				DBG(("\n"));
 

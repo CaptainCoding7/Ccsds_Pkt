@@ -6,42 +6,54 @@ load
 
 break end_breakpoint
 commands
+	silent
 	printf "\nEND OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", nb
 	cont
 end	
 
 break newPkt_breakpoint
 commands
+	silent
 	printf "\n------ PKT %d ------\n-------------------\n", pkt_cnt
 	printf "TX on GRSPW device %d (AMBA port %d)\n", TX_DEVNO, TX_DEVNO+1
 	cont
 end
-	
-	
+
+break print_string_breakpoint
+commands
+	silent
+	printf "%s\n", str
+	cont
+end
+
 break test_app
 commands
-	  printf "\nStarted test app task\n"  
-	  printf "\n***********  PKT TX/RX TEST  **************\n\n"  
-	  printf "SPW src port : %d\n", SPW_SRC_PORT  
-	  printf "SPW dest port : %d\n", SPW_DEST_PORT  
-	  printf "%d pkt(s) are (is) waiting for transmission\n\n", NB_PKTS_TO_TRANSMIT  
-	  cont
+	silent
+	printf "\nStarted test app task\n"  
+	printf "\n***********  PKT TX/RX TEST  **************\n\n"  
+	printf "SPW src port : %d\n", SPW_SRC_PORT  
+	printf "SPW dest port : %d\n", SPW_DEST_PORT  
+	printf "%d pkt(s) are (is) waiting for transmission\n\n", NB_PKTS_TO_TRANSMIT  
+	cont
 end
 
 break pkt_tx_breakpoint
 commands
+	silent
 	printf "\nGRSPW%d: Sending %d packet(s) of length %d bytes: \n", index, count, len
 	cont
 end
 
 break pkt_rx_breakpoint
 commands
+	silent
 	printf "\nGRSPW%d: Receiving %d packet(s) of length %d bytes: \n", index, count, len
 	cont
 end
 
 break print_CCSDS_pkt_TC_breakpoint
 commands
+	silent
 	printf " \n <><><> %s packet <><><>\n", transactionType
 	printf "\n ______________________________________________________\n"
 	printf "| ------------------  CCSDS TC packet  ----------------\n" 
@@ -73,6 +85,7 @@ end
 
 break print_CCSDS_pkt_TM_breakpoint
 commands
+	silent
 	printf " \n <><><> %s packet <><><>\n", transactionType
 	printf "\n ______________________________________________________\n"
 	printf "| ------------------  CCSDS TM packet  ----------------\n" 
@@ -99,7 +112,6 @@ commands
 	printf "|      App data %d (1b)    |           %d             \n", APP_DATA_TM_SIZE -1, app_data[APP_DATA_TM_SIZE -1] 
 	printf "|           crc (2b)        |           %d             \n", crc 
 	printf "|______________________________________________________\n\n" 
-
 	cont
 end
 

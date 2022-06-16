@@ -271,12 +271,14 @@ rtems_task test_app(rtems_task_argument ignored)
 		/* Initializing TC packets */
 		tc_pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts);
 		init_ccsds_tc_pkts(devs, tc_pkts);
+		print_string_breakpoint("\n---------  Packet is a TC ---------");
 	}
 	else if(PKT_TYPE==TM_PKT)
 	{
 		/* Initializing TM packets */
 		tm_pkts = malloc(sizeof(struct spw_tm_pkt) * nb_pkts);
 		init_ccsds_tm_pkts(devs, tm_pkts);
+		print_string_breakpoint("\n---------  Packet is a TM ---------");
 	}
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);

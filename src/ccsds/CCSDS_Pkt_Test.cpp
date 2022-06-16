@@ -214,7 +214,7 @@ uint16_t call_Sec_hdr_TM_get_msgTypeCounter(SEC_HDR_TM sec_hdr)
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TM*>(sec_hdr);
 	return psec_hdr->m_msgTypeCounter();
 }
-uint16_t call_Sec_hdr_TM_get_sourceId(SEC_HDR_TM sec_hdr)
+uint16_t call_Sec_hdr_TM_get_destId(SEC_HDR_TM sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TM*>(sec_hdr);
 	return psec_hdr->m_destId();
