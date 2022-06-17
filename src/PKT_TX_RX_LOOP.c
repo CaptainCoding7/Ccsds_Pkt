@@ -125,14 +125,18 @@ rtems_task Init( rtems_task_argument argument);	/* forward declaration needed */
 /* Forward declarations */
 rtems_task test_app(rtems_task_argument ignored);
 rtems_task link_ctrl_task(rtems_task_argument unused);
-rtems_task dma_task(rtems_task_argument unused);
+rtems_task dma_task_tc(rtems_task_argument unused);
+rtems_task dma_task_tm(rtems_task_argument unused);
 int dma_process(struct grspw_device *dev);
 extern int router_setup_custom(void);
 extern int router_print_port_status(void);
 
 /* Variables */
-rtems_id tid, tid_link, tid_dma;
-rtems_id dma_sem;
+// task ids
+rtems_id tid, tid_link, tid_dma_tc, tid_dma_tm;
+// semaphore id
+rtems_id dma_tc_sem;
+rtems_id dma_tm_sem;
 int nospw = 0;
 int tasks_stop = 0;
 struct spw_tc_pkt *tc_pkts;
@@ -142,7 +146,7 @@ extern struct router_hw_info router_hw;
 extern void *router;
 int router_present = 0;
 
-void *toDel;
+int rx_packets = 0;
 
 
 /***********************************************/
@@ -233,16 +237,26 @@ rtems_task Init(
 	rtems_task_create(
 			rtems_build_name( 'T', 'A', '0', '3' ),
 			10, RTEMS_MINIMUM_STACK_SIZE * 10, RTEMS_DEFAULT_MODES,
-			RTEMS_FLOATING_POINT, &tid_dma);
+			RTEMS_FLOATING_POINT, &tid_dma_tc);
+	rtems_task_create(
+			rtems_build_name( 'T', 'A', '0', '4' ),
+			10, RTEMS_MINIMUM_STACK_SIZE * 10, RTEMS_DEFAULT_MODES,
+			RTEMS_FLOATING_POINT, &tid_dma_tm);
 	/* Device Semaphore created with count = 1 */
 	if (rtems_semaphore_create(rtems_build_name('S', 'E', 'M', '0'), 1,
 	    RTEMS_FIFO | RTEMS_SIMPLE_BINARY_SEMAPHORE | \
 	    RTEMS_NO_INHERIT_PRIORITY | RTEMS_LOCAL | \
-	    RTEMS_NO_PRIORITY_CEILING, 0, &dma_sem) != RTEMS_SUCCESSFUL) {
+	    RTEMS_NO_PRIORITY_CEILING, 0, &dma_tc_sem) != RTEMS_SUCCESSFUL) {
 		DBG(("Failed creating Semaphore\n"));
 		exit(0);
 	}
-
+	if (rtems_semaphore_create(rtems_build_name('S', 'E', 'M', '1'), 1,
+	    RTEMS_FIFO | RTEMS_SIMPLE_BINARY_SEMAPHORE | \
+	    RTEMS_NO_INHERIT_PRIORITY | RTEMS_LOCAL | \
+	    RTEMS_NO_PRIORITY_CEILING, 0, &dma_tm_sem) != RTEMS_SUCCESSFUL) {
+		DBG(("Failed creating Semaphore\n"));
+		exit(0);
+	}
 	rtems_task_start(tid, test_app, 0);
 	rtems_task_suspend( RTEMS_SELF );
 }
@@ -254,11 +268,11 @@ rtems_task test_app(rtems_task_argument ignored)
 {
 
 	int i;
-	struct grspw_pkt *pkt;
-	struct route_entry route;
+	struct grspw_pkt *pkt_tc, *pkt_tm;
+	struct route_entry route_TC, route_TM;
 	/// this variable will decrease !
-	int nb_pkts = NB_PKTS_TO_TRANSMIT;	
-	int pkt_cnt = 0;
+	int nb_tc_pkts = NB_TC_PKTS_TO_TRANSMIT;
+	int nb_tm_pkts = NB_TM_PKTS_TO_TRANSMIT;
 
 	DBG(("\nStarted test app task\n"));
 
@@ -266,69 +280,57 @@ rtems_task test_app(rtems_task_argument ignored)
 	init_router();
 
 	/* Initializing CCSDS pkt according to its type */
-	if(PKT_TYPE==TC_PKT)
-	{
-		/* Initializing TC packets */
-		tc_pkts = malloc(sizeof(struct spw_tc_pkt) * nb_pkts);
-		init_ccsds_tc_pkts(devs, tc_pkts);
-		print_string_breakpoint("\n---------  Packet is a TC ---------");
-	}
-	else if(PKT_TYPE==TM_PKT)
-	{
-		/* Initializing TM packets */
-		tm_pkts = malloc(sizeof(struct spw_tm_pkt) * nb_pkts);
-		init_ccsds_tm_pkts(devs, tm_pkts);
-		print_string_breakpoint("\n---------  Packet is a TM ---------");
-	}
+
+	/* Initializing TC packets */
+	tc_pkts = malloc(sizeof(struct spw_tc_pkt) * nb_tc_pkts);
+	init_ccsds_tc_pkts(devs, tc_pkts);
+	/* Initializing TM packets */
+	tm_pkts = malloc(sizeof(struct spw_tm_pkt) * nb_tm_pkts);
+	init_ccsds_tm_pkts(devs, tm_pkts);
+
 
 	rtems_task_start(tid_link, link_ctrl_task, 0);
-	rtems_task_start(tid_dma, dma_task, 0);
+	rtems_task_start(tid_dma_tc, dma_task_tc, 0);
+	rtems_task_start(tid_dma_tm, dma_task_tm, 0);
 	rtems_task_wake_after(12);
 
 	////////////
 	DBG(("\n***********  PKT TX/RX TEST  **************\n\n"));
 
-	memset(&route, 0, sizeof(route));
-	route.dstadr[0]=SPW_SRC_PORT;
-	route.dstadr[1]=SPW_DEST_PORT;
-	route.dstadr[2]=AMBA_LOG_DEST_PORT;
+	memset(&route_TC, 0, sizeof(route_TC));
+	memset(&route_TM, 0, sizeof(route_TM));
 
-	DBG(("SPW src port : %d\n", SPW_SRC_PORT));
-	DBG(("SPW dest port : %d\n", SPW_DEST_PORT));
-	DBG(("%d pkt(s) are (is) waiting for transmission\n\n", nb_pkts));
+	route_TC.dstadr[0]=SPW_SRC_PORT_TC;
+	route_TC.dstadr[1]=SPW_DEST_PORT_TC;
+	route_TC.dstadr[2]=AMBA_LOG_DEST_PORT_TC;
 
-	while(nb_pkts!=0)
+	route_TM.dstadr[0]=SPW_SRC_PORT_TM;
+	route_TM.dstadr[1]=SPW_DEST_PORT_TM;
+	route_TM.dstadr[2]=AMBA_LOG_DEST_PORT_TM;
+
+
+	while(!(nb_tc_pkts==0 && nb_tm_pkts==0))
 	{
 
-		rtems_task_wake_after(100);
+		rtems_task_wake_after(12);
 
-		pkt_cnt++;
-		print_newPkt_breakpoint(pkt_cnt, TX_DEVNO);
+		/* TM */
+		rtems_semaphore_obtain(dma_tm_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+		send_pkt(DEVS_MAX, devs, pkt_tm, route_TM, TX_DEVNO_TM);
+		print_string_breakpoint("called send_pkt TM");
+		rtems_semaphore_release(dma_tm_sem);
+		if(nb_tm_pkts>0)
+			nb_tm_pkts--;
 
-		/* Get a TX packet buffer */
-		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		pkt = devs[TX_DEVNO].tx_buf_list.head;
-		if (pkt == NULL) {
-			DBG((" No free transmit buffers available\n"));
-		}
-		devs[TX_DEVNO].tx_buf_list.head = pkt->next;
-		devs[TX_DEVNO].tx_buf_list_cnt--;
-		if (pkt->next == NULL)
-			devs[TX_DEVNO].tx_buf_list.tail = NULL;
+		/* TC */
+		rtems_semaphore_obtain(dma_tc_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+		send_pkt(DEVS_MAX, devs, pkt_tc, route_TC, TX_DEVNO_TC);
+		print_string_breakpoint("called send_pkt TC");
+		rtems_semaphore_release(dma_tc_sem);
+		if(nb_tc_pkts>0)
+			nb_tc_pkts--;
 
-		// grspw_pkt header contains the source address (will be deleted when TX)
-		unsigned char *hdr = pkt->hdr;
-		hdr[0] = route.dstadr[0];
-		hdr[1] = route.dstadr[1];
-		pkt->hlen = 2;
 
-		/* Send packet by adding it to the tx_list */
-		grspw_list_append(&devs[TX_DEVNO].tx_list, pkt);
-		devs[TX_DEVNO].tx_list_cnt++;
-
-		nb_pkts--;
-
-		rtems_semaphore_release(dma_sem);
 	}
 
 	rtems_task_wake_after(100);
@@ -339,24 +341,24 @@ rtems_task test_app(rtems_task_argument ignored)
 
 	DBG(("\n\n[DEBUG]--------- MEMORY CLEANING ---------.\n\n"));
 
-	if(PKT_TYPE==TC_PKT)
-	{
-		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
-			delete_CCSDS_Pkt_TC(tc_pkts[i].p.data, i);
-		free(tc_pkts);
-	}
-	else if(PKT_TYPE==TM_PKT)
-	{
-		for (int i = 0; i < NB_PKTS_TO_TRANSMIT; i++)
-			delete_CCSDS_Pkt_TM(tm_pkts[i].p.data, i);
-		free(tm_pkts);
-	}
+	for (int i = 0; i < NB_TC_PKTS_TO_TRANSMIT; i++)
+		delete_CCSDS_Pkt_TC(tc_pkts[i].p.data, i);
+	free(tc_pkts);
+
+	for (int i = 0; i < NB_TM_PKTS_TO_TRANSMIT; i++)
+		delete_CCSDS_Pkt_TM(tm_pkts[i].p.data, i);
+	free(tm_pkts);
 
 	DBG(("=> Array of packets has been freed.\n"));
 
-	print_end_breakpoint(NB_PKTS_TO_TRANSMIT);
-	DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT));
-	//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT);
+	if(rx_packets < TOTAL_PKTS_NB)
+	{
+		print_fail_breakpoint(rx_packets, TOTAL_PKTS_NB);
+	}
+	else
+		print_ok_breakpoint(TOTAL_PKTS_NB);
+		DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT));
+		//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT);
 
 	DBG(("\nEXAMPLE COMPLETED.\n\n"));
 	exit(0);
@@ -431,7 +433,7 @@ rtems_task link_ctrl_task(rtems_task_argument unused)
 
 /****************************  DMA TASK  ***********************************/
 
-rtems_task dma_task(rtems_task_argument unused)
+rtems_task dma_task_tc(rtems_task_argument unused)
 {
 	int i;
 	struct grspw_device *dev;
@@ -439,7 +441,7 @@ rtems_task dma_task(rtems_task_argument unused)
 	DBG(("\nStarted DMA control task\n"));
 
 	while (tasks_stop == 0) {
-		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+		rtems_semaphore_obtain(dma_tc_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
 		for (i = 0; i < nospw; i++) {
 			dev = &devs[i];
@@ -448,7 +450,34 @@ rtems_task dma_task(rtems_task_argument unused)
 
 			dma_process(dev);
 		}
-		rtems_semaphore_release(dma_sem);
+		rtems_semaphore_release(dma_tc_sem);
+		rtems_task_wake_after(20);
+	}
+
+	DBG((" DMA task shutdown\n"));
+
+	rtems_task_delete(RTEMS_SELF);
+
+}
+
+rtems_task dma_task_tm(rtems_task_argument unused)
+{
+	int i;
+	struct grspw_device *dev;
+
+	DBG(("\nStarted DMA control task\n"));
+
+	while (tasks_stop == 0) {
+		rtems_semaphore_obtain(dma_tm_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+
+		for (i = 0; i < nospw; i++) {
+			dev = &devs[i];
+			if (dev->dh == NULL)
+				continue;
+
+			dma_process(dev);
+		}
+		rtems_semaphore_release(dma_tm_sem);
 		rtems_task_wake_after(20);
 	}
 
@@ -477,7 +506,7 @@ int dma_process(struct grspw_device *dev)
 
 	}
 
-	dma_RX(dev);
+	rx_packets = dma_RX(dev, rx_packets);
 
 	dma_TX(dev);
 

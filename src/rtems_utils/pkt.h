@@ -68,9 +68,8 @@ struct spw_tm_pkt {
 
 /******************  BREAKPOINT FUNCTIONS  ******************************/
 
-void print_end_breakpoint(int nb);
-
-void print_newPkt_breakpoint(int pkt_cnt, int tx_devno);
+void print_ok_breakpoint(int nb);
+void print_fail_breakpoint(int nb_rx, int nb_tx);
 
 void print_CCSDS_pkt_breakpoint(
 	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
@@ -90,9 +89,9 @@ void print_CCSDS_pkt_TM_breakpoint(
 	uint8_t sec_spare, uint8_t *app_data, uint16_t crc,
 	char *transactionType);
 
-void print_pkt_tx_breakpoint(int index, int count, int len);
+void print_pkt_tx_breakpoint(int index, int pkt_cnt, int len);
 
-void print_pkt_rx_breakpoint(int index, int count, int len);
+void print_pkt_rx_breakpoint(int index, int pkt_cnt, int len);
 
 /***************************************/
 
@@ -111,22 +110,31 @@ void init_simple_pkt_data(int *decs, char *word);
  * rx list of the rx device
  */
 void init_ccsds_tc_pkts(struct grspw_device *devs,
-			   			struct spw_tc_pkt pkts[NB_PKTS_TO_TRANSMIT]
+			   			struct spw_tc_pkt pkts[NB_TC_PKTS_TO_TRANSMIT]
 			   			);
 
 /**
  * This function is called to initialize the TM packets data
  */
 void init_ccsds_tm_pkts(struct grspw_device *devs,
-			   			struct spw_tm_pkt pkts[NB_PKTS_TO_TRANSMIT]
+			   			struct spw_tm_pkt pkts[NB_TM_PKTS_TO_TRANSMIT]
 			  			);
 /**
  * This function get each field of the CCSDS pkt given in argument
  */
-void get_CCSDS_pkt_fields(void *data, char *transactionType);
+void get_CCSDS_pkt_fields(void *data, char *transactionType, int tc_or_tm);
+
+/**
+ * Get a packet from the tx_buf_list and send it by adding it in the tx_list
+ * @param pkt
+ * @param route
+ * @param tx_devno
+ */
+void send_pkt(size_t devs_max, struct grspw_device devs[devs_max], struct grspw_pkt *pkt,
+		struct route_entry route, int tx_devno);
 
 int dma_TX(struct grspw_device *dev);
-int dma_RX(struct grspw_device *dev);
+int dma_RX(struct grspw_device *dev, int rx_packets);
 
 
 #endif /* PKT_UTILS_H_ */

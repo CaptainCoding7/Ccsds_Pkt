@@ -4,20 +4,19 @@ set print array on
 tar extended-remote localhost:2222
 load
 
-break end_breakpoint
+break print_ok_breakpoint
 commands
 	silent
-	printf "\nEND OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", nb
+	printf "\nEND OF THE TEST:\n=> SUCCESS: %d packet(s) was (were) successfully sended and received.\n", nb
 	cont
 end	
 
-break newPkt_breakpoint
+break print_fail_breakpoint
 commands
 	silent
-	printf "\n------ PKT %d ------\n-------------------\n", pkt_cnt
-	printf "TX on GRSPW device %d (AMBA port %d)\n", TX_DEVNO, TX_DEVNO+1
+	printf "\nEND OF THE TEST:\n=> FAIL: only %d packets was (were) received (%d sended).\n", nb_rx, nb_tx
 	cont
-end
+end	
 
 break print_string_breakpoint
 commands
@@ -30,32 +29,37 @@ break test_app
 commands
 	silent
 	printf "\nStarted test app task\n"  
-	printf "\n***********  PKT TX/RX TEST  **************\n\n"  
-	printf "SPW src port : %d\n", SPW_SRC_PORT  
-	printf "SPW dest port : %d\n", SPW_DEST_PORT  
-	printf "%d pkt(s) are (is) waiting for transmission\n\n", NB_PKTS_TO_TRANSMIT  
+	printf "\n***********  PKT TX/RX TEST  **************\n\n"
+	printf "--------- TC pkt  ------------\n"  
+	printf "SPW src port for TC pkt : %d\n", SPW_SRC_PORT_TC  
+	printf "SPW dest port for TC pkt: %d\n", SPW_DEST_PORT_TC  
+	printf "--------- TM pkt  ------------\n"  
+	printf "SPW src port for TM pkt : %d\n", SPW_SRC_PORT_TM  
+	printf "SPW dest port for TM pkt: %d\n", SPW_DEST_PORT_TM  
+	printf "%d pkt(s) are (is) waiting for transmission\n\n", TOTAL_PKTS_NB 
 	cont
 end
 
-break pkt_tx_breakpoint
+break print_pkt_tx_breakpoint
 commands
 	silent
-	printf "\nGRSPW%d: Sending %d packet(s) of length %d bytes: \n", index, count, len
+	printf "\n------ PKT %d ------\n-------------------\n", pkt_cnt
+	printf "\nGRSPW%d: Sending one packet of length %d bytes: \n", index, len
 	cont
 end
 
-break pkt_rx_breakpoint
+break print_pkt_rx_breakpoint
 commands
 	silent
-	printf "\nGRSPW%d: Receiving %d packet(s) of length %d bytes: \n", index, count, len
+	printf "\nGRSPW%d: Receiving one packet of length %d bytes: \n", index, len
 	cont
 end
 
 break print_CCSDS_pkt_TC_breakpoint
 commands
 	silent
-	printf " \n <><><> %s packet <><><>\n", transactionType
-	printf "\n ______________________________________________________\n"
+	printf " \n <><><> %s packet <><><>\n", tx_or_rx
+	printf " ______________________________________________________\n"
 	printf "| ------------------  CCSDS TC packet  ----------------\n" 
 	printf "|           Field           |          Value           \n" 
 	printf "|______________________________________________________\n" 
