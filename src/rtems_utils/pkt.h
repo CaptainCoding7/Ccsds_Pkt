@@ -68,9 +68,9 @@ struct spw_tm_pkt {
 
 /******************  BREAKPOINT FUNCTIONS  ******************************/
 
-void end_breakpoint(int nb);
+void print_end_breakpoint(int nb);
 
-void newPkt_breakpoint(int pkt_cnt, int tx_devno);
+void print_newPkt_breakpoint(int pkt_cnt, int tx_devno);
 
 void print_CCSDS_pkt_breakpoint(
 	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
@@ -90,9 +90,9 @@ void print_CCSDS_pkt_TM_breakpoint(
 	uint8_t sec_spare, uint8_t *app_data, uint16_t crc,
 	char *transactionType);
 
-void pkt_tx_breakpoint(int index, int count, int len);
+void print_pkt_tx_breakpoint(int index, int count, int len);
 
-void pkt_rx_breakpoint(int index, int count, int len);
+void print_pkt_rx_breakpoint(int index, int count, int len);
 
 /***************************************/
 

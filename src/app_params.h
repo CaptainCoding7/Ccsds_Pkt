@@ -19,7 +19,7 @@
 /// 0x2b is the same as 0x9b but without header deletion
 #define AMBA_LOG_DEST_PORT RX_DEVNO + 41 //0x2b;
 /// The initial number of packets to transmit
-#define NB_PKTS_TO_TRANSMIT 1
+#define NB_PKTS_TO_TRANSMIT 2
 // whether it's a TC or a TM
 #define TC_PKT 0
 #define TM_PKT 1

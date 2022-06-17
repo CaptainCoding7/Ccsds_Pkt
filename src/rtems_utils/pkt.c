@@ -2,11 +2,11 @@
 
 /******************  BREAKPOINT FUNCTIONS  ******************************/
 
-void end_breakpoint(int nb)
+void print_end_breakpoint(int nb)
 {
 }
 
-void newPkt_breakpoint(int pkt_cnt, int tx_devno)
+void print_newPkt_breakpoint(int pkt_cnt, int tx_devno)
 {
 }
 
@@ -36,11 +36,11 @@ void print_CCSDS_pkt_TM_breakpoint(
 {
 }
 
-void pkt_tx_breakpoint(int index, int count, int len)
+void print_pkt_tx_breakpoint(int index, int count, int len)
 {
 }
 
-void pkt_rx_breakpoint(int index, int count, int len)
+void print_pkt_rx_breakpoint(int index, int count, int len)
 {
 }
 
@@ -228,7 +228,7 @@ int dma_TX(struct grspw_device *dev)
 			DBG(("GRSPW%d: Sending %d packet(s)\n", dev->index,
 				dev->tx_list_cnt));
 			for (pkt = dev->tx_list.head; pkt; pkt = pkt->next) {
-				pkt_tx_breakpoint(dev->index, dev->tx_list_cnt, pkt->dlen);
+				print_pkt_tx_breakpoint(dev->index, dev->tx_list_cnt, pkt->dlen);
 				DBG_print_pkt((" PKT of length %d bytes: ", pkt->hlen+pkt->dlen));
 				for (i = 0; i < pkt->hlen+pkt->dlen /*&& i < 8*/; i++) {
 					if (i < pkt->hlen)
@@ -312,7 +312,7 @@ int dma_RX(struct grspw_device *dev)
 				char str[3000];
 				char bstr[10];
 
-				pkt_rx_breakpoint(dev->index, cnt, pkt->dlen);
+				print_pkt_rx_breakpoint(dev->index, cnt, pkt->dlen);
 				DBG_print_pkt(("PKT of length %d bytes: ", pkt->dlen));
 
 				sprintf(str,"PKT of length %d bytes: ",pkt->dlen);

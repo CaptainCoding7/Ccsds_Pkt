@@ -303,7 +303,7 @@ rtems_task test_app(rtems_task_argument ignored)
 		rtems_task_wake_after(100);
 
 		pkt_cnt++;
-		newPkt_breakpoint(pkt_cnt, TX_DEVNO);
+		print_newPkt_breakpoint(pkt_cnt, TX_DEVNO);
 
 		/* Get a TX packet buffer */
 		rtems_semaphore_obtain(dma_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
@@ -331,7 +331,6 @@ rtems_task test_app(rtems_task_argument ignored)
 		rtems_semaphore_release(dma_sem);
 	}
 
-
 	rtems_task_wake_after(100);
 	tasks_stop = 1;
 	for ( i=0; i<nospw; i++)
@@ -355,7 +354,7 @@ rtems_task test_app(rtems_task_argument ignored)
 
 	DBG(("=> Array of packets has been freed.\n"));
 
-	end_breakpoint(NB_PKTS_TO_TRANSMIT);
+	print_end_breakpoint(NB_PKTS_TO_TRANSMIT);
 	DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT));
 	//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT);
 
