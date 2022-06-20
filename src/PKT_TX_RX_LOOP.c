@@ -1,153 +1,73 @@
 /*
  * A simple program to send and receive packets on spacewire ports.
  *
- * The application consists of three threads:
+ * The application consists of four threads:
  *
  *  TA01. Packet scheduling task
  *
  *  TA02. Link monitor task. Prints out whenever a SpaceWire link switch
  *        from run-state to any other state or vice versa.
  *
- *  TA03. SpaceWire DMA task. Handles reception and transmission of SpaceWire
- *        packets on all SpaceWire devices.
+ *  TA03. SpaceWire DMA task for TC packets.Handles reception and transmission
+ *  	  of TC packets on all SpaceWire devices.
  *
+ *  TA04. SpaceWire DMA task for TM packets.
  *
  *  Tick-out IRQs are catched by the time-code ISR, and printed on STDOUT.
  *
  *
  */
 
-/* Define INCLUDE_PCI_DRIVERS to include PCI host and PCI board drivers with
- * SpaceWire interfaces
- */
-/*#define INCLUDE_PCI_DRIVERS*/
-
-/* SpaceWire parameters */
-#define SPW_PROT_ID 155
-/* Number of SpaceWire ports supported */
-#define DEVS_MAX 4 //32
-
-#include <rtems.h>
-
-/* configuration information */
-
-#define CONFIGURE_INIT
-
-#include <bsp.h> /* for device driver prototypes */
-
-rtems_task Init( rtems_task_argument argument);	/* forward declaration needed */
-
-/* configuration information */
-
-#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-
-/* Set some values if someone should modify the example. The shared IRQ layer
- * need one semaphore.
- */
-#define CONFIGURE_MAXIMUM_TASKS             8
-#define CONFIGURE_MAXIMUM_SEMAPHORES        (5 + (DEVS_MAX * 5))
-#define CONFIGURE_MAXIMUM_MESSAGE_QUEUES    20
-#define CONFIGURE_MAXIMUM_FILE_DESCRIPTORS 32
-#define CONFIGURE_MAXIMUM_DRIVERS 32
-#define CONFIGURE_MAXIMUM_PERIODS             1
-
-#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-#define CONFIGURE_INIT_TASK_ATTRIBUTES    RTEMS_DEFAULT_ATTRIBUTES | RTEMS_FLOATING_POINT
-#define CONFIGURE_EXTRA_TASK_STACKS         (40 * RTEMS_MINIMUM_STACK_SIZE)
-#define CONFIGURE_MICROSECONDS_PER_TICK     RTEMS_MILLISECONDS_TO_MICROSECONDS(2)
-
-
-/* Configure Driver manager */
-#if defined(RTEMS_DRVMGR_STARTUP) && defined(LEON3) /* if --drvmgr was given to configure */
- /* Add Timer and UART Driver for this example */
- #ifdef CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-  #define CONFIGURE_DRIVER_AMBAPP_GAISLER_GPTIMER
- #endif
- #ifdef CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-  #define CONFIGURE_DRIVER_AMBAPP_GAISLER_APBUART
- #endif
-#endif
-
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_SPW_ROUTER /* SpaceWire Router  */
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRSPW2     /* SpaceWire Packet driver */
-
-#ifdef INCLUDE_PCI_DRIVERS
-/* Configure PCI Library to auto configuration. This can be substituted with
- * a static configuration by setting PCI_LIB_STATIC, see pci/. Static
- * configuration can be generated automatically by print routines in PCI
- * library.
- */
-#define RTEMS_PCI_CONFIG_LIB
-/*#define CONFIGURE_PCI_LIB PCI_LIB_STATIC*/
-#define CONFIGURE_PCI_LIB PCI_LIB_AUTO
-
-/*#define CONFIGURE_DRIVER_AMBAPP_GAISLER_PCIF*//* GRLIB PCIF Host driver  */
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRPCI   /* GRPCI Host driver */
-#define CONFIGURE_DRIVER_AMBAPP_GAISLER_GRPCI2  /* GRPCI2 Host Driver */
-#define CONFIGURE_DRIVER_PCI_GR_RASTA_IO        /* GR-RASTA-IO PCI Target Driver */
-#define CONFIGURE_DRIVER_PCI_GR_701             /* GR-701 PCI Target Driver */
-#define CONFIGURE_DRIVER_PCI_GR_RASTA_TMTC      /* GR-RASTA-TMTC PCI Target Driver */
-#endif
-
-/*******************************************/
-
-#ifdef LEON2
-  /* PCI support for AT697 */
-  #define CONFIGURE_DRIVER_LEON2_AT697PCI
-  /* AMBA PnP Support for GRLIB-LEON2 */
-  #define CONFIGURE_DRIVER_LEON2_AMBAPP
-#endif
+#include "app_params.h"
 
 #include <rtems/confdefs.h>
 #include <drvmgr/drvmgr_confdefs.h>
-
 #include <rtems/bspIo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <grlib/grspw_router.h>
 #include "/opt/rcc-1.3.1-gcc/src/samples/config.c"
 
-#include <grlib/grspw_router.h>
-
-#include "app_params.h"
 #include "rtems_utils/pkt.h"
 #include "rtems_utils/dev.h"
 #include "ccsds/CCSDS_Pkt.h"
 
-
-#undef ENABLE_NETWORK
-#undef ENABLE_NETWORK_SMC_LEON3
+//#undef ENABLE_NETWORK
+//#undef ENABLE_NETWORK_SMC_LEON3
 
 /* Forward declarations */
+/* All the tasks */
+rtems_task Init( rtems_task_argument argument);
 rtems_task test_app(rtems_task_argument ignored);
 rtems_task link_ctrl_task(rtems_task_argument unused);
 rtems_task dma_task_tc(rtems_task_argument unused);
 rtems_task dma_task_tm(rtems_task_argument unused);
+/* Functions */
 int dma_process(struct grspw_device *dev);
 extern int router_setup_custom(void);
 extern int router_print_port_status(void);
 
-/* Variables */
 // task ids
 rtems_id tid, tid_link, tid_dma_tc, tid_dma_tm;
 // semaphore id
 rtems_id dma_tc_sem;
 rtems_id dma_tm_sem;
+rtems_name timer;
+rtems_id *timer_id;
+
+/* Global variables */
 int nospw = 0;
 int tasks_stop = 0;
+int rx_packets = 0;
 struct spw_tc_pkt *tc_pkts;
 struct spw_tm_pkt *tm_pkts;
 // Router:
 extern struct router_hw_info router_hw;
 extern void *router;
 int router_present = 0;
-
-int rx_packets = 0;
-
 
 /***********************************************/
 
@@ -297,6 +217,8 @@ rtems_task test_app(rtems_task_argument ignored)
 	////////////
 	DBG(("\n***********  PKT TX/RX TEST  **************\n\n"));
 
+	/* Setting the two routes */
+
 	memset(&route_TC, 0, sizeof(route_TC));
 	memset(&route_TM, 0, sizeof(route_TM));
 
@@ -315,21 +237,26 @@ rtems_task test_app(rtems_task_argument ignored)
 		rtems_task_wake_after(12);
 
 		/* TM */
-		rtems_semaphore_obtain(dma_tm_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		send_pkt(DEVS_MAX, devs, pkt_tm, route_TM, TX_DEVNO_TM);
-		print_string_breakpoint("called send_pkt TM");
-		rtems_semaphore_release(dma_tm_sem);
 		if(nb_tm_pkts>0)
+		{
+			rtems_semaphore_obtain(dma_tm_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+			pkt_tm = devs[TX_DEVNO_TM].tx_buf_list.head;
+			send_pkt(DEVS_MAX, devs, pkt_tm, route_TM, TX_DEVNO_TM);
+			//print_string_breakpoint("called send_pkt TM");
+			rtems_semaphore_release(dma_tm_sem);
 			nb_tm_pkts--;
+		}
 
 		/* TC */
-		rtems_semaphore_obtain(dma_tc_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
-		send_pkt(DEVS_MAX, devs, pkt_tc, route_TC, TX_DEVNO_TC);
-		print_string_breakpoint("called send_pkt TC");
-		rtems_semaphore_release(dma_tc_sem);
 		if(nb_tc_pkts>0)
+		{
+			rtems_semaphore_obtain(dma_tc_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
+			pkt_tc = devs[TX_DEVNO_TC].tx_buf_list.head;
+			send_pkt(DEVS_MAX, devs, pkt_tc, route_TC, TX_DEVNO_TC);
+			//print_string_breakpoint("called send_pkt TC");
+			rtems_semaphore_release(dma_tc_sem);
 			nb_tc_pkts--;
-
+		}
 
 	}
 
@@ -356,11 +283,12 @@ rtems_task test_app(rtems_task_argument ignored)
 		print_fail_breakpoint(rx_packets, TOTAL_PKTS_NB);
 	}
 	else
+	{
 		print_ok_breakpoint(TOTAL_PKTS_NB);
 		DBG(("END OF THE TEST: %d packet(s) was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT));
 		//printf("\nEND OF THE TEST: %d packet was (were) successfully sended and received.\n", NB_PKTS_TO_TRANSMIT);
-
-	DBG(("\nEXAMPLE COMPLETED.\n\n"));
+	}
+	print_elapsed_time();
 	exit(0);
 
 }
@@ -443,13 +371,13 @@ rtems_task dma_task_tc(rtems_task_argument unused)
 	while (tasks_stop == 0) {
 		rtems_semaphore_obtain(dma_tc_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
-		for (i = 0; i < nospw; i++) {
-			dev = &devs[i];
-			if (dev->dh == NULL)
-				continue;
-
+		dev = &devs[TX_DEVNO_TC];
+		if (dev->dh != NULL)
 			dma_process(dev);
-		}
+		dev = &devs[RX_DEVNO_TC];
+		if (dev->dh != NULL)
+			dma_process(dev);
+
 		rtems_semaphore_release(dma_tc_sem);
 		rtems_task_wake_after(20);
 	}
@@ -470,13 +398,13 @@ rtems_task dma_task_tm(rtems_task_argument unused)
 	while (tasks_stop == 0) {
 		rtems_semaphore_obtain(dma_tm_sem, RTEMS_WAIT, RTEMS_NO_TIMEOUT);
 
-		for (i = 0; i < nospw; i++) {
-			dev = &devs[i];
-			if (dev->dh == NULL)
-				continue;
-
+		dev = &devs[TX_DEVNO_TM];
+		if (dev->dh != NULL)
 			dma_process(dev);
-		}
+		dev = &devs[RX_DEVNO_TM];
+		if (dev->dh != NULL)
+			dma_process(dev);
+
 		rtems_semaphore_release(dma_tm_sem);
 		rtems_task_wake_after(20);
 	}
