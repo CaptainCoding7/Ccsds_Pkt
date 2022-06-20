@@ -1,6 +1,7 @@
 #include "pkt.h"
 
 int pkt_cnt=0;
+
 /******************  BREAKPOINT FUNCTIONS  ******************************/
 
 void print_ok_breakpoint(int nb)
@@ -11,6 +12,10 @@ void print_fail_breakpoint(int nb_rx, int nb_tx)
 }
 
 void print_string_breakpoint(char *str)
+{
+}
+
+void print_time_breakpoint(char *str, int val)
 {
 }
 
@@ -45,6 +50,12 @@ void print_pkt_rx_breakpoint(int index, int pkt_cnt, int len)
 }
 
 /***************************************************/
+
+void print_elapsed_time()
+{
+	print_time_breakpoint("Elapsed time =",
+	rtems_clock_get_ticks_since_boot()*CONFIGURE_MILLISECONDS_PER_TICK);
+}
 
 void get_CCSDS_pkt_fields(void *ccsds_pkt, char *tx_or_rx, int tc_or_tm)
 {
@@ -193,7 +204,6 @@ void send_pkt(size_t devs_max, struct grspw_device devs[devs_max],
 			  struct grspw_pkt *pkt, struct route_entry route, int tx_devno)
 {
 	/* Get a TX packet buffer */
-	pkt = devs[tx_devno].tx_buf_list.head;
 	if (pkt == NULL) {
 		DBG((" No free transmit buffers available\n"));
 	}
@@ -329,7 +339,7 @@ int dma_RX(struct grspw_device *dev, int rx_packets)
 						DBG((" EEP"));
 					DBG((" (0x%x)", pkt->flags));
 				}
-
+				print_elapsed_time();
 				print_pkt_rx_breakpoint(dev->index, pkt_cnt, pkt->dlen);
 
 				/* Bytes printing */

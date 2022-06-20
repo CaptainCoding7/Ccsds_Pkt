@@ -70,6 +70,8 @@ struct spw_tm_pkt {
 
 void print_ok_breakpoint(int nb);
 void print_fail_breakpoint(int nb_rx, int nb_tx);
+void print_string_breakpoint(char *str);
+void print_time_breakpoint(char *str, int val);
 
 void print_CCSDS_pkt_breakpoint(
 	unsigned char spw_addr, unsigned char spw_protid, unsigned char spw_spare,
@@ -95,13 +97,12 @@ void print_pkt_rx_breakpoint(int index, int pkt_cnt, int len);
 
 /***************************************/
 
+void print_elapsed_time();
+
 /**
- * This function is used to fill an int array from a string array.
- * Each hexadecimal value contained in the string array is converted into decimal 
- * value and then put into the int array.
- * This function is called in init_pkts()
+ * This function get each field of the CCSDS pkt given in argument
  */
-void init_simple_pkt_data(int *decs, char *word);
+void get_CCSDS_pkt_fields(void *data, char *transactionType, int tc_or_tm);
 
 /**
  * This function is called to initialize the TC packets data
@@ -119,10 +120,6 @@ void init_ccsds_tc_pkts(struct grspw_device *devs,
 void init_ccsds_tm_pkts(struct grspw_device *devs,
 			   			struct spw_tm_pkt pkts[NB_TM_PKTS_TO_TRANSMIT]
 			  			);
-/**
- * This function get each field of the CCSDS pkt given in argument
- */
-void get_CCSDS_pkt_fields(void *data, char *transactionType, int tc_or_tm);
 
 /**
  * Get a packet from the tx_buf_list and send it by adding it in the tx_list

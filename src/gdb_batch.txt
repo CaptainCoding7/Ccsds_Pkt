@@ -25,6 +25,13 @@ commands
 	cont
 end
 
+break print_time_breakpoint
+commands
+	silent
+	printf "%s %d ms\n", str, val
+	cont
+end
+
 break test_app
 commands
 	silent
