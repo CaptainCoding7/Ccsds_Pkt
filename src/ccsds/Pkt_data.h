@@ -13,7 +13,7 @@
 #define PKT_DATA_TC_SIZE SEC_HDR_TC_SIZE + APP_DATA_TC_SIZE + 2 /// (CRC size)
 
 /// /!\ MAX 4076 bytes
-#define APP_DATA_TM_SIZE 20//00
+#define APP_DATA_TM_SIZE 2000
 #define PKT_DATA_TM_SIZE SEC_HDR_TM_SIZE + APP_DATA_TM_SIZE + 2 /// (CRC size)
 
 #include "Sec_hdr.h"

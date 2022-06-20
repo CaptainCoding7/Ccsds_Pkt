@@ -24,25 +24,7 @@
 #define MK_ID_TM_X(apid)   MK_ID(PKT_TM_OR_BC, DFH_ABSENT, apid)
 #define MK_ID_TM_VHF(apid) MK_ID(PKT_TM_OR_BC, DFH_ABSENT, apid)
 
-//#ifdef __cplusplus
-
-
 # define DECLARE_ENUM(EnumName) enum EnumName
-//
-//namespace ecl
-//{
-//namespace core
-//{
-//namespace tmtc
-//{
-//
-//#else
-//
-//# define DECLARE_ENUM(EnumName) \
-//	typedef enum _Svom##EnumName Svom##EnumName; \
-//	enum _Svom##EnumName
-//
-//#endif
 
 DECLARE_ENUM(Tid)
 {
@@ -177,12 +159,6 @@ DECLARE_ENUM(Id)
 	ID_TM_X_DUMP   = MK_ID_TM_X(APID_TM_X_DUMP),
 	ID_TM_X_TEST   = MK_ID_TM_X(APID_TM_X_TEST)
 };
-//
-//#ifdef __cplusplus
-//} /* namespace ecl */
-//} /* namespace core */
-//} /* namespace tmtc */
-//#endif
 
 #undef DECLARE_ENUM
 
