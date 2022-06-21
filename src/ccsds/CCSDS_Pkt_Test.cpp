@@ -20,7 +20,7 @@ extern "C"
 {
 #endif
 
-///\/\/\/\/\/\/\/ API - Wrapper functions implementation /\/\/\/\/\/\/\/\/\/\/\
+/** /\/\/\/\/\/\/\/ API - Wrapper functions implementation /\/\/\/\/\/\/\/\/\**/
 
 /*****************   Creation of C++ objects (+return) ********************/
 
@@ -103,19 +103,16 @@ unsigned char call_Spw_hdr_get_user_app(SPW_HDR spw_hdr)
 enum Id call_Prim_hdr_get_id(PRIM_HDR prim_hdr)
 {
 	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<IDFIELD*>(pprim_hdr->get_ccsdsId_BE());
 	return pprim_hdr->get_ccsdsId_BE();
 }
 uint16_t call_Prim_hdr_get_counter(PRIM_HDR prim_hdr)
 {
 	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<COUNTERFIELD*>(pprim_hdr->get_ccsdsCounter_BE());
 	return pprim_hdr->get_ccsdsCounter_BE();
 }
 uint16_t call_Prim_hdr_get_len(PRIM_HDR prim_hdr)
 {
 	auto pprim_hdr = reinterpret_cast<Prim_hdr*>(prim_hdr);
-	//return reinterpret_cast<LENFIELD*>(pprim_hdr->get_ccsdsPLength_BE());
 	return pprim_hdr->get_ccsdsPLength_BE();
 }
 
@@ -158,7 +155,6 @@ uint16_t call_Pkt_data_TM_get_crc(PKT_DATA_TM pkt_data)
 int call_Sec_hdr_TC_get_pus_version(SEC_HDR_TC sec_hdr)
 {
 	auto psec_hdr = reinterpret_cast<Sec_hdr_TC*>(sec_hdr);
-	//printf("size of sec_hdr = %d\n", sizeof(psec_hdr));
 	return psec_hdr->m_pus_version();
 }
 uint8_t call_Sec_hdr_TC_get_ackflag(SEC_HDR_TC sec_hdr)

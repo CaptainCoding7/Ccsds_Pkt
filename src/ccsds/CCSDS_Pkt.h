@@ -34,9 +34,12 @@ public:
 			unsigned char addr,
 			unsigned char protid,
 			unsigned char spare,
-			unsigned char user_app)
-	:		m_spw_hdr{addr,protid,spare,user_app},
-			m_prim_hdr{}
+			unsigned char user_app,
+			Id id,
+			CcsdsCounter counter,
+			CcsdsLength length)
+	:		m_spw_hdr{addr, protid, spare, user_app},
+			m_prim_hdr{id,  counter,length}
 	{
 	}
 
@@ -85,7 +88,7 @@ public:
 			unsigned char protid,
 			unsigned char spare,
 			unsigned char user_app)
-		:	CCSDS_Pkt{addr, protid, spare, user_app},
+		:	CCSDS_Pkt{addr, protid, spare, user_app, ID_TC, 1, PKT_DATA_TC_SIZE},
 			m_pkt_data_tc{}
 	{
 	}
@@ -125,7 +128,7 @@ public:
 			unsigned char protid,
 			unsigned char spare,
 			unsigned char user_app)
-		:	CCSDS_Pkt{addr, protid, spare, user_app},
+		:	CCSDS_Pkt{addr, protid, spare, user_app, ID_TM_S, 1, PKT_DATA_TM_SIZE},
 			m_pkt_data_tm{}
 	{
 	}

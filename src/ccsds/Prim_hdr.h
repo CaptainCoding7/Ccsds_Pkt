@@ -97,9 +97,9 @@ public:
 	 * @param length
 	 * @param grouping
 	 */
-	constexpr Prim_hdr(Id id = ID_TC,
-	                   CcsdsCounter counter = 1,
-	                   CcsdsLength length = 30,
+	constexpr Prim_hdr(Id id,
+	                   CcsdsCounter counter,
+	                   CcsdsLength length,
 	                   CcsdsGrouping grouping = CcsdsGrouping::STANDALONE)
 		: m_CcsdsId(id),
 		  m_CcsdsSequence(counter),

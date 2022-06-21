@@ -29,7 +29,7 @@
 
 /// The initial number of packets to transmit
 #define NB_TC_PKTS_TO_TRANSMIT 1
-#define NB_TM_PKTS_TO_TRANSMIT 0
+#define NB_TM_PKTS_TO_TRANSMIT 1
 #define TOTAL_PKTS_NB NB_TC_PKTS_TO_TRANSMIT + NB_TM_PKTS_TO_TRANSMIT
 
 // whether it's a TC or a TM
